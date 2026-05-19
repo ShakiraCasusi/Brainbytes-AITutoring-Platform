@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Chat from '../components/Chat';
+import LearningWorkspace from '../components/LearningWorkspace';
 
 export default function Home() {
   return (
@@ -10,9 +10,7 @@ export default function Home() {
         <meta name="description" content="AI-powered tutoring platform" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
-        <Chat />
-      </main>
+      <LearningWorkspace />
     </>
   );
 }

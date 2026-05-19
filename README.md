@@ -26,7 +26,7 @@ BrainBytes is an AI-powered tutoring platform designed to provide accessible aca
 - Cloud Provider: Oracle Cloud Free Tier
 - Monitoring: Prometheus & Grafana
 
-## Project Architecture Diagram - Draft
+## Project Architecture Diagram - Updated
 ```mermaid
 graph TD
     %% ===========================
@@ -34,14 +34,24 @@ graph TD
     %% ===========================
     A[Frontend Container: Next.js]
     A:::frontend
-    A -->|HTTP Requests : Port 3000| B[Backend Container: Node.js API Server]
+    A -->|HTTP REST API / Auth : Port 3000| B[Backend Container: Node.js API Server]
+    A <-->|WebSocket Real-time Events| B
 
     %% ===========================
     %% BACKEND CONTAINER
     %% ===========================
     B:::backend
-    B -->|RESTful API Calls : Port 4000| C[(Database: MongoDB)]
-    B -->|Simple Response Logic| D[Academic Chat Logic]
+    B -->|Mongoose Queries / Caching : Port 4000| C[(Database: MongoDB)]
+    B -->|AI Processing & Metadata| D[Academic Chat Logic]
+    B -->|Backup Script execution| F[Local Backups]
+
+    %% ===========================
+    %% SECURITY & MIDDLEWARE
+    %% ===========================
+    G[Rate Limiter & Helmet Security]
+    G:::middleware
+    A -->|Requests Intercepted by| G
+    G --> B
 
     %% ===========================
     %% MONITORING & DEVOPS
@@ -54,10 +64,10 @@ graph TD
     %% ===========================
     %% DATA FLOWS
     %% ===========================
-    A -->|User Input Questions and Images| B
-    B -->|Processed AI Responses| A
-    C -->|Conversation History and User Data| B
-    D -->|Generated Academic Answers| B
+    A -->|User Messages, Authentication| B
+    B -->|Paginated History, AI Responses, Realtime updates| A
+    C -->|Indexed Conversation History, User Profiles, Materials| B
+    D -->|Responses, Subject, Question Type, Sentiment, Suggestions| B
 
     %% ===========================
     %% STYLES
@@ -65,14 +75,16 @@ graph TD
     classDef frontend fill:#003399,stroke:#fff,stroke-width:2px,color:#fff;
     classDef backend fill:#FFD700,stroke:#333,stroke-width:2px,color:#000;
     classDef monitoring fill:#333,stroke:#FFD700,stroke-width:2px,color:#fff;
+    classDef middleware fill:#ff4d4d,stroke:#fff,stroke-width:2px,color:#fff;
 ```
 
-### Project Architecture Diagram Draft - Components Explained
+### Project Architecture Diagram - Components Explained
 
-| **Component** | **Role / Function** | **Port** | **Data Flows** |
+| **Component** | **Role / Function** | **Port / Mechanism** | **Data Flows & Features** |
 | --- | --- | --- | --- |
-| **Frontend Container (Next.js)** | Provides the user interface (chat window, login/guest mode, conversation history). Optimized for mobile-first experience. | `3000` | - Sends HTTP requests to Backend<br>- Receives processed AI responses<br>- Logs frontend performance metrics to Monitoring |
-| **Backend Container (Node.js API Server)** | Core application logic; handles chat requests, generates simple academic responses, and stores messages. | `4000` | - Receives user input from Frontend<br>- Sends API calls to Database<br>- Returns responses to Frontend |
-| **Database (MongoDB)** | Stores conversation history in the containerized environment. | `27017` | - Receives API calls from Backend<br>- Provides conversation history back to Backend |
-| **Academic Chat Logic** | Generates basic responses using keyword matching. | In backend | - Receives user messages from Backend<br>- Returns simple academic guidance |
-| **Monitoring Stack (Prometheus + Grafana)** | Planned stack for system health and performance metrics. | Planned | - Receives metrics in future iterations |
+| **Frontend Container (Next.js)** | User interface for chat, profiles, and dashboards. | `3000` | - Sends REST API & WebSocket requests to Backend<br>- Receives AI responses, paginated history, and realtime events<br>- PWA caching via Service Worker |
+| **Security & Middleware** | Protects the backend from excessive load and vulnerabilities. | Internal | - Uses `express-rate-limit` for DDoS protection<br>- Uses `helmet` for secure HTTP headers |
+| **Backend Container (Node.js API)** | Core logic; handles auth, WebSockets, rate limiting, and chat processing. | `4000` | - Handles JWT Authentication<br>- Generates JSON Backups (`scripts/backup.js`)<br>- Manages user settings & learning materials |
+| **Database (MongoDB)** | Stores all persistent structured data using Mongoose schemas. | `27017` | - Validates data upon entry<br>- Uses optimized indexes for fast lookups<br>- Stores Users, Profiles, Messages, and Materials |
+| **Academic Chat Logic** | Processes user input to generate relevant AI answers. | Internal | - Analyzes user sentiment & categorizes subjects<br>- Provides actionable suggestions & math handling |
+| **Monitoring Stack** | Future-ready stack for tracking application health. | Planned | - Will collect metrics for observability |

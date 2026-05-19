@@ -1,0 +1,35 @@
+[
+  {
+    "_id": "6a0c1eaa83bedd0012667c97",
+    "theme": "light",
+    "notifications": false,
+    "readingLevel": "advanced",
+    "dailyGoalMinutes": 45,
+    "userId": "6a0c1eaa83bedd0012667c95",
+    "createdAt": "2026-05-19T08:26:18.835Z",
+    "updatedAt": "2026-05-19T08:26:19.002Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5775a3af0012442715",
+    "theme": "light",
+    "notifications": false,
+    "readingLevel": "advanced",
+    "dailyGoalMinutes": 45,
+    "userId": "6a0c1f5775a3af0012442713",
+    "createdAt": "2026-05-19T08:29:11.711Z",
+    "updatedAt": "2026-05-19T08:29:11.825Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c201075a3af001244276c",
+    "theme": "system",
+    "notifications": true,
+    "readingLevel": "intermediate",
+    "dailyGoalMinutes": 30,
+    "userId": "6a0c201075a3af001244276a",
+    "createdAt": "2026-05-19T08:32:16.091Z",
+    "updatedAt": "2026-05-19T08:32:16.091Z",
+    "__v": 0
+  }
+]

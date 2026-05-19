@@ -1,0 +1,41 @@
+[
+  {
+    "_id": "6a0c1eaa83bedd0012667c95",
+    "preferredSubjects": [
+      "history"
+    ],
+    "name": "Updated Student",
+    "email": "student-1779179177827@example.com",
+    "passwordHash": "$2b$10$d.y6GMa85Ae7Ifh5UJpst.HdBT1MH4hnRPoLyFSSmgUOXBEg76DTm",
+    "lastActiveAt": "2026-05-19T08:26:18.816Z",
+    "createdAt": "2026-05-19T08:26:18.819Z",
+    "updatedAt": "2026-05-19T08:26:18.923Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5775a3af0012442713",
+    "preferredSubjects": [
+      "history"
+    ],
+    "name": "Updated Student",
+    "email": "student-1779179348058@example.com",
+    "passwordHash": "$2b$10$oeztCO9USbbSkdpkxXE57.6jWpIOqrybK6/a1AXEUS06pwrq1l4m6",
+    "lastActiveAt": "2026-05-19T08:29:11.501Z",
+    "createdAt": "2026-05-19T08:29:11.542Z",
+    "updatedAt": "2026-05-19T08:29:11.792Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c201075a3af001244276a",
+    "preferredSubjects": [
+      "math"
+    ],
+    "name": "Puzzle",
+    "email": "casusishakira28@gmail.com",
+    "passwordHash": "$2b$10$MdqtPnEij.oBrFbPYLUGVO4Uc62ZhVnTZ0PAZH7nGWqXqZ6wmR7.q",
+    "lastActiveAt": "2026-05-19T08:32:16.083Z",
+    "createdAt": "2026-05-19T08:32:16.085Z",
+    "updatedAt": "2026-05-19T08:32:28.376Z",
+    "__v": 0
+  }
+]

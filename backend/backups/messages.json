@@ -1,0 +1,399 @@
+[
+  {
+    "_id": "6a0c1380c744340023696963",
+    "text": "Test message 1779176320162",
+    "sender": "user",
+    "sessionId": "6a0c1380c744340023696962",
+    "timestamp": "2026-05-19T07:38:40.177Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1380c744340023696967",
+    "text": "Pagination test message 0 - 1779176320709",
+    "sender": "user",
+    "sessionId": "6a0c1380c744340023696966",
+    "timestamp": "2026-05-19T07:38:40.718Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1380c744340023696969",
+    "text": "Pagination test message 1 - 1779176320727",
+    "sender": "user",
+    "sessionId": "6a0c1380c744340023696966",
+    "timestamp": "2026-05-19T07:38:40.736Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1380c74434002369696b",
+    "text": "Pagination test message 2 - 1779176320751",
+    "sender": "user",
+    "sessionId": "6a0c1380c744340023696966",
+    "timestamp": "2026-05-19T07:38:40.759Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1380c74434002369696d",
+    "text": "Pagination test message 3 - 1779176320760",
+    "sender": "user",
+    "sessionId": "6a0c1380c744340023696966",
+    "timestamp": "2026-05-19T07:38:40.769Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1380c74434002369696f",
+    "text": "Pagination test message 4 - 1779176320774",
+    "sender": "user",
+    "sessionId": "6a0c1380c744340023696966",
+    "timestamp": "2026-05-19T07:38:40.783Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1382c744340023696973",
+    "text": "I can help with your math question. In mathematics, it's important to understand the fundamental concepts and formulas. Could you provide more details about your specific math problem?",
+    "sender": "ai",
+    "sessionId": "test-session-1779176314693",
+    "timestamp": "2026-05-19T07:38:42.108Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c13b0c744340023696977",
+    "text": "Hello, can you help me with math?",
+    "sender": "user",
+    "sessionId": "test-session-1779176368264",
+    "timestamp": "2026-05-19T07:39:28.429Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c13b2c744340023696979",
+    "text": "I can help with your math question. In mathematics, it's important to understand the fundamental concepts and formulas. Could you provide more details about your specific math problem?",
+    "sender": "ai",
+    "sessionId": "test-session-1779176368264",
+    "timestamp": "2026-05-19T07:39:30.514Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c13b3c74434002369697f",
+    "text": "Test message 1779176371065",
+    "sender": "user",
+    "sessionId": "6a0c13b3c74434002369697e",
+    "timestamp": "2026-05-19T07:39:31.052Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c13b3c744340023696983",
+    "text": "Pagination test message 0 - 1779176371617",
+    "sender": "user",
+    "sessionId": "6a0c13b3c744340023696982",
+    "timestamp": "2026-05-19T07:39:31.604Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c13b3c744340023696985",
+    "text": "Pagination test message 1 - 1779176371626",
+    "sender": "user",
+    "sessionId": "6a0c13b3c744340023696982",
+    "timestamp": "2026-05-19T07:39:31.615Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c13b3c744340023696987",
+    "text": "Pagination test message 2 - 1779176371635",
+    "sender": "user",
+    "sessionId": "6a0c13b3c744340023696982",
+    "timestamp": "2026-05-19T07:39:31.622Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c13b3c744340023696989",
+    "text": "Pagination test message 3 - 1779176371647",
+    "sender": "user",
+    "sessionId": "6a0c13b3c744340023696982",
+    "timestamp": "2026-05-19T07:39:31.635Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c13b3c74434002369698b",
+    "text": "Pagination test message 4 - 1779176371659",
+    "sender": "user",
+    "sessionId": "6a0c13b3c744340023696982",
+    "timestamp": "2026-05-19T07:39:31.646Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1402c744340023696991",
+    "text": "what is filipino",
+    "sender": "user",
+    "sessionId": "1779110815423",
+    "timestamp": "2026-05-19T07:40:50.285Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1403c744340023696993",
+    "text": "I'm not sure I understand your question completely. Could you please provide more details or rephrase it? I can help with topics related to science, math, history, and general knowledge.",
+    "sender": "ai",
+    "sessionId": "1779110815423",
+    "timestamp": "2026-05-19T07:40:51.984Z",
+    "__v": 0,
+    "readAt": "2026-05-19T08:30:59.510Z"
+  },
+  {
+    "_id": "6a0c146dc744340023696995",
+    "text": "what is philippines",
+    "sender": "user",
+    "sessionId": "1779110815423",
+    "timestamp": "2026-05-19T07:42:37.612Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c146fc744340023696997",
+    "text": "Interesting question about history or culture! I'd be happy to share more information about this topic if you provide more details.",
+    "sender": "ai",
+    "sessionId": "1779110815423",
+    "timestamp": "2026-05-19T07:42:39.483Z",
+    "__v": 0,
+    "readAt": "2026-05-19T08:30:59.510Z"
+  },
+  {
+    "_id": "6a0c1eaa83bedd0012667c91",
+    "text": "Hello, can you help me with math?",
+    "sender": "user",
+    "sessionId": "test-session-1779179172250",
+    "subject": "general",
+    "timestamp": "2026-05-19T08:26:18.186Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1eab83bedd0012667ca8",
+    "text": "I am confused. What is evaporation?",
+    "sender": "user",
+    "sessionId": "week-test-1779179179163",
+    "subject": "science",
+    "timestamp": "2026-05-19T08:26:19.173Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1eab83bedd0012667cab",
+    "text": "Let's slow it down and make it manageable. I can help with that. Try identifying the known values, the unknown value, and the operation needed. Ask for a definition, explanation, example, or step-by-step answer if you want a specific format.",
+    "sender": "ai",
+    "sessionId": "test-session-1779179172250",
+    "subject": "math",
+    "timestamp": "2026-05-19T08:26:19.244Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1eab83bedd0012667cb1",
+    "text": "Let's slow it down and make it manageable. Evaporation is the process where liquid water changes into water vapor. Heat gives water molecules enough energy to leave the surface and become gas.",
+    "sender": "ai",
+    "sessionId": "week-test-1779179179163",
+    "subject": "science",
+    "timestamp": "2026-05-19T08:26:19.602Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1eac83bedd0012667cb7",
+    "text": "Test message 1779179180536",
+    "sender": "user",
+    "sessionId": "6a0c1eac83bedd0012667cb6",
+    "timestamp": "2026-05-19T08:26:20.537Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1ead83bedd0012667cbd",
+    "text": "Pagination test message 0 - 1779179181128",
+    "sender": "user",
+    "sessionId": "6a0c1ead83bedd0012667cbc",
+    "timestamp": "2026-05-19T08:26:21.128Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1ead83bedd0012667cc1",
+    "text": "Pagination test message 1 - 1779179181146",
+    "sender": "user",
+    "sessionId": "6a0c1ead83bedd0012667cbc",
+    "timestamp": "2026-05-19T08:26:21.146Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1ead83bedd0012667cc5",
+    "text": "Pagination test message 2 - 1779179181160",
+    "sender": "user",
+    "sessionId": "6a0c1ead83bedd0012667cbc",
+    "timestamp": "2026-05-19T08:26:21.160Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1ead83bedd0012667cc9",
+    "text": "Pagination test message 3 - 1779179181177",
+    "sender": "user",
+    "sessionId": "6a0c1ead83bedd0012667cbc",
+    "timestamp": "2026-05-19T08:26:21.177Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1ead83bedd0012667ccd",
+    "text": "Pagination test message 4 - 1779179181188",
+    "sender": "user",
+    "sessionId": "6a0c1ead83bedd0012667cbc",
+    "timestamp": "2026-05-19T08:26:21.190Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5775a3af0012442726",
+    "text": "I am confused. What is evaporation?",
+    "sender": "user",
+    "sessionId": "week-test-1779179351970",
+    "subject": "science",
+    "timestamp": "2026-05-19T08:29:11.977Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5875a3af0012442729",
+    "text": "Let's slow it down and make it manageable. Evaporation is the process where liquid water changes into water vapor. Heat gives water molecules enough energy to leave the surface and become gas.",
+    "sender": "ai",
+    "sessionId": "week-test-1779179351970",
+    "subject": "science",
+    "timestamp": "2026-05-19T08:29:12.591Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5975a3af001244272f",
+    "text": "Test message 1779179353163",
+    "sender": "user",
+    "sessionId": "6a0c1f5975a3af001244272e",
+    "timestamp": "2026-05-19T08:29:13.169Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5975a3af0012442735",
+    "text": "Pagination test message 0 - 1779179353711",
+    "sender": "user",
+    "sessionId": "6a0c1f5975a3af0012442734",
+    "timestamp": "2026-05-19T08:29:13.717Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5975a3af0012442739",
+    "text": "Pagination test message 1 - 1779179353721",
+    "sender": "user",
+    "sessionId": "6a0c1f5975a3af0012442734",
+    "timestamp": "2026-05-19T08:29:13.727Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5975a3af001244273d",
+    "text": "Pagination test message 2 - 1779179353730",
+    "sender": "user",
+    "sessionId": "6a0c1f5975a3af0012442734",
+    "timestamp": "2026-05-19T08:29:13.735Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5975a3af0012442741",
+    "text": "Pagination test message 3 - 1779179353740",
+    "sender": "user",
+    "sessionId": "6a0c1f5975a3af0012442734",
+    "timestamp": "2026-05-19T08:29:13.745Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5975a3af0012442745",
+    "text": "Pagination test message 4 - 1779179353746",
+    "sender": "user",
+    "sessionId": "6a0c1f5975a3af0012442734",
+    "timestamp": "2026-05-19T08:29:13.752Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f7275a3af001244274b",
+    "text": "Hello, can you help me with math?",
+    "sender": "user",
+    "sessionId": "test-session-1779179378554",
+    "subject": "general",
+    "timestamp": "2026-05-19T08:29:38.913Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f7375a3af001244274e",
+    "text": "Let's slow it down and make it manageable. I can help with that. Try identifying the known values, the unknown value, and the operation needed. Ask for a definition, explanation, example, or step-by-step answer if you want a specific format.",
+    "sender": "ai",
+    "sessionId": "test-session-1779179378554",
+    "subject": "math",
+    "timestamp": "2026-05-19T08:29:39.642Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1fc375a3af001244275c",
+    "text": "example of mathematical equation",
+    "sender": "user",
+    "sessionId": "1779110815423",
+    "subject": "math",
+    "timestamp": "2026-05-19T08:30:59.031Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1fc375a3af001244275f",
+    "text": "Here is a useful way to build an example: choose one clear situation, name the key idea, then show how the idea appears in that situation.",
+    "sender": "ai",
+    "sessionId": "1779110815423",
+    "subject": "math",
+    "timestamp": "2026-05-19T08:30:59.480Z",
+    "__v": 0,
+    "readAt": "2026-05-19T08:30:59.510Z"
+  },
+  {
+    "_id": "6a0c203c75a3af00124427a6",
+    "text": "philippines",
+    "sender": "user",
+    "sessionId": "1779110815423",
+    "subject": "general",
+    "timestamp": "2026-05-19T08:33:00.969Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c203d75a3af00124427a9",
+    "text": "I can help with that. Break the question into smaller parts. Ask for a definition, explanation, example, or step-by-step answer if you want a specific format.",
+    "sender": "ai",
+    "sessionId": "1779110815423",
+    "subject": "general",
+    "timestamp": "2026-05-19T08:33:01.433Z",
+    "__v": 0,
+    "readAt": "2026-05-19T08:33:01.453Z"
+  },
+  {
+    "_id": "6a0c20a575a3af00124427b2",
+    "text": "what is 1+1?",
+    "sender": "user",
+    "sessionId": "1779110815423",
+    "subject": "general",
+    "timestamp": "2026-05-19T08:34:45.760Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c20a675a3af00124427b6",
+    "text": "Based on the recent chat, a good definition should name the idea clearly, then explain what it does. For math, Try identifying the known values, the unknown value, and the operation needed.",
+    "sender": "ai",
+    "sessionId": "1779110815423",
+    "subject": "math",
+    "timestamp": "2026-05-19T08:34:46.333Z",
+    "__v": 0,
+    "readAt": "2026-05-19T08:34:46.367Z"
+  },
+  {
+    "_id": "6a0c27da75a3af00124427c2",
+    "text": "Hello, can you help me with math?",
+    "sender": "user",
+    "sessionId": "test-session-1779181530343",
+    "subject": "general",
+    "timestamp": "2026-05-19T09:05:30.499Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c27db75a3af00124427c5",
+    "text": "Let's slow it down and make it manageable. I can help with that. Try identifying the known values, the unknown value, and the operation needed. Ask for a definition, explanation, example, or step-by-step answer if you want a specific format.",
+    "sender": "ai",
+    "sessionId": "test-session-1779181530343",
+    "subject": "math",
+    "timestamp": "2026-05-19T09:05:31.470Z",
+    "__v": 0
+  }
+]

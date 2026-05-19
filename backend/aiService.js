@@ -1,202 +1,192 @@
 const fetch = require('node-fetch');
 
-// Initialize our AI service
-const initializeAI = () => {
+const examples = {
+  math: [
+    'Try identifying the known values, the unknown value, and the operation needed.',
+    'For equations, balance both sides step by step.'
+  ],
+  science: [
+    'Look for the process, the cause, and the result.',
+    'Use observations and evidence to explain the pattern.'
+  ],
+  history: [
+    'Connect the event to its time period, people, causes, and effects.',
+    'Compare what changed with what stayed the same.'
+  ],
+  english: [
+    'Look at word choice, structure, and the author’s purpose.',
+    'Use examples from the text to support your answer.'
+  ],
+  general: [
+    'Break the question into smaller parts.',
+    'Start with what you already know, then fill the gap.'
+  ]
+};
+
+function initializeAI() {
   console.log('Hugging Face AI service initialized');
-  
-  // Check if the token is available
+
   if (!process.env.HUGGINGFACE_TOKEN) {
     console.warn('Warning: HUGGINGFACE_TOKEN environment variable not set. API calls may fail.');
   }
-};
+}
 
-// Function to get response from Hugging Face API
-async function generateResponse(question) {
-  // Define categories based on content
-  const lowerQuestion = question.toLowerCase();
-  
-  const isMath = lowerQuestion.includes('calculate') || 
-                 lowerQuestion.includes('math') ||
-                 lowerQuestion.includes('1+1') ||
-                 /[+\-*\/=]/.test(lowerQuestion) ||
-                 /\d+/.test(lowerQuestion);
-  
-  const isHistory = lowerQuestion.includes('history') ||
-                    lowerQuestion.includes('capital') ||
-                    lowerQuestion.includes('philippines') ||
-                    lowerQuestion.includes('president');
+function detectSubject(question, preferredSubject) {
+  const text = question.toLowerCase();
+  if (preferredSubject && preferredSubject !== 'general') return preferredSubject.toLowerCase();
+  if (/[+\-*\/=]|\d+/.test(text) || text.includes('math') || text.includes('calculate')) return 'math';
+  if (text.includes('science') || text.includes('water') || text.includes('chemical') || text.includes('evaporation')) return 'science';
+  if (text.includes('history') || text.includes('capital') || text.includes('president') || text.includes('war')) return 'history';
+  if (text.includes('essay') || text.includes('grammar') || text.includes('poem') || text.includes('sentence')) return 'english';
+  return 'general';
+}
 
-  const isScience = lowerQuestion.includes('science') ||
-                    lowerQuestion.includes('evaporation') ||
-                    lowerQuestion.includes('precipitation') ||
-                    lowerQuestion.includes('water') ||
-                    lowerQuestion.includes('chemical');
+function detectQuestionType(question) {
+  const text = question.toLowerCase();
+  if (text.startsWith('what is') || text.includes('what is') || text.includes('define') || text.includes('meaning')) return 'definition';
+  if (text.startsWith('why') || text.includes('explain')) return 'explanation';
+  if (text.includes('example') || text.includes('sample')) return 'example';
+  if (text.startsWith('how') || text.includes('steps')) return 'steps';
+  return 'general';
+}
 
-  // Determine the category based on keyword matching
-  let category = 'general';
-  if (isMath) category = 'math';
-  if (isHistory) category = 'history';
-  if (isScience) category = 'science';
+function detectSentiment(question) {
+  const text = question.toLowerCase();
+  const frustrated = ['confused', 'stuck', 'frustrated', 'hard', "don't get", 'dont get', 'help me'];
+  const urgent = ['quick', 'urgent', 'asap', 'now'];
 
-  // Check for direct matches to provide immediate responses without API call
-  // This will bypass the API call for common questions we know will work
-  if (lowerQuestion === 'what is 1+1' || lowerQuestion === '1+1') {
-    return {
-      category: 'math',
-      response: "The answer to 1+1 is 2."
-    };
-  }
-  
-  if (lowerQuestion === 'what is evaporation') {
-    return {
-      category: 'science',
-      response: "Evaporation is the process where liquid water changes into water vapor (gas). This happens when water molecules gain enough energy from heat to break free from the liquid's surface. Evaporation occurs at temperatures below water's boiling point and is a key part of the water cycle. It happens all around us - from wet clothes drying to puddles disappearing after rain."
-    };
-  }
-  
-  if (lowerQuestion === 'what is science') {
-    return {
-      category: 'science',
-      response: "Science is the systematic study of the natural world through observation, experimentation, and the formulation and testing of hypotheses. It aims to discover patterns and principles that help us understand how things work. The scientific method involves making observations, asking questions, forming hypotheses, conducting experiments, analyzing data, and drawing conclusions. Science encompasses many fields including physics, chemistry, biology, astronomy, geology, and more."
-    };
+  if (frustrated.some((word) => text.includes(word))) {
+    return { label: 'confused', confidence: 0.82 };
   }
 
-  // For other questions, try the API with a strict timeout
+  if (urgent.some((word) => text.includes(word))) {
+    return { label: 'urgent', confidence: 0.68 };
+  }
+
+  return { label: 'neutral', confidence: 0.55 };
+}
+
+function buildSuggestions(subject, questionType) {
+  const base = {
+    definition: ['Can you give me an example?', 'Why does this matter?'],
+    explanation: ['Can you summarize that?', 'Can you show the steps?'],
+    example: ['Can I try a practice question?', 'What is a common mistake?'],
+    steps: ['Can you check my answer?', 'Can you make it simpler?'],
+    general: ['Can you explain with an example?', 'What should I learn next?']
+  };
+
+  return [
+    ...(base[questionType] || base.general),
+    `Show me another ${subject} question`
+  ];
+}
+
+function directAnswer(subject, question) {
+  const text = question.toLowerCase().trim();
+
+  if (text === 'what is 1+1' || text === '1+1') {
+    return 'The answer to 1+1 is 2.';
+  }
+
+  if (text.includes('evaporation')) {
+    return 'Evaporation is the process where liquid water changes into water vapor. Heat gives water molecules enough energy to leave the surface and become gas.';
+  }
+
+  if (text.includes('capital of the philippines')) {
+    return 'The capital of the Philippines is Manila.';
+  }
+
+  if (text.includes('what is science')) {
+    return 'Science is the systematic study of the natural world through observation, evidence, testing, and explanation.';
+  }
+
+  return null;
+}
+
+function localResponse(subject, questionType, sentiment, question, context) {
+  const direct = directAnswer(subject, question);
+  const tone = sentiment.label === 'confused'
+    ? "Let's slow it down and make it manageable. "
+    : '';
+  const recent = context.history && context.history.length > 1
+    ? 'Based on the recent chat, '
+    : '';
+
+  if (direct) return `${tone}${direct}`;
+
+  if (questionType === 'definition') {
+    return `${tone}${recent}a good definition should name the idea clearly, then explain what it does. For ${subject}, ${examples[subject][0]}`;
+  }
+
+  if (questionType === 'explanation') {
+    return `${tone}${recent}the strongest explanation connects cause and effect. ${examples[subject][0]}`;
+  }
+
+  if (questionType === 'example') {
+    return `${tone}Here is a useful way to build an example: choose one clear situation, name the key idea, then show how the idea appears in that situation.`;
+  }
+
+  if (questionType === 'steps') {
+    return `${tone}Use three steps: identify the goal, list the given information, then solve one part at a time. ${examples[subject][1]}`;
+  }
+
+  return `${tone}I can help with that. ${examples[subject][0]} Ask for a definition, explanation, example, or step-by-step answer if you want a specific format.`;
+}
+
+async function callHuggingFace(prompt) {
+  const token = process.env.HUGGINGFACE_TOKEN;
+  if (!token) return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
   try {
-    // Using a smaller model that responds faster
-    const API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn";
-    
-    // Format the question based on category
-    let input = question;
-    if (category === 'math') {
-      input = `Answer this math question: ${question}`;
-    } else if (category === 'history') {
-      input = `Answer this history question: ${question}`;
-    } else if (category === 'science') {
-      input = `Answer this science question: ${question}`;
-    }
-
-    // Get the token from environment variables
-    const token = process.env.HUGGINGFACE_TOKEN;
-
-    // Use AbortController for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-
-    // Make the API request with authentication and timeout
-    const response = await fetch(API_URL, {
-      method: "POST",
+    const response = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-cnn', {
+      method: 'POST',
       signal: controller.signal,
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({
-        inputs: input,
-        options: {
-          wait_for_model: false // Don't wait for model to be ready - faster responses
-        }
-      }),
+        inputs: prompt,
+        options: { wait_for_model: false }
+      })
     });
 
-    // Clear the timeout since we got a response
     clearTimeout(timeoutId);
-
-    // Handle non-OK responses
-    if (!response.ok) {
-      console.error(`API request failed with status ${response.status}`);
-      
-      // If we get a 504 or other error, use our fallback
-      return {
-        category,
-        response: getDetailedResponse(category, question)
-      };
-    }
+    if (!response.ok) return null;
 
     const result = await response.json();
-    
-    // Check if we got a valid response from the API
-    if (result && result[0] && result[0].generated_text) {
-      return {
-        category,
-        response: result[0].generated_text
-      };
-    } else {
-      // Use our fallback if the response format wasn't as expected
-      return {
-        category,
-        response: getDetailedResponse(category, question)
-      };
-    }
+    return result && result[0] && result[0].generated_text ? result[0].generated_text : null;
   } catch (error) {
-    console.error("Error calling Hugging Face API:", error);
-    
-    // Return a fallback response
-    return {
-      category,
-      response: getDetailedResponse(category, question)
-    };
+    clearTimeout(timeoutId);
+    return null;
   }
 }
 
-// More detailed fallback responses when the API call fails
-function getDetailedResponse(category, question) {
-  const lowerQuestion = question.toLowerCase();
-  
-  // Check for exact matches first
-  if (lowerQuestion === 'what is 1+1' || lowerQuestion === '1+1') {
-    return "The answer to 1+1 is 2.";
-  }
-  
-  if (lowerQuestion === 'what is evaporation') {
-    return "Evaporation is the process where liquid water changes into water vapor (gas). This happens when water molecules gain enough energy from heat to break free from the liquid's surface. Evaporation occurs at temperatures below water's boiling point and is a key part of the water cycle. It happens all around us - from wet clothes drying to puddles disappearing after rain.";
-  }
-  
-  if (lowerQuestion === 'what is science') {
-    return "Science is the systematic study of the natural world through observation, experimentation, and the formulation and testing of hypotheses. It aims to discover patterns and principles that help us understand how things work. The scientific method involves making observations, asking questions, forming hypotheses, conducting experiments, analyzing data, and drawing conclusions. Science encompasses many fields including physics, chemistry, biology, astronomy, geology, and more.";
-  }
-  
-  // Handle science category
-  if (category === 'science') {
-    if (lowerQuestion.includes('precipitation')) {
-      return "Precipitation is the release of water from the atmosphere to the earth's surface in the form of rain, snow, sleet, or hail. It's a key part of the water cycle where water vapor condenses in the atmosphere and becomes heavy enough to fall to the ground. Precipitation is essential for replenishing freshwater supplies and supporting plant and animal life.";
-    }
-    
-    if (lowerQuestion.includes('evaporation')) {
-      return "Evaporation is the process where liquid water changes into water vapor (gas). This happens when water molecules gain enough energy from heat to break free from the liquid's surface. Evaporation occurs at temperatures below water's boiling point and is a key part of the water cycle. It happens all around us - from wet clothes drying to puddles disappearing after rain.";
-    }
-    
-    if (lowerQuestion.includes('science')) {
-      return "Science is the systematic study of the natural world through observation, experimentation, and the formulation and testing of hypotheses. It aims to discover patterns and principles that help us understand how things work. The scientific method involves making observations, asking questions, forming hypotheses, conducting experiments, analyzing data, and drawing conclusions. Science encompasses many fields including physics, chemistry, biology, astronomy, geology, and more.";
-    }
-    
-    return "That's an interesting science question! Science helps us understand the natural world through observation and experimentation. I'd be happy to explain more about this specific scientific topic if you provide more details.";
-  }
-  
-  // Handle math category
-  if (category === 'math') {
-    if (lowerQuestion.includes('1+1')) {
-      return "The answer to 1+1 is 2.";
-    }
-    return "I can help with your math question. In mathematics, it's important to understand the fundamental concepts and formulas. Could you provide more details about your specific math problem?";
-  }
-  
-  // Handle history/geography category
-  if (category === 'history') {
-    if (lowerQuestion.includes('capital of the philippines')) {
-      return "The capital of the Philippines is Manila. It's located on the island of Luzon and serves as the country's political, economic, and cultural center.";
-    }
-    if (lowerQuestion.includes('fish in filipino')) {
-      return "The word for 'fish' in Filipino (Tagalog) is 'isda'.";
-    }
-    return "Interesting question about history or culture! I'd be happy to share more information about this topic if you provide more details.";
-  }
-  
-  // Default response for general questions
-  return "I'm not sure I understand your question completely. Could you please provide more details or rephrase it? I can help with topics related to science, math, history, and general knowledge.";
+async function generateResponse(question, context = {}) {
+  const subject = detectSubject(question, context.subject);
+  const questionType = detectQuestionType(question);
+  const sentiment = detectSentiment(question);
+  const suggestions = buildSuggestions(subject, questionType);
+  const prompt = `Subject: ${subject}. Question type: ${questionType}. Student question: ${question}`;
+  const generated = await callHuggingFace(prompt);
+
+  return {
+    category: subject,
+    questionType,
+    sentiment,
+    response: generated || localResponse(subject, questionType, sentiment, question, context),
+    suggestions,
+    trainingExamples: examples[subject]
+  };
 }
 
 module.exports = {
   initializeAI,
-  generateResponse
+  generateResponse,
+  detectSubject,
+  detectQuestionType,
+  detectSentiment
 };

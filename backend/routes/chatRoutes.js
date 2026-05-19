@@ -9,5 +9,6 @@ router.post('/send', chatController.sendMessage);
 // router.post('/message', chatController.sendMessage);
 router.post('/message', chatController.saveMessage);
 router.get('/history/:sessionId', chatController.getChatHistory);
+router.post('/read/:sessionId', chatController.markRead);
 
 module.exports = router;

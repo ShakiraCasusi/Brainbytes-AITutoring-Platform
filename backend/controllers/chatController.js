@@ -1,7 +1,8 @@
 const Message = require('../Message');
+const Activity = require('../models/Activity');
 const aiService = require('../aiService');
+const realtime = require('../services/realtime');
 
-// Create a lightweight session record for legacy tests and older clients.
 exports.createSession = async (req, res) => {
   try {
     const session = {
@@ -26,7 +27,6 @@ exports.createSession = async (req, res) => {
   }
 };
 
-// Legacy message-only endpoint for integration tests and older clients.
 exports.saveMessage = async (req, res) => {
   try {
     const { text, sender, sessionId } = req.body;
@@ -47,6 +47,13 @@ exports.saveMessage = async (req, res) => {
     });
 
     await message.save();
+    await Activity.create({
+      sessionId,
+      type: 'message',
+      subject: req.body.subject,
+      summary: `${message.sender} message saved`
+    });
+    realtime.broadcast('message:saved', { sessionId, message });
 
     res.status(200).json({
       messageId: message._id,
@@ -58,39 +65,38 @@ exports.saveMessage = async (req, res) => {
   }
 };
 
-// Send a message and get AI response
 exports.sendMessage = async (req, res) => {
   try {
-    // Legacy clients sent "text"; current chat UI sends "message".
-    // const { message, sessionId } = req.body;
     const { sessionId } = req.body;
     const message = req.body.message || req.body.text;
+    const subject = req.body.subject || 'general';
     
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Generate a session ID if not provided
     const chatSessionId = sessionId || Date.now().toString();
 
-    // Save user message to database
     const userMessage = new Message({
       text: message,
       sender: 'user',
       sessionId: chatSessionId,
+      subject,
       timestamp: new Date()
     });
     await userMessage.save();
 
-    // Get AI response from our existing service
     let aiResult;
     try {
-      // Create a 10-second timeout for AI response
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Request timeout')), 10000)
       );
       
-      const aiResultPromise = aiService.generateResponse(message);
+      const history = await Message.find({ sessionId: chatSessionId }).sort({ timestamp: -1 }).limit(6);
+      const aiResultPromise = aiService.generateResponse(message, {
+        subject,
+        history: history.reverse()
+      });
       aiResult = await Promise.race([aiResultPromise, timeoutPromise]);
     } catch (error) {
       console.error('Error getting AI response:', error);
@@ -100,22 +106,37 @@ exports.sendMessage = async (req, res) => {
       };
     }
 
-    // Save AI response to database
     const aiMessage = new Message({
       text: aiResult.response,
       sender: 'ai',
       sessionId: chatSessionId,
+      subject: aiResult.category || subject,
       timestamp: new Date()
     });
     await aiMessage.save();
+    await Activity.create({
+      sessionId: chatSessionId,
+      type: 'message',
+      subject: aiResult.category || subject,
+      summary: `Asked a ${aiResult.questionType || 'general'} question`
+    });
+    realtime.broadcast('chat:message', {
+      sessionId: chatSessionId,
+      userMessage,
+      aiMessage,
+      sentiment: aiResult.sentiment,
+      suggestions: aiResult.suggestions
+    });
 
-    // Return both messages
     res.status(200).json({
       userMessage,
       aiMessage,
       messageId: userMessage._id,
       sessionId: chatSessionId,
-      category: aiResult.category
+      category: aiResult.category,
+      questionType: aiResult.questionType,
+      sentiment: aiResult.sentiment,
+      suggestions: aiResult.suggestions
     });
   } catch (error) {
     console.error('Error in sendMessage:', error);
@@ -123,7 +144,6 @@ exports.sendMessage = async (req, res) => {
   }
 };
 
-// Get chat history for a session
 exports.getChatHistory = async (req, res) => {
   try {
     const { sessionId } = req.params;
@@ -135,8 +155,11 @@ exports.getChatHistory = async (req, res) => {
       return res.status(400).json({ error: 'Session ID is required' });
     }
 
-    const total = await Message.countDocuments({ sessionId });
-    const messages = await Message.find({ sessionId })
+    const query = { sessionId };
+    if (req.query.subject) query.subject = req.query.subject.toLowerCase();
+
+    const total = await Message.countDocuments(query);
+    const messages = await Message.find(query)
       .sort({ timestamp: 1 })
       .skip(skip)
       .limit(limit);
@@ -153,5 +176,23 @@ exports.getChatHistory = async (req, res) => {
   } catch (error) {
     console.error('Error in getChatHistory:', error);
     res.status(500).json({ error: 'An error occurred while retrieving chat history' });
+  }
+};
+
+exports.markRead = async (req, res) => {
+  try {
+    const result = await Message.updateMany(
+      { sessionId: req.params.sessionId, sender: 'ai', readAt: { $exists: false } },
+      { readAt: new Date() }
+    );
+
+    realtime.broadcast('chat:read', {
+      sessionId: req.params.sessionId,
+      modifiedCount: result.nModified || result.modifiedCount || 0
+    });
+
+    res.json({ updated: result.nModified || result.modifiedCount || 0 });
+  } catch (error) {
+    res.status(500).json({ error: 'Unable to mark messages as read' });
   }
 };

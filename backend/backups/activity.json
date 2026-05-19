@@ -1,0 +1,352 @@
+[
+  {
+    "_id": "6a0c1eaa83bedd0012667c99",
+    "userId": "6a0c1eaa83bedd0012667c95",
+    "type": "profile",
+    "summary": "Test Student created a profile",
+    "createdAt": "2026-05-19T08:26:18.839Z",
+    "updatedAt": "2026-05-19T08:26:18.839Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1eaa83bedd0012667c9d",
+    "userId": "6a0c1eaa83bedd0012667c95",
+    "type": "profile",
+    "summary": "Updated Student updated profile details",
+    "createdAt": "2026-05-19T08:26:18.986Z",
+    "updatedAt": "2026-05-19T08:26:18.986Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1eab83bedd0012667ca0",
+    "userId": "6a0c1eaa83bedd0012667c95",
+    "type": "settings",
+    "summary": "Updated learning preferences",
+    "createdAt": "2026-05-19T08:26:19.007Z",
+    "updatedAt": "2026-05-19T08:26:19.007Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1eab83bedd0012667ca4",
+    "type": "material",
+    "subject": "science",
+    "summary": "Added Water cycle 1779179179020 material",
+    "createdAt": "2026-05-19T08:26:19.080Z",
+    "updatedAt": "2026-05-19T08:26:19.080Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1eab83bedd0012667cad",
+    "sessionId": "test-session-1779179172250",
+    "type": "message",
+    "subject": "math",
+    "summary": "Asked a general question",
+    "createdAt": "2026-05-19T08:26:19.258Z",
+    "updatedAt": "2026-05-19T08:26:19.258Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1eab83bedd0012667cb3",
+    "sessionId": "week-test-1779179179163",
+    "type": "message",
+    "subject": "science",
+    "summary": "Asked a general question",
+    "createdAt": "2026-05-19T08:26:19.608Z",
+    "updatedAt": "2026-05-19T08:26:19.608Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1eac83bedd0012667cb9",
+    "sessionId": "6a0c1eac83bedd0012667cb6",
+    "type": "message",
+    "summary": "user message saved",
+    "createdAt": "2026-05-19T08:26:20.543Z",
+    "updatedAt": "2026-05-19T08:26:20.543Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1ead83bedd0012667cbf",
+    "sessionId": "6a0c1ead83bedd0012667cbc",
+    "type": "message",
+    "summary": "user message saved",
+    "createdAt": "2026-05-19T08:26:21.132Z",
+    "updatedAt": "2026-05-19T08:26:21.132Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1ead83bedd0012667cc3",
+    "sessionId": "6a0c1ead83bedd0012667cbc",
+    "type": "message",
+    "summary": "user message saved",
+    "createdAt": "2026-05-19T08:26:21.150Z",
+    "updatedAt": "2026-05-19T08:26:21.150Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1ead83bedd0012667cc7",
+    "sessionId": "6a0c1ead83bedd0012667cbc",
+    "type": "message",
+    "summary": "user message saved",
+    "createdAt": "2026-05-19T08:26:21.166Z",
+    "updatedAt": "2026-05-19T08:26:21.166Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1ead83bedd0012667ccb",
+    "sessionId": "6a0c1ead83bedd0012667cbc",
+    "type": "message",
+    "summary": "user message saved",
+    "createdAt": "2026-05-19T08:26:21.181Z",
+    "updatedAt": "2026-05-19T08:26:21.181Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1ead83bedd0012667ccf",
+    "sessionId": "6a0c1ead83bedd0012667cbc",
+    "type": "message",
+    "summary": "user message saved",
+    "createdAt": "2026-05-19T08:26:21.195Z",
+    "updatedAt": "2026-05-19T08:26:21.195Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5775a3af0012442717",
+    "userId": "6a0c1f5775a3af0012442713",
+    "type": "profile",
+    "summary": "Test Student created a profile",
+    "createdAt": "2026-05-19T08:29:11.723Z",
+    "updatedAt": "2026-05-19T08:29:11.723Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5775a3af001244271b",
+    "userId": "6a0c1f5775a3af0012442713",
+    "type": "profile",
+    "summary": "Updated Student updated profile details",
+    "createdAt": "2026-05-19T08:29:11.813Z",
+    "updatedAt": "2026-05-19T08:29:11.813Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5775a3af001244271e",
+    "userId": "6a0c1f5775a3af0012442713",
+    "type": "settings",
+    "summary": "Updated learning preferences",
+    "createdAt": "2026-05-19T08:29:11.832Z",
+    "updatedAt": "2026-05-19T08:29:11.832Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5775a3af0012442722",
+    "type": "material",
+    "subject": "science",
+    "summary": "Added Water cycle 1779179351835 material",
+    "createdAt": "2026-05-19T08:29:11.852Z",
+    "updatedAt": "2026-05-19T08:29:11.852Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5875a3af001244272b",
+    "sessionId": "week-test-1779179351970",
+    "type": "message",
+    "subject": "science",
+    "summary": "Asked a definition question",
+    "createdAt": "2026-05-19T08:29:12.597Z",
+    "updatedAt": "2026-05-19T08:29:12.597Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5975a3af0012442731",
+    "sessionId": "6a0c1f5975a3af001244272e",
+    "type": "message",
+    "summary": "user message saved",
+    "createdAt": "2026-05-19T08:29:13.174Z",
+    "updatedAt": "2026-05-19T08:29:13.174Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5975a3af0012442737",
+    "sessionId": "6a0c1f5975a3af0012442734",
+    "type": "message",
+    "summary": "user message saved",
+    "createdAt": "2026-05-19T08:29:13.720Z",
+    "updatedAt": "2026-05-19T08:29:13.720Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5975a3af001244273b",
+    "sessionId": "6a0c1f5975a3af0012442734",
+    "type": "message",
+    "summary": "user message saved",
+    "createdAt": "2026-05-19T08:29:13.730Z",
+    "updatedAt": "2026-05-19T08:29:13.730Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5975a3af001244273f",
+    "sessionId": "6a0c1f5975a3af0012442734",
+    "type": "message",
+    "summary": "user message saved",
+    "createdAt": "2026-05-19T08:29:13.739Z",
+    "updatedAt": "2026-05-19T08:29:13.739Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5975a3af0012442743",
+    "sessionId": "6a0c1f5975a3af0012442734",
+    "type": "message",
+    "summary": "user message saved",
+    "createdAt": "2026-05-19T08:29:13.747Z",
+    "updatedAt": "2026-05-19T08:29:13.747Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f5975a3af0012442747",
+    "sessionId": "6a0c1f5975a3af0012442734",
+    "type": "message",
+    "summary": "user message saved",
+    "createdAt": "2026-05-19T08:29:13.756Z",
+    "updatedAt": "2026-05-19T08:29:13.756Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1f7375a3af0012442750",
+    "sessionId": "test-session-1779179378554",
+    "type": "message",
+    "subject": "math",
+    "summary": "Asked a general question",
+    "createdAt": "2026-05-19T08:29:39.650Z",
+    "updatedAt": "2026-05-19T08:29:39.650Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c1fc375a3af0012442761",
+    "sessionId": "1779110815423",
+    "type": "message",
+    "subject": "math",
+    "summary": "Asked a example question",
+    "createdAt": "2026-05-19T08:30:59.483Z",
+    "updatedAt": "2026-05-19T08:30:59.483Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c201075a3af001244276e",
+    "userId": "6a0c201075a3af001244276a",
+    "type": "profile",
+    "summary": "Puzzle created a profile",
+    "createdAt": "2026-05-19T08:32:16.094Z",
+    "updatedAt": "2026-05-19T08:32:16.094Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c201075a3af0012442772",
+    "userId": "6a0c201075a3af001244276a",
+    "type": "profile",
+    "summary": "Puzzle updated profile details",
+    "createdAt": "2026-05-19T08:32:16.133Z",
+    "updatedAt": "2026-05-19T08:32:16.133Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c201175a3af0012442777",
+    "userId": "6a0c201075a3af001244276a",
+    "type": "profile",
+    "summary": "Puzzle updated profile details",
+    "createdAt": "2026-05-19T08:32:17.645Z",
+    "updatedAt": "2026-05-19T08:32:17.645Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c201275a3af001244277c",
+    "userId": "6a0c201075a3af001244276a",
+    "type": "profile",
+    "summary": "Puzzle updated profile details",
+    "createdAt": "2026-05-19T08:32:18.805Z",
+    "updatedAt": "2026-05-19T08:32:18.805Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c201375a3af0012442781",
+    "userId": "6a0c201075a3af001244276a",
+    "type": "profile",
+    "summary": "Puzzle updated profile details",
+    "createdAt": "2026-05-19T08:32:19.312Z",
+    "updatedAt": "2026-05-19T08:32:19.312Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c201375a3af0012442786",
+    "userId": "6a0c201075a3af001244276a",
+    "type": "profile",
+    "summary": "Puzzle updated profile details",
+    "createdAt": "2026-05-19T08:32:19.515Z",
+    "updatedAt": "2026-05-19T08:32:19.515Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c201375a3af001244278b",
+    "userId": "6a0c201075a3af001244276a",
+    "type": "profile",
+    "summary": "Puzzle updated profile details",
+    "createdAt": "2026-05-19T08:32:19.667Z",
+    "updatedAt": "2026-05-19T08:32:19.667Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c201375a3af0012442790",
+    "userId": "6a0c201075a3af001244276a",
+    "type": "profile",
+    "summary": "Puzzle updated profile details",
+    "createdAt": "2026-05-19T08:32:19.853Z",
+    "updatedAt": "2026-05-19T08:32:19.853Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c201475a3af0012442795",
+    "userId": "6a0c201075a3af001244276a",
+    "type": "profile",
+    "summary": "Puzzle updated profile details",
+    "createdAt": "2026-05-19T08:32:20.105Z",
+    "updatedAt": "2026-05-19T08:32:20.105Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c201c75a3af001244279a",
+    "userId": "6a0c201075a3af001244276a",
+    "type": "profile",
+    "summary": "Puzzle updated profile details",
+    "createdAt": "2026-05-19T08:32:28.384Z",
+    "updatedAt": "2026-05-19T08:32:28.384Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c203d75a3af00124427ab",
+    "sessionId": "1779110815423",
+    "type": "message",
+    "subject": "general",
+    "summary": "Asked a general question",
+    "createdAt": "2026-05-19T08:33:01.438Z",
+    "updatedAt": "2026-05-19T08:33:01.438Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c20a675a3af00124427b8",
+    "sessionId": "1779110815423",
+    "type": "message",
+    "subject": "math",
+    "summary": "Asked a definition question",
+    "createdAt": "2026-05-19T08:34:46.347Z",
+    "updatedAt": "2026-05-19T08:34:46.347Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0c27db75a3af00124427c7",
+    "sessionId": "test-session-1779181530343",
+    "type": "message",
+    "subject": "math",
+    "summary": "Asked a general question",
+    "createdAt": "2026-05-19T09:05:31.494Z",
+    "updatedAt": "2026-05-19T09:05:31.494Z",
+    "__v": 0
+  }
+]

@@ -17,6 +17,15 @@ const messageSchema = new mongoose.Schema({
     required: true,
     index: true
   },
+  subject: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    index: true
+  },
+  readAt: {
+    type: Date
+  },
   timestamp: {
     type: Date,
     default: Date.now
@@ -25,6 +34,7 @@ const messageSchema = new mongoose.Schema({
 
 // Create indexes for common queries
 messageSchema.index({ sessionId: 1, timestamp: 1 });
+messageSchema.index({ sessionId: 1, subject: 1, timestamp: 1 });
 
 const Message = mongoose.model('Message', messageSchema);
 
