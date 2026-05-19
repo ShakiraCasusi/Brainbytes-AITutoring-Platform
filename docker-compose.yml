@@ -1,0 +1,52 @@
+services:
+  # Frontend container
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:3000"
+    volumes:
+      # Legacy Dockerfile mismatch:
+      # - ./frontend:/usr/src/app
+      # - /usr/src/app/node_modules
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:4000/api
+
+  # Backend API container
+  backend:
+    build: ./backend
+    ports:
+      - "4000:3000"
+    volumes:
+      # Legacy Dockerfile mismatch:
+      # - ./backend:/usr/src/app
+      # - /usr/src/app/node_modules
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      # Legacy placeholder:
+      # - HUGGINGFACE_TOKEN=your_actual_huggingface_token_here
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongo:27017/brainbytes
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+  # MongoDB container
+  mongo:
+    image: mongo:4.4
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
+# Define volumes for persistent data
+volumes:
+  mongo-data:

@@ -1,0 +1,42 @@
+{
+  "name": "brainbytes-desktop",
+  "version": "1.0.0",
+  "description": "BrainBytes AI Tutoring Desktop App",
+  "main": "main.js",
+  "author": "BrainBytes Team",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dev": "concurrently \"cd ../frontend && npm run dev\" \"wait-on http://localhost:3000 && electron .\""
+  },
+  "x-legacy-scripts": {
+    "dev": "concurrently \"cd .. && npm run dev\" \"wait-on http://localhost:3000 && electron .\""
+  },
+  "build": {
+    "appId": "com.brainbytes.desktop",
+    "productName": "BrainBytes Tutor",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "../out/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "electron": "^42.1.0",
+    "electron-builder": "^26.8.1",
+    "wait-on": "^9.0.10"
+  }
+}

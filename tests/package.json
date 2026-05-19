@@ -1,0 +1,17 @@
+{
+  "name": "brainbytes-tests",
+  "version": "1.0.0",
+  "description": "Test suite for BrainBytes",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:api": "jest api.test.js",
+    "test:communication": "jest communication.test.js",
+    "test:coverage": "jest --coverage"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "axios": "^1.4.0",
+    "mongodb": "^5.7.0"
+  }
+}
