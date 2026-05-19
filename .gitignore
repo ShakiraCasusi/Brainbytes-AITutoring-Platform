@@ -29,10 +29,6 @@ build
 coverage
 .nyc_output
 
-# Docker
-.dockerignore
-Dockerfile
-
 # Logs
 logs
 *.log
