@@ -31,7 +31,7 @@ COPY --from=build /app/services ./services
 COPY --from=build /app/scripts ./scripts
 
 # Prune development dependencies
-RUN npm prune --production
+#RUN npm prune --production
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
