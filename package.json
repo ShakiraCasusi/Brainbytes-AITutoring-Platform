@@ -1,5 +1,27 @@
 {
   "dependencies": {
     "next-pwa": "^5.6.0"
-  }
+  },
+  "name": "brainbytes-aitutoring-platform",
+  "version": "1.0.0",
+  "description": "BrainBytes is an AI-powered tutoring platform designed to provide accessible academic assistance to Filipino students. This project implements the platform using modern DevOps practices and containerization.",
+  "main": "jest.config.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform/issues"
+  },
+  "homepage": "https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform#readme"
 }

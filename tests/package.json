@@ -11,8 +11,8 @@
     "test:coverage": "jest --coverage"
   },
   "devDependencies": {
-    "axios": "^1.4.0",
-    "jest": "^29.0.0",
+    "axios": "^1.16.1",
+    "jest": "^29.7.0",
     "mongodb": "^5.7.0",
     "ws": "^8.20.1"
   }

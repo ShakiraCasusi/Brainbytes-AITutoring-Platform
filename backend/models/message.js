@@ -79,3 +79,5 @@ async function getMessageHistory(sessionId, limit = 50, offset = 0) {
 }
 
 module.exports = { saveMessage, getMessageHistory, validateMessage };
+
+*/
