@@ -87,4 +87,4 @@ graph TD
 | **Backend Container (Node.js API)** | Core logic; handles auth, WebSockets, rate limiting, and chat processing. | `4000` | - Handles JWT Authentication<br>- Generates JSON Backups (`scripts/backup.js`)<br>- Manages user settings & learning materials |
 | **Database (MongoDB)** | Stores all persistent structured data using Mongoose schemas. | `27017` | - Validates data upon entry<br>- Uses optimized indexes for fast lookups<br>- Stores Users, Profiles, Messages, and Materials |
 | **Academic Chat Logic** | Processes user input to generate relevant AI answers. | Internal | - Analyzes user sentiment & categorizes subjects<br>- Provides actionable suggestions & math handling |
-| **Monitoring Stack** | Future-ready stack for tracking application health. | Planned | - Will collect metrics for observability |
+| **Monitoring Stack** | Future-ready stack for tracking application health. | Planned | - Will collect metrics for observability |

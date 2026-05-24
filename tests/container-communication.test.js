@@ -1,30 +1,16 @@
 const axios = require('axios');
 
-const BACKEND_URL = 'http://localhost:4000';
-const FRONTEND_URL = 'http://localhost:8080';
-
 describe('Container Communication Tests', () => {
-
-  test('Frontend is reachable', async () => {
-    const res = await axios.get(FRONTEND_URL);
-    expect(res.status).toBe(200);
+  test('Frontend can communicate with Backend', async () => {
+    // This test assumes you have an endpoint in your frontend that calls the backend
+    const response = await axios.get('http://localhost:3000/api/test-backend-connection');
+    expect(response.status).toBe(200);
+    expect(response.data.backendConnected).toBe(true);
   });
 
-  test('Backend health endpoint is reachable', async () => {
-    const res = await axios.get(`${BACKEND_URL}/api/health`);
-    expect(res.status).toBe(200);
-    expect(res.data).toBeDefined();
+  test('Backend can communicate with MongoDB', async () => {
+    const response = await axios.get('http://localhost:4000/api/health');
+    expect(response.status).toBe(200);
+    expect(response.data.databaseConnected).toBe(true);
   });
-
-  test('Frontend can reach backend API through network', async () => {
- 
-    const res = await axios.get(`${BACKEND_URL}/api/health`);
-    expect(res.status).toBe(200);
-  });
-
-  test('Backend MongoDB connection is active (via health or API)', async () => {
-    const res = await axios.get(`${BACKEND_URL}/api/health`);
-    expect(res.data).toHaveProperty('status'); 
-  });
-
 });
