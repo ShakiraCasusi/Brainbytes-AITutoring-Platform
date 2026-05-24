@@ -39,7 +39,7 @@ services:
       - JWT_SECRET=${JWT_SECRET:-brainbytes-local-secret}
       - NODE_ENV=development
       - MONGO_URI=mongodb://mongo:27017/brainbytes
-    command: npm run dev
+    command: npm start
     mem_limit: 512m
     cpus: 0.75
     depends_on:
