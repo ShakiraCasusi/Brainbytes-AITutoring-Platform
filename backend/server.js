@@ -13,6 +13,7 @@ const settingsRoutes = require('./routes/settingsRoutes');
 const activityRoutes = require('./routes/activityRoutes');
 const realtime = require('./services/realtime');
 const Message = require('./Message');
+const { requireAuth } = require('./middleware/auth');
 
 const app = express();
 const server = http.createServer(app);
@@ -55,10 +56,10 @@ app.get('/health', (req, res) => {
 
 app.use('/api/chat', chatRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/materials', materialRoutes);
-app.use('/api/settings', settingsRoutes);
-app.use('/api/activity', activityRoutes);
+app.use('/api/users', requireAuth, userRoutes);
+app.use('/api/materials', requireAuth, materialRoutes);
+app.use('/api/settings', requireAuth, settingsRoutes);
+app.use('/api/activity', requireAuth, activityRoutes);
 
 app.post('/api/messages', async (req, res) => {
   try {
