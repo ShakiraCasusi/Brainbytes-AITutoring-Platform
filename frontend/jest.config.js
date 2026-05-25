@@ -1,6 +1,14 @@
 module.exports = {
-  // Legacy default Jest behavior used the Node environment, where window is undefined.
-  // testEnvironment: 'node',
-  testEnvironment: 'jsdom',
-  testMatch: ['**/__tests__/**/*.test.js']
+  testEnvironment: "jsdom",
+  transform: {
+    "^.+\\.[tj]sx?$": "babel-jest"
+  },
+  moduleNameMapper: {
+    "\\.(css|less|scss)$": "identity-obj-proxy"
+  },
+  testMatch: [
+    "**/__tests__/unit/**/*.test.js",
+    "**/__tests__/integration/**/*.test.js"
+  ],
+  setupFilesAfterEnv: ["@testing-library/jest-dom"]
 };

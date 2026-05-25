@@ -1,6 +1,10 @@
 module.exports = {
   testEnvironment: 'node',
-  testMatch: ['**/tests/**/*.test.js'],
+  testMatch: ['**/__tests__/**/*.test.js'],   // Run only Jest tests
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '<rootDir>/tests/'   // Ignore Playwright tests
+  ],
   collectCoverageFrom: [
     'backend/**/*.js',
     'frontend/**/*.js',
