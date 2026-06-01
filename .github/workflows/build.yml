@@ -12,11 +12,21 @@ jobs:
   build:
     name: Build Docker Images
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       # 1. Check out your repository
       - name: Check out repository
         uses: actions/checkout@v3
+
+      # Cache Docker layers
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       # 2. Set up Docker Buildx (latest major version is v3)
       - name: Set up Docker Buildx

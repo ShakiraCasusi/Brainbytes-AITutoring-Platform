@@ -9,17 +9,33 @@ on:
 jobs:
   test:
     name: Run Tests
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x]
+        os: [ubuntu-latest]
+    
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
 
+      # Cache Node.js dependencies
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       # --- FRONTEND ---
       - name: Set up Node.js for Frontend
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
           cache-dependency-path: ./frontend/package-lock.json
 
@@ -35,7 +51,7 @@ jobs:
       - name: Set up Node.js for Backend
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
           cache-dependency-path: ./backend/package-lock.json
 
@@ -46,3 +62,26 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: npm test
+
+      # --- COVERAGE ---
+      - name: Run backend tests with coverage
+        working-directory: ./backend
+        run: npm run test:coverage || echo "Coverage run failed but continuing"
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-reports
+          path: |
+            backend/coverage
+            frontend/coverage
+          if-no-files-found: ignore
+
+      # --- END-TO-END TESTING ---
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps || echo "Playwright not required or installed"
+
+      - name: Run E2E tests
+        working-directory: ./tests
+        run: npm run test || echo "E2E tests failed but continuing workflow"
+        continue-on-error: true
