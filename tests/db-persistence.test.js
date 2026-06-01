@@ -25,7 +25,7 @@ describe('Database Persistence Tests', () => {
       text: 'Test persistence ' + Date.now(),
       sender: 'user',
       sessionId: 'persistence-test',
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     await collection.insertOne(testMessage);
@@ -34,7 +34,7 @@ describe('Database Persistence Tests', () => {
     execSync('docker-compose restart mongodb');
 
     // Wait for container to be ready
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     // Reconnect to database
     const newClient = await MongoClient.connect(url);
@@ -44,7 +44,7 @@ describe('Database Persistence Tests', () => {
     const newCollection = newDb.collection('messages');
     const foundMessage = await newCollection.findOne({
       sessionId: 'persistence-test',
-      text: testMessage.text
+      text: testMessage.text,
     });
 
     expect(foundMessage).not.toBeNull();

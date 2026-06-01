@@ -8,7 +8,7 @@ const options = {
   // Legacy path before the API route was standardized.
   // path: '/health',
   path: '/api/health',
-  timeout: 2000
+  timeout: 2000,
 };
 
 const request = http.request(options, (res) => {

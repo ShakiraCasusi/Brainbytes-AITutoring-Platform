@@ -12,7 +12,7 @@ describe('Backend API Tests', () => {
   test('Chat endpoint processes messages', async () => {
     const testMessage = {
       message: 'Hello, can you help with math?',
-      sessionId: 'test-session'
+      sessionId: 'test-session',
     };
 
     const response = await axios.post(`${API_URL}/chat/send`, testMessage);

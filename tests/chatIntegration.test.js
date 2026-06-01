@@ -14,7 +14,7 @@ describe('Chat API Integration', () => {
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(MONGO_URI, {
         useNewUrlParser: true,
-        useUnifiedTopology: true
+        useUnifiedTopology: true,
       });
     }
   });
@@ -33,7 +33,7 @@ describe('Chat API Integration', () => {
 
     const response = await axios.post('/api/chat', {
       message: testMessage,
-      sessionId: sessionId
+      sessionId: sessionId,
     });
 
     expect(response.status).toEqual(200);
@@ -42,7 +42,7 @@ describe('Chat API Integration', () => {
     // Verify message was saved to database
     const savedMessages = await Message.find({
       sessionId: 'test-session',
-      text: testMessage
+      text: testMessage,
     });
 
     expect(savedMessages).toHaveLength(1);

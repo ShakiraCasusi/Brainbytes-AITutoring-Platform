@@ -7,7 +7,7 @@ describe('MessageList Component Rendering', () => {
 
   it('renders welcome screen when there are no messages', () => {
     render(<MessageList messages={[]} loading={false} readReceiptRef={mockRef} />);
-    
+
     expect(screen.getByText('Ask a focused question')).toBeDefined();
     expect(screen.getByText(/Choose a subject, then ask for a definition/i)).toBeDefined();
   });
@@ -18,14 +18,14 @@ describe('MessageList Component Rendering', () => {
         _id: 'msg-1',
         text: 'Hello, how can I help with math?',
         sender: 'ai',
-        timestamp: new Date('2026-05-24T10:00:00Z').toISOString()
+        timestamp: new Date('2026-05-24T10:00:00Z').toISOString(),
       },
       {
         _id: 'msg-2',
         text: 'Can you explain evaporation?',
         sender: 'user',
-        timestamp: new Date('2026-05-24T10:01:00Z').toISOString()
-      }
+        timestamp: new Date('2026-05-24T10:01:00Z').toISOString(),
+      },
     ];
 
     const { container } = render(

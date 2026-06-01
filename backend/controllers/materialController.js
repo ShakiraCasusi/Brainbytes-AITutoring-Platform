@@ -14,7 +14,7 @@ exports.createMaterial = async (req, res) => {
     await Activity.create({
       type: 'material',
       subject,
-      summary: `Added ${topic} material`
+      summary: `Added ${topic} material`,
     });
     realtime.broadcast('material:created', { material });
 
@@ -38,13 +38,16 @@ exports.listMaterials = async (req, res) => {
     if (cached) return res.json(cached);
 
     const [materials, total] = await Promise.all([
-      LearningMaterial.find(query).sort({ updatedAt: -1 }).skip((page - 1) * limit).limit(limit),
-      LearningMaterial.countDocuments(query)
+      LearningMaterial.find(query)
+        .sort({ updatedAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+      LearningMaterial.countDocuments(query),
     ]);
 
     const payload = {
       materials,
-      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     };
 
     materialCache.set(cacheKey, payload);

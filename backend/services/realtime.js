@@ -6,10 +6,12 @@ function initializeRealtime(httpServer) {
   server = new WebSocket.Server({ server: httpServer, path: '/ws' });
 
   server.on('connection', (socket) => {
-    socket.send(JSON.stringify({
-      type: 'connected',
-      message: 'Realtime updates connected'
-    }));
+    socket.send(
+      JSON.stringify({
+        type: 'connected',
+        message: 'Realtime updates connected',
+      })
+    );
   });
 
   return server;

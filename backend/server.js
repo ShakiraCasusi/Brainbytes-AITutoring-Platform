@@ -24,12 +24,14 @@ app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
-app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 300,
-  standardHeaders: true,
-  legacyHeaders: false
-}));
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+  })
+);
 
 aiService.initializeAI();
 realtime.initializeRealtime(server);
@@ -42,7 +44,7 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    databaseConnected: mongoose.connection.readyState === 1
+    databaseConnected: mongoose.connection.readyState === 1,
   });
 });
 
@@ -50,7 +52,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    databaseConnected: mongoose.connection.readyState === 1
+    databaseConnected: mongoose.connection.readyState === 1,
   });
 });
 
@@ -67,7 +69,7 @@ app.post('/api/messages', async (req, res) => {
       text: req.body.text,
       sender: 'user',
       sessionId: 'legacy',
-      timestamp: new Date()
+      timestamp: new Date(),
     });
     await userMessage.save();
 
@@ -77,14 +79,14 @@ app.post('/api/messages', async (req, res) => {
       text: aiResult.response,
       sender: 'ai',
       sessionId: 'legacy',
-      timestamp: new Date()
+      timestamp: new Date(),
     });
     await aiMessage.save();
 
     res.status(201).json({
       userMessage,
       aiMessage,
-      category: aiResult.category
+      category: aiResult.category,
     });
   } catch (err) {
     console.error('Error in /api/messages route:', err);
@@ -92,15 +94,18 @@ app.post('/api/messages', async (req, res) => {
   }
 });
 
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  retryWrites: true
-}).then(() => {
-  console.log('Connected to MongoDB');
-  server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+mongoose
+  .connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    retryWrites: true,
+  })
+  .then(() => {
+    console.log('Connected to MongoDB');
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Failed to connect to MongoDB:', err);
   });
-}).catch(err => {
-  console.error('Failed to connect to MongoDB:', err);
-});

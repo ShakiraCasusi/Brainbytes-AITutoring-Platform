@@ -37,18 +37,65 @@ export default function Dashboard({ activity, profile, online }) {
         )}
       </div>
       <style jsx>{`
-        .dashboard { display: grid; gap: 20px; }
-        header { display: flex; justify-content: space-between; align-items: center; }
-        h2 { margin: 0; font-size: 28px; line-height: 1.2; }
-        h3 { margin: 0 0 12px; font-size: 18px; }
-        p { margin: 6px 0 0; line-height: 1.5; color: #5c667a; }
-        .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-        .metrics article, .feed { background: white; border: 1px solid #dde3ee; border-radius: 8px; padding: 18px; }
-        .metrics span { display: block; font-size: 24px; font-weight: 800; color: #102033; }
-        .feed article { border-top: 1px solid #edf0f5; padding: 12px 0; display: grid; gap: 4px; }
-        .feed span { color: #7a8496; font-size: 13px; }
-        .empty { max-width: 60ch; }
-        @media (max-width: 760px) { .metrics { grid-template-columns: 1fr; } }
+        .dashboard {
+          display: grid;
+          gap: 20px;
+        }
+        header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        h2 {
+          margin: 0;
+          font-size: 28px;
+          line-height: 1.2;
+        }
+        h3 {
+          margin: 0 0 12px;
+          font-size: 18px;
+        }
+        p {
+          margin: 6px 0 0;
+          line-height: 1.5;
+          color: #5c667a;
+        }
+        .metrics {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 14px;
+        }
+        .metrics article,
+        .feed {
+          background: white;
+          border: 1px solid #dde3ee;
+          border-radius: 8px;
+          padding: 18px;
+        }
+        .metrics span {
+          display: block;
+          font-size: 24px;
+          font-weight: 800;
+          color: #102033;
+        }
+        .feed article {
+          border-top: 1px solid #edf0f5;
+          padding: 12px 0;
+          display: grid;
+          gap: 4px;
+        }
+        .feed span {
+          color: #7a8496;
+          font-size: 13px;
+        }
+        .empty {
+          max-width: 60ch;
+        }
+        @media (max-width: 760px) {
+          .metrics {
+            grid-template-columns: 1fr;
+          }
+        }
       `}</style>
     </section>
   );

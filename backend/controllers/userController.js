@@ -10,13 +10,16 @@ exports.listUsers = async (req, res) => {
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 100);
     const query = req.query.subject ? { preferredSubjects: req.query.subject.toLowerCase() } : {};
     const [users, total] = await Promise.all([
-      User.find(query).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
-      User.countDocuments(query)
+      User.find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+      User.countDocuments(query),
     ]);
 
     res.json({
       users: users.map(sanitizeUser),
-      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
   } catch (error) {
     res.status(500).json({ error: 'Unable to load users' });
@@ -47,7 +50,7 @@ exports.updateUser = async (req, res) => {
 
     const user = await User.findByIdAndUpdate(req.params.id, updates, {
       new: true,
-      runValidators: true
+      runValidators: true,
     });
 
     if (!user) {
@@ -57,7 +60,7 @@ exports.updateUser = async (req, res) => {
     await Activity.create({
       userId: user._id,
       type: 'profile',
-      summary: `${user.name} updated profile details`
+      summary: `${user.name} updated profile details`,
     });
     realtime.broadcast('user:updated', { user: sanitizeUser(user) });
 

@@ -12,7 +12,7 @@ function sanitizeUser(user) {
     email: user.email,
     preferredSubjects: user.preferredSubjects || [],
     createdAt: user.createdAt,
-    updatedAt: user.updatedAt
+    updatedAt: user.updatedAt,
   };
 }
 
@@ -39,7 +39,7 @@ exports.register = async (req, res) => {
     await Activity.create({
       userId: user._id,
       type: 'profile',
-      summary: `${user.name} created a profile`
+      summary: `${user.name} created a profile`,
     });
     realtime.broadcast('user:created', { user: sanitizeUser(user) });
 

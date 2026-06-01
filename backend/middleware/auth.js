@@ -3,11 +3,7 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'brainbytes-local-secret';
 
 function createToken(user) {
-  return jwt.sign(
-    { id: user._id.toString(), email: user.email },
-    JWT_SECRET,
-    { expiresIn: '7d' }
-  );
+  return jwt.sign({ id: user._id.toString(), email: user.email }, JWT_SECRET, { expiresIn: '7d' });
 }
 
 function requireAuth(req, res, next) {

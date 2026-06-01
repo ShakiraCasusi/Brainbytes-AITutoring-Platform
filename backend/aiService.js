@@ -2,26 +2,11 @@ const fetch = require('node-fetch');
 
 /* ---------------- TRAINING EXAMPLES ---------------- */
 const examples = {
-  math: [
-    'Break numbers step by step.',
-    'Identify operation then solve carefully.'
-  ],
-  science: [
-    'Explain using real-world cause and effect.',
-    'Use observation and evidence.'
-  ],
-  history: [
-    'Mention people, time period, and impact.',
-    'Explain causes and consequences.'
-  ],
-  english: [
-    'Focus on structure and meaning.',
-    'Use examples from the text.'
-  ],
-  general: [
-    'Break the question into smaller parts.',
-    'Explain step by step.'
-  ]
+  math: ['Break numbers step by step.', 'Identify operation then solve carefully.'],
+  science: ['Explain using real-world cause and effect.', 'Use observation and evidence.'],
+  history: ['Mention people, time period, and impact.', 'Explain causes and consequences.'],
+  english: ['Focus on structure and meaning.', 'Use examples from the text.'],
+  general: ['Break the question into smaller parts.', 'Explain step by step.'],
 };
 
 /* ---------------- INIT ---------------- */
@@ -61,15 +46,30 @@ function detectSubject(question, preferredSubject) {
 
   if (/[+\-*/=]/.test(text)) return 'math';
 
-  if (text.includes('science') || text.includes('water') || text.includes('chemical') || text.includes('evaporation')) {
+  if (
+    text.includes('science') ||
+    text.includes('water') ||
+    text.includes('chemical') ||
+    text.includes('evaporation')
+  ) {
     return 'science';
   }
 
-  if (text.includes('history') || text.includes('capital') || text.includes('president') || text.includes('war')) {
+  if (
+    text.includes('history') ||
+    text.includes('capital') ||
+    text.includes('president') ||
+    text.includes('war')
+  ) {
     return 'history';
   }
 
-  if (text.includes('essay') || text.includes('grammar') || text.includes('poem') || text.includes('sentence')) {
+  if (
+    text.includes('essay') ||
+    text.includes('grammar') ||
+    text.includes('poem') ||
+    text.includes('sentence')
+  ) {
     return 'english';
   }
 
@@ -103,11 +103,11 @@ function detectSentiment(question) {
   const confused = ['confused', 'stuck', 'hard', "don't get", 'help me'];
   const urgent = ['quick', 'urgent', 'asap', 'now'];
 
-  if (confused.some(w => text.includes(w))) {
+  if (confused.some((w) => text.includes(w))) {
     return { label: 'confused', confidence: 0.8 };
   }
 
-  if (urgent.some(w => text.includes(w))) {
+  if (urgent.some((w) => text.includes(w))) {
     return { label: 'urgent', confidence: 0.7 };
   }
 
@@ -146,13 +146,9 @@ function localResponse(subject, questionType, sentiment, question, context) {
 
   const direct = directAnswer(question);
 
-  const tone = sentiment.label === 'confused'
-    ? "Let's simplify this. "
-    : '';
+  const tone = sentiment.label === 'confused' ? "Let's simplify this. " : '';
 
-  const recent = context.history?.length > 1
-    ? 'Based on your recent questions, '
-    : '';
+  const recent = context.history?.length > 1 ? 'Based on your recent questions, ' : '';
 
   if (direct) return tone + direct;
 
@@ -194,21 +190,18 @@ async function callHuggingFace(prompt) {
   const timeout = setTimeout(() => controller.abort(), 5000);
 
   try {
-    const res = await fetch(
-      'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
-      {
-        method: 'POST',
-        signal: controller.signal,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          inputs: prompt,
-          options: { wait_for_model: false }
-        })
-      }
-    );
+    const res = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-cnn', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        inputs: prompt,
+        options: { wait_for_model: false },
+      }),
+    });
 
     clearTimeout(timeout);
 
@@ -234,22 +227,15 @@ async function generateResponse(question, context = {}) {
   const hf = await callHuggingFace(`Explain: ${question}`);
 
   const response =
-    math ||
-    direct ||
-    hf ||
-    localResponse(subject, type, sentiment, question, context);
+    math || direct || hf || localResponse(subject, type, sentiment, question, context);
 
   return {
     category: subject,
     questionType: type,
     sentiment,
     response,
-    suggestions: [
-      'Can you explain more?',
-      'Give me an example',
-      'Break it down step by step'
-    ],
-    trainingExamples: examples[subject]
+    suggestions: ['Can you explain more?', 'Give me an example', 'Break it down step by step'],
+    trainingExamples: examples[subject],
   };
 }
 
@@ -258,5 +244,5 @@ module.exports = {
   generateResponse,
   detectSubject,
   detectQuestionType,
-  detectSentiment
+  detectSentiment,
 };
