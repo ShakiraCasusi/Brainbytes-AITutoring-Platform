@@ -111,7 +111,7 @@ jobs:
 
       # Save build artifacts
       - name: Save build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-outputs
           path: |
@@ -134,7 +134,7 @@ jobs:
       
       # Download build artifacts
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build-outputs
 
@@ -178,7 +178,7 @@ jobs:
         run: npm run test:coverage || echo "Coverage run failed but continuing"
 
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-reports
           path: |
