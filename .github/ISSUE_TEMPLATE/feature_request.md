@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest an idea for BrainBytes
-title: "[FEATURE] "
+title: '[FEATURE] '
 labels: enhancement
 assignees: ''
 ---

@@ -8,8 +8,8 @@ module.exports = [
       '**/build/**',
       '**/coverage/**',
       '**/jest.config.js',
-      '**/frontend/jest.config.js'
-    ]
+      '**/frontend/jest.config.js',
+    ],
   },
   {
     files: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx'],
@@ -41,26 +41,26 @@ module.exports = [
         afterAll: 'readonly',
         jest: 'readonly',
         // React
-        React: 'readonly'
+        React: 'readonly',
       },
       parserOptions: {
         ecmaFeatures: {
-          jsx: true
-        }
-      }
+          jsx: true,
+        },
+      },
     },
     plugins: {
-      react: require('eslint-plugin-react')
+      react: require('eslint-plugin-react'),
     },
     rules: {
-      'no-unused-vars': ['warn', { 'argsIgnorePattern': '^_' }],
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'react/react-in-jsx-scope': 'off',
-      'react/prop-types': 'off'
+      'react/prop-types': 'off',
     },
     settings: {
       react: {
-        version: 'detect'
-      }
-    }
-  }
+        version: 'detect',
+      },
+    },
+  },
 ];

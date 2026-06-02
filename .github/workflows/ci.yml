@@ -19,11 +19,11 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Cache Node.js dependencies
       - name: Cache Node.js dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             **/node_modules
@@ -33,7 +33,7 @@ jobs:
 
       # --- FRONTEND ---
       - name: Set up Node.js for Frontend
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -49,7 +49,7 @@ jobs:
 
       # --- BACKEND ---
       - name: Set up Node.js for Backend
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -69,7 +69,7 @@ jobs:
         run: npm run test:coverage || echo "Coverage run failed but continuing"
 
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: coverage-reports
           path: |
