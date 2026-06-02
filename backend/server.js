@@ -104,12 +104,17 @@ mongoose
   .then(() => {
     console.log('Connected to MongoDB');
     
-    // Initialize services after database connection succeeds
+    // Initialize services with comprehensive error handling
     try {
-      aiService.initializeAI();
-      realtime.initializeRealtime(server);
+      if (typeof aiService.initializeAI === 'function') {
+        aiService.initializeAI();
+      }
+      if (typeof realtime.initializeRealtime === 'function') {
+        realtime.initializeRealtime(server);
+      }
     } catch (err) {
       console.error('Failed to initialize services:', err);
+      console.error('Service initialization error details:', err.stack);
       process.exit(1);
     }
     
@@ -119,5 +124,18 @@ mongoose
   })
   .catch((err) => {
     console.error('Failed to connect to MongoDB:', err);
+    console.error('MongoDB connection error details:', err.stack);
     process.exit(1);
   });
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
