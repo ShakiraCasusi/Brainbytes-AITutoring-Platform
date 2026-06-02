@@ -133,7 +133,12 @@ jobs:
     # Spin up MongoDB service so mongoose.connect succeeds and server can start listening
     services:
       mongodb:
-        image: mongo:4.4
+        image: mongo:5
+        options: >-
+          --health-cmd mongosh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
         ports:
           - 27017:27017
 
@@ -141,11 +146,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
       
-      # Download build artifacts
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-outputs
+      # (Removed redundant download of build artifacts to avoid failures, testing builds fresh)
 
       # Cache Node.js dependencies
       - name: Cache Node.js dependencies
