@@ -178,6 +178,13 @@ jobs:
         working-directory: ./backend
         run: npm install
 
+      - name: Verify backend dependencies
+        working-directory: ./backend
+        run: |
+          npm list node-fetch ws || true
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+
       # Start the backend server so the API is listening
       - name: Start backend server
         working-directory: ./backend
@@ -205,7 +212,9 @@ jobs:
           echo "Server failed to start"
           echo "=== Server Startup Log ==="
           cat /tmp/server.log || echo "No server log found"
-          echo "=== End Server Log ==="
+          echo "=== NPM Debug Log ==="
+          cat /home/runner/.npm/_logs/*debug.log 2>/dev/null | tail -50 || echo "No npm debug log found"
+          echo "=== End Logs ==="
           exit 1
       
       - name: Run backend tests
@@ -234,6 +243,14 @@ jobs:
         working-directory: ./backend/tests
         run: node chat.test.js
         continue-on-error: true
+
+      - name: Diagnose startup failure
+        if: failure()
+        run: |
+          echo "=== Full Server Log ==="
+          cat /tmp/server.log || echo "No server log found"
+          echo "=== NPM Debug Log ==="
+          cat /home/runner/.npm/_logs/*debug.log 2>/dev/null | tail -50 || echo "No npm debug log found"
 
   notify:
     name: Pipeline Status Notifications

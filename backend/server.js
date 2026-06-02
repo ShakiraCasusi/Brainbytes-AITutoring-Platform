@@ -114,19 +114,28 @@ mongoose
     // Initialize services with error handling
     try {
       console.log('Initializing AI service...');
-      if (typeof aiService.initializeAI === 'function') {
-        aiService.initializeAI();
-        console.log('✓ AI service initialized');
+      console.log('aiService object:', typeof aiService, Object.keys(aiService || {}));
+      
+      if (!aiService || typeof aiService.initializeAI !== 'function') {
+        throw new Error('aiService module not properly loaded or initializeAI function missing');
       }
       
+      aiService.initializeAI();
+      console.log('✓ AI service initialized');
+      
       console.log('Initializing realtime service...');
-      if (typeof realtime.initializeRealtime === 'function') {
-        realtime.initializeRealtime(server);
-        console.log('✓ Realtime service initialized');
+      console.log('realtime object:', typeof realtime, Object.keys(realtime || {}));
+      
+      if (!realtime || typeof realtime.initializeRealtime !== 'function') {
+        throw new Error('realtime module not properly loaded or initializeRealtime function missing');
       }
+      
+      realtime.initializeRealtime(server);
+      console.log('✓ Realtime service initialized');
     } catch (err) {
       console.error('✗ Failed to initialize services:', err.message);
       console.error('Stack trace:', err.stack);
+      console.error('Full error object:', err);
       process.exit(1);
     }
     
