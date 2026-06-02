@@ -95,6 +95,12 @@ app.post('/api/messages', async (req, res) => {
   }
 });
 
+// Set a startup timeout to prevent hanging
+const startupTimeout = setTimeout(() => {
+  console.error('Server startup timeout - failed to start within 10 seconds');
+  process.exit(1);
+}, 10000);
+
 mongoose
   .connect(MONGO_URI, {
     useNewUrlParser: true,
@@ -102,40 +108,48 @@ mongoose
     retryWrites: true,
   })
   .then(() => {
-    console.log('Connected to MongoDB');
+    clearTimeout(startupTimeout);
+    console.log('✓ Connected to MongoDB');
     
-    // Initialize services with comprehensive error handling
+    // Initialize services with error handling
     try {
+      console.log('Initializing AI service...');
       if (typeof aiService.initializeAI === 'function') {
         aiService.initializeAI();
+        console.log('✓ AI service initialized');
       }
+      
+      console.log('Initializing realtime service...');
       if (typeof realtime.initializeRealtime === 'function') {
         realtime.initializeRealtime(server);
+        console.log('✓ Realtime service initialized');
       }
     } catch (err) {
-      console.error('Failed to initialize services:', err);
-      console.error('Service initialization error details:', err.stack);
+      console.error('✗ Failed to initialize services:', err.message);
+      console.error('Stack trace:', err.stack);
       process.exit(1);
     }
     
     server.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+      console.log(`✓ Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.error('Failed to connect to MongoDB:', err);
-    console.error('MongoDB connection error details:', err.stack);
+    clearTimeout(startupTimeout);
+    console.error('✗ Failed to connect to MongoDB:', err.message);
+    console.error('Stack trace:', err.stack);
     process.exit(1);
   });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
+  console.error('✗ Uncaught Exception:', err.message);
+  console.error('Stack trace:', err.stack);
   process.exit(1);
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  console.error('✗ Unhandled Rejection:', reason);
   process.exit(1);
 });

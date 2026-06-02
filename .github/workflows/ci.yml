@@ -74,7 +74,11 @@ jobs:
       # Start the backend server so the API is listening
       - name: Start backend server
         working-directory: ./backend
-        run: npm start &
+        run: |
+          npm start > /tmp/server.log 2>&1 &
+          SERVER_PID=$!
+          echo "Server started with PID: $SERVER_PID"
+          sleep 3  # Give the server time to initialize
         env:
           NODE_ENV: test
           PORT: 4000
@@ -92,6 +96,9 @@ jobs:
             sleep 1
           done
           echo "Server failed to start"
+          echo "=== Server Startup Log ==="
+          cat /tmp/server.log || echo "No server log found"
+          echo "=== End Server Log ==="
           exit 1
 
       - name: Run backend tests
