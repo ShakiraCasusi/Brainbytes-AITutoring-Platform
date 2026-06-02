@@ -33,8 +33,9 @@ app.use(
   })
 );
 
-aiService.initializeAI();
-realtime.initializeRealtime(server);
+// MOVE service initialization to after MongoDB connection
+// aiService.initializeAI();
+// realtime.initializeRealtime(server);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the BrainBytes API' });
@@ -102,6 +103,16 @@ mongoose
   })
   .then(() => {
     console.log('Connected to MongoDB');
+    
+    // Initialize services after database connection succeeds
+    try {
+      aiService.initializeAI();
+      realtime.initializeRealtime(server);
+    } catch (err) {
+      console.error('Failed to initialize services:', err);
+      process.exit(1);
+    }
+    
     server.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
