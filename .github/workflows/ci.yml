@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
 
-    # Spin up MongoDB service so mongoose.connect succeeds and server can start listening
+    # Spin up a MongoDB container so our app has a real database to talk to during tests.
     services:
       mongodb:
         image: mongo:5
@@ -33,7 +33,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      # Cache Node.js dependencies
+      # Reuse previously downloaded packages to speed up the pipeline.
       - name: Cache Node.js dependencies
         uses: actions/cache@v3
         with:
@@ -43,7 +43,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      # --- FRONTEND ---
+      # --- Frontend ---
       - name: Set up Node.js for Frontend
         uses: actions/setup-node@v3
         with:
@@ -59,7 +59,7 @@ jobs:
         working-directory: ./frontend
         run: npm test
 
-      # --- BACKEND ---
+      # --- Backend ---
       - name: Set up Node.js for Backend
         uses: actions/setup-node@v3
         with:
@@ -78,7 +78,7 @@ jobs:
           echo "Node version: $(node --version)"
           echo "NPM version: $(npm --version)"
 
-      # Wait for MongoDB to be fully ready before starting the server
+      # MongoDB can take a moment to be ready. This waits until it actually accepts connections.
       - name: Wait for MongoDB to be ready
         run: |
           for i in {1..30}; do
@@ -90,7 +90,7 @@ jobs:
             sleep 1
           done
 
-      # Start the backend server so the API is listening
+      # Start the server in the background and give it a few seconds to boot up.
       - name: Start backend server
         working-directory: ./backend
         run: |
@@ -103,7 +103,7 @@ jobs:
           PORT: 4000
           MONGO_URI: mongodb://localhost:27017/brainbytes
 
-      # Wait for the backend port to be responsive
+      # Repeatedly ping the health endpoint until the server responds or we give up.
       - name: Wait for server to be ready
         run: |
           for i in {1..30}; do
@@ -126,7 +126,7 @@ jobs:
         working-directory: ./backend
         run: npm test
 
-      # --- COVERAGE ---
+      # --- Coverage ---
       - name: Run backend tests with coverage
         working-directory: ./backend
         run: npm run test:coverage || echo "Coverage run failed but continuing"
@@ -140,7 +140,7 @@ jobs:
             frontend/coverage
           if-no-files-found: ignore
 
-      # --- END-TO-END TESTING ---
+      # --- End-to-end tests ---
       - name: Install Playwright browsers
         run: npx playwright install --with-deps || echo "Playwright not required or installed"
 
