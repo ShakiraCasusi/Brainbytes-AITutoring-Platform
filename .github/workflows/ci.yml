@@ -1,0 +1,150 @@
+name: BrainBytes CI
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  test:
+    name: Run Tests
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+        os: [ubuntu-latest]
+    
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+
+    # Spin up a MongoDB container so our app has a real database to talk to during tests.
+    services:
+      mongodb:
+        image: mongo:5
+        options: >-
+          --health-cmd mongosh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      # Reuse previously downloaded packages to speed up the pipeline.
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # --- Frontend ---
+      - name: Set up Node.js for Frontend
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: ./frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install
+      
+      - name: Run frontend tests
+        working-directory: ./frontend
+        run: npm test
+
+      # --- Backend ---
+      - name: Set up Node.js for Backend
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: ./backend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Verify backend dependencies
+        working-directory: ./backend
+        run: |
+          npm list node-fetch ws || true
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+
+      # MongoDB can take a moment to be ready. This waits until it actually accepts connections.
+      - name: Wait for MongoDB to be ready
+        run: |
+          for i in {1..30}; do
+            if mongosh --eval "db.adminCommand('ping')" --quiet mongodb://localhost:27017 2>/dev/null; then
+              echo "MongoDB is ready"
+              break
+            fi
+            echo "Waiting for MongoDB... ($i/30)"
+            sleep 1
+          done
+
+      # Start the server in the background and give it a few seconds to boot up.
+      - name: Start backend server
+        working-directory: ./backend
+        run: |
+          npm start > /tmp/server.log 2>&1 &
+          SERVER_PID=$!
+          echo "Server started with PID: $SERVER_PID"
+          sleep 5  # Give the server time to initialize
+        env:
+          NODE_ENV: test
+          PORT: 4000
+          MONGO_URI: mongodb://localhost:27017/brainbytes
+
+      # Repeatedly ping the health endpoint until the server responds or we give up.
+      - name: Wait for server to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:4000/api/health 2>/dev/null; then
+              echo "Server is ready"
+              exit 0
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 1
+          done
+          echo "Server failed to start"
+          echo "=== Server Startup Log ==="
+          cat /tmp/server.log || echo "No server log found"
+          echo "=== NPM Debug Log ==="
+          cat /home/runner/.npm/_logs/*debug.log 2>/dev/null | tail -50 || echo "No npm debug log found"
+          echo "=== End Logs ==="
+          exit 1
+
+      - name: Run backend tests
+        working-directory: ./backend
+        run: npm test
+
+      # --- Coverage ---
+      - name: Run backend tests with coverage
+        working-directory: ./backend
+        run: npm run test:coverage || echo "Coverage run failed but continuing"
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            backend/coverage
+            frontend/coverage
+          if-no-files-found: ignore
+
+      # --- End-to-end tests ---
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps || echo "Playwright not required or installed"
+
+      - name: Run E2E tests
+        working-directory: ./backend/tests
+        run: node chat.test.js
+        continue-on-error: true

@@ -12,7 +12,7 @@ export function formatMessage(text) {
       return {
         type: 'list',
         value: lines.map((line) => line.replace(/^[-*]\s+/, '')),
-        key: index
+        key: index,
       };
     }
 

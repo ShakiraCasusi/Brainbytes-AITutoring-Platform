@@ -21,7 +21,7 @@ async function backup() {
   fs.mkdirSync(outputDir, { recursive: true });
   await mongoose.connect(MONGO_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
   });
 
   const results = await Promise.all([
@@ -29,7 +29,7 @@ async function backup() {
     exportCollection('users', User),
     exportCollection('settings', UserSettings),
     exportCollection('materials', LearningMaterial),
-    exportCollection('activity', Activity)
+    exportCollection('activity', Activity),
   ]);
 
   await mongoose.disconnect();

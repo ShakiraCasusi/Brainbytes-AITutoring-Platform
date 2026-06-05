@@ -2,7 +2,7 @@
 export function getAvailableChatFeatures() {
   let chatFeatures = {
     sendMessage: true,
-    viewHistory: true
+    viewHistory: true,
   };
 
   // Progressive enhancements

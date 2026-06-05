@@ -14,7 +14,7 @@ describe('Week 2 and Week 3 feature coverage', () => {
       name: 'Test Student',
       email,
       password: 'Passw0rd!',
-      preferredSubjects: ['math', 'science']
+      preferredSubjects: ['math', 'science'],
     });
 
     expect(registration.status).toBe(201);
@@ -23,13 +23,13 @@ describe('Week 2 and Week 3 feature coverage', () => {
     token = registration.data.token;
 
     const me = await axios.get(`${API_BASE_URL}/api/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
     expect(me.data.user.email).toBe(email);
 
     const update = await axios.put(`${API_BASE_URL}/api/users/${userId}`, {
       name: 'Updated Student',
-      preferredSubjects: ['history']
+      preferredSubjects: ['history'],
     });
     expect(update.data.user.name).toBe('Updated Student');
 
@@ -37,14 +37,14 @@ describe('Week 2 and Week 3 feature coverage', () => {
       theme: 'light',
       readingLevel: 'advanced',
       dailyGoalMinutes: 45,
-      notifications: false
+      notifications: false,
     });
     expect(settings.data.settings.readingLevel).toBe('advanced');
 
     const material = await axios.post(`${API_BASE_URL}/api/materials`, {
       subject: 'science',
       topic: `Water cycle ${Date.now()}`,
-      content: 'Evaporation, condensation, and precipitation form the water cycle.'
+      content: 'Evaporation, condensation, and precipitation form the water cycle.',
     });
     expect(material.status).toBe(201);
 
@@ -56,7 +56,7 @@ describe('Week 2 and Week 3 feature coverage', () => {
     const response = await axios.post(`${API_BASE_URL}/api/chat/send`, {
       sessionId: `week-test-${Date.now()}`,
       subject: 'science',
-      message: 'I am confused. What is evaporation?'
+      message: 'I am confused. What is evaporation?',
     });
 
     expect(response.data.category).toBe('science');

@@ -56,16 +56,23 @@ async function runTests() {
 
     // Test 5: Chat history with limit query param
     console.log('Test 5: Chat history with limit query param');
-    const limitedHistoryResponse = await axios.get(`${API_URL}/chat/history/${TEST_SESSION_ID}?limit=1`);
+    const limitedHistoryResponse = await axios.get(
+      `${API_URL}/chat/history/${TEST_SESSION_ID}?limit=1`
+    );
     console.log('Limited history response:', limitedHistoryResponse.data);
     console.assert(limitedHistoryResponse.data.messages.length <= 1, 'Limit not respected');
     console.log('✓ Test 5: PASSED\n');
 
     // Test 6: History for unknown session returns empty array
     console.log('Test 6: History for unknown session returns empty array');
-    const unknownSessionResponse = await axios.get(`${API_URL}/chat/history/nonexistent-session-xyz`);
+    const unknownSessionResponse = await axios.get(
+      `${API_URL}/chat/history/nonexistent-session-xyz`
+    );
     console.log('Unknown session response:', unknownSessionResponse.data);
-    console.assert(Array.isArray(unknownSessionResponse.data.messages), 'Messages not returned as array');
+    console.assert(
+      Array.isArray(unknownSessionResponse.data.messages),
+      'Messages not returned as array'
+    );
     console.assert(unknownSessionResponse.data.messages.length === 0, 'Expected empty array');
     console.log('✓ Test 6: PASSED\n');
 
@@ -77,7 +84,10 @@ async function runTests() {
         email: `test_${Date.now()}@example.com`,
         password: 'TestPassword123!',
       });
-      console.assert([200, 201].includes(registerResponse.status), `Unexpected status ${registerResponse.status}`);
+      console.assert(
+        [200, 201].includes(registerResponse.status),
+        `Unexpected status ${registerResponse.status}`
+      );
       console.log('Response status:', registerResponse.status);
     } catch (error) {
       // 400/409 means validation worked — endpoint exists

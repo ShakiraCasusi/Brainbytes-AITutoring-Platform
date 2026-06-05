@@ -1,0 +1,10 @@
+node_modules/
+.next/
+backups/
+dist/
+build/
+coverage/
+package-lock.json
+frontend/package-lock.json
+backend/package-lock.json
+tests/package-lock.json

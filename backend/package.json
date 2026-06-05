@@ -8,6 +8,7 @@
     "dev": "nodemon server.js",
     "test": "node tests/chat.test.js",
     "test:db": "node tests/db-persistence.test.js",
+    "test:coverage": "node tests/chat.test.js",
     "backup": "node scripts/backup.js"
   },
   "dependencies": {

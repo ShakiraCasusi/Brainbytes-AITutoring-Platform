@@ -55,8 +55,10 @@ describe('AI Service Unit Tests', () => {
 
   describe('generateResponse', () => {
     it('should generate a structured response with local fallback', async () => {
-      const result = await aiService.generateResponse('What is evaporation?', { subject: 'science' });
-      
+      const result = await aiService.generateResponse('What is evaporation?', {
+        subject: 'science',
+      });
+
       expect(result).toBeDefined();
       expect(result.category).toBe('science');
       expect(result.questionType).toBe('definition');

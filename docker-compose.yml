@@ -1,6 +1,7 @@
 services:
   # Frontend container
   frontend:
+    image: brainbytes/frontend:latest
     build: ./frontend
     ports:
       - "8080:3000"
@@ -23,6 +24,7 @@ services:
 
   # Backend API container
   backend:
+    image: brainbytes/backend:latest
     build: ./backend
     ports:
       - "4000:3000"

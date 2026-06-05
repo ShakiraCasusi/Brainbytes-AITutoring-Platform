@@ -1,37 +1,42 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-    minlength: 2,
-    maxlength: 80
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 2,
+      maxlength: 80,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    },
+    passwordHash: {
+      type: String,
+      required: true,
+    },
+    preferredSubjects: [
+      {
+        type: String,
+        trim: true,
+        lowercase: true,
+      },
+    ],
+    lastActiveAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true,
-    match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  },
-  passwordHash: {
-    type: String,
-    required: true
-  },
-  preferredSubjects: [{
-    type: String,
-    trim: true,
-    lowercase: true
-  }],
-  lastActiveAt: {
-    type: Date,
-    default: Date.now
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true
-});
+);
 
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ preferredSubjects: 1 });

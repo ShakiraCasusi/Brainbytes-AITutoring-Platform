@@ -6,7 +6,12 @@ import ProfilePage from './ProfilePage';
 import { api, setToken, WS_URL } from '../utils/api';
 
 const defaultProfile = { name: '', email: '', preferredSubjects: [] };
-const defaultSettings = { theme: 'system', readingLevel: 'intermediate', dailyGoalMinutes: 30, notifications: true };
+const defaultSettings = {
+  theme: 'system',
+  readingLevel: 'intermediate',
+  dailyGoalMinutes: 30,
+  notifications: true,
+};
 
 export default function LearningWorkspace() {
   const [view, setView] = useState('chat');

@@ -4,20 +4,23 @@ const execPromise = util.promisify(exec);
 
 describe('Container Resource Usage Tests', () => {
   test('Containers stay within memory limits', async () => {
-    const { stdout } = await execPromise('docker stats --no-stream --format "{{.Name}} : {{.MemPerc}}"');
+    const { stdout } = await execPromise(
+      'docker stats --no-stream --format "{{.Name}} : {{.MemPerc}}"'
+    );
 
-    const memoryUsages = stdout.split('\n')
-      .filter(line => line.includes('brainbytes'))
-      .map(line => {
+    const memoryUsages = stdout
+      .split('\n')
+      .filter((line) => line.includes('brainbytes'))
+      .map((line) => {
         const [name, memUsage] = line.split(' : ');
         return {
           name,
-          memoryPercentage: parseFloat(memUsage.replace('%', ''))
+          memoryPercentage: parseFloat(memUsage.replace('%', '')),
         };
       });
 
     // Check each container
-    memoryUsages.forEach(container => {
+    memoryUsages.forEach((container) => {
       expect(container.memoryPercentage).toBeLessThan(80); // Adjust threshold as needed
       console.log(`${container.name} memory usage: ${container.memoryPercentage}%`);
     });

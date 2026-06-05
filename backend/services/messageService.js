@@ -2,7 +2,7 @@ const Message = require('../Message');
 
 /**
  * Creates a new message instance with the correct properties.
- * 
+ *
  * @param {string} text - The message body text.
  * @param {string} sender - 'user' or 'ai'.
  * @param {string} sessionId - The identifier for the chat session.
@@ -13,10 +13,10 @@ function createMessage(text, sender, sessionId) {
     text,
     sender,
     sessionId,
-    timestamp: new Date()
+    timestamp: new Date(),
   });
 }
 
 module.exports = {
-  createMessage
+  createMessage,
 };

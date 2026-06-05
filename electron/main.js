@@ -9,8 +9,8 @@ function createWindow() {
     width: 1024,
     height: 768,
     webPreferences: {
-      nodeIntegration: true
-    }
+      nodeIntegration: true,
+    },
   });
 
   // In production, load the running web app. In development, point to the dev server.
@@ -22,12 +22,10 @@ function createWindow() {
   //       protocol: 'file:',
   //       slashes: true
   //     });
-  const startUrl = process.env.FRONTEND_URL || (
-    process.env.NODE_ENV === 'development'
-      ? 'http://localhost:3000'
-      : 'http://localhost:8080'
-  );
-  
+  const startUrl =
+    process.env.FRONTEND_URL ||
+    (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'http://localhost:8080');
+
   mainWindow.loadURL(startUrl);
 
   mainWindow.on('closed', function () {

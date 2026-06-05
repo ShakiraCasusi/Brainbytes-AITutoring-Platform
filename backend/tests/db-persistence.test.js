@@ -58,7 +58,10 @@ async function runTests() {
     });
     console.log('Send message response:', sendMessageResponse.data);
     console.assert(sendMessageResponse.data.userMessage, 'User message not received');
-    console.assert(sendMessageResponse.data.userMessage.text === TEST_MESSAGE, 'Message text mismatch');
+    console.assert(
+      sendMessageResponse.data.userMessage.text === TEST_MESSAGE,
+      'Message text mismatch'
+    );
     console.log('✓ Test 1: PASSED\n');
 
     // Test 2: Confirm data is readable before restart

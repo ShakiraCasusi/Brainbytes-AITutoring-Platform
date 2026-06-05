@@ -7,7 +7,7 @@ describe('End-to-End Tests', () => {
   beforeAll(async () => {
     browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox']
+      args: ['--no-sandbox'],
     });
     page = await browser.newPage();
   });
@@ -31,7 +31,7 @@ describe('End-to-End Tests', () => {
     await page.waitForSelector('.aiMessage');
 
     // Verify response exists
-    const responseText = await page.$eval('.aiMessage .messageContent', el => el.textContent);
+    const responseText = await page.$eval('.aiMessage .messageContent', (el) => el.textContent);
     expect(responseText).toBeTruthy();
     expect(responseText.length).toBeGreaterThan(0);
   });

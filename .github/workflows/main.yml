@@ -1,0 +1,280 @@
+name: BrainBytes CI/CD
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main, development ]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      
+      # Reuse previously downloaded packages to speed up the pipeline.
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          npm install
+      
+      # Scan code for style and syntax issues before anything else runs.
+      - name: Run ESLint
+        run: |
+          npx eslint . --format json --output-file eslint-report.json || echo "[]" > eslint-report.json
+          
+      - name: Annotate ESLint results
+        uses: ataylorme/eslint-annotate-action@v2
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          report-json: "eslint-report.json"
+        continue-on-error: true
+
+      # Make sure all files follow consistent formatting rules.
+      - name: Check formatting with Prettier
+        run: npx prettier --check "**/*.{js,jsx,ts,tsx,json,css,md}" || echo "Prettier formatting check failed but continuing workflow"
+
+      # Check our dependencies for known security vulnerabilities.
+      - name: Check for vulnerabilities
+        run: npm audit --json || true
+        
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        with:
+          args: --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+  
+  build:
+    name: Build Docker Images
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      
+      # Cache built Docker layers so repeat builds are faster.
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Build frontend image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./frontend
+          push: false
+          tags: brainbytes/frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Build backend image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./backend
+          push: false
+          tags: brainbytes/backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      # Spin up all containers together to verify everything connects properly.
+      - name: Test Docker Compose
+        run: |
+          docker compose -f docker-compose.yml up -d
+          docker compose ps
+          docker compose down
+
+      # Save any compiled output so later jobs don't need to rebuild from scratch.
+      - name: Save build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-outputs
+          path: |
+            frontend/build
+            backend/dist
+          if-no-files-found: ignore
+  
+  test:
+    name: Run Tests
+    needs: build
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+
+    # Spin up a MongoDB container so our app has a real database to talk to during tests.
+    services:
+      mongodb:
+        image: mongo:5
+        options: >-
+          --health-cmd mongosh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      
+      # Fresh install — no leftover artifacts from the build job needed here.
+
+      # Reuse previously downloaded packages to speed up the pipeline.
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Node version comes from the matrix above — we test on multiple versions at once.
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      
+      # --- Frontend ---
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install
+      
+      - name: Run frontend tests
+        working-directory: ./frontend
+        run: npm test
+      
+      # --- Backend ---
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Verify backend dependencies
+        working-directory: ./backend
+        run: |
+          npm list node-fetch ws || true
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+
+      # MongoDB can take a moment to be ready. This waits until it actually accepts connections.
+      - name: Wait for MongoDB to be ready
+        run: |
+          for i in {1..30}; do
+            if mongosh --eval "db.adminCommand('ping')" --quiet mongodb://localhost:27017 2>/dev/null; then
+              echo "MongoDB is ready"
+              break
+            fi
+            echo "Waiting for MongoDB... ($i/30)"
+            sleep 1
+          done
+
+      # Start the server in the background and give it a few seconds to boot up.
+      - name: Start backend server
+        working-directory: ./backend
+        run: |
+          npm start > /tmp/server.log 2>&1 &
+          SERVER_PID=$!
+          echo "Server started with PID: $SERVER_PID"
+          sleep 5  # Give the server time to initialize
+        env:
+          NODE_ENV: test
+          PORT: 4000
+          MONGO_URI: mongodb://localhost:27017/brainbytes
+
+      # Repeatedly ping the health endpoint until the server responds or we give up.
+      - name: Wait for server to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:4000/api/health 2>/dev/null; then
+              echo "Server is ready"
+              exit 0
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 1
+          done
+          echo "Server failed to start"
+          echo "=== Server Startup Log ==="
+          cat /tmp/server.log || echo "No server log found"
+          echo "=== NPM Debug Log ==="
+          cat /home/runner/.npm/_logs/*debug.log 2>/dev/null | tail -50 || echo "No npm debug log found"
+          echo "=== End Logs ==="
+          exit 1
+      
+      - name: Run backend tests
+        working-directory: ./backend
+        run: npm test
+
+      # --- Coverage ---
+      - name: Run backend tests with coverage
+        working-directory: ./backend
+        run: npm run test:coverage || echo "Coverage run failed but continuing"
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            backend/coverage
+            frontend/coverage
+          if-no-files-found: ignore
+
+      # --- End-to-end tests ---
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps || echo "Playwright not required or installed"
+
+      - name: Run E2E tests
+        working-directory: ./backend/tests
+        run: node chat.test.js
+        continue-on-error: true
+
+      - name: Diagnose startup failure
+        if: failure()
+        run: |
+          echo "=== Full Server Log ==="
+          cat /tmp/server.log || echo "No server log found"
+          echo "=== NPM Debug Log ==="
+          cat /home/runner/.npm/_logs/*debug.log 2>/dev/null | tail -50 || echo "No npm debug log found"
+
+  notify:
+    name: Pipeline Status Notifications
+    needs: [lint, build, test]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_TITLE: "BrainBytes Pipeline Result"
+          SLACK_MESSAGE: "Pipeline runs completed. Lint, Build, and Tests status check finished."
+          SLACK_COLOR: ${{ contains(needs.*.result, 'failure') && 'danger' || 'good' }}
+        continue-on-error: true

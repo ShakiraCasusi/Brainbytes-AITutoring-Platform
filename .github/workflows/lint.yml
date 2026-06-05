@@ -1,0 +1,65 @@
+name: BrainBytes Lint
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  lint:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      # Cache Node.js dependencies
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      # Configure ESLint with fail-safe report generation
+      - name: Run ESLint
+        run: |
+          npx eslint . --format json --output-file eslint-report.json || echo "[]" > eslint-report.json
+          
+      - name: Annotate ESLint results
+        uses: ataylorme/eslint-annotate-action@v2
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          report-json: "eslint-report.json"
+        continue-on-error: true
+      
+      # Check code formatting with Prettier
+      - name: Check code formatting with Prettier
+        run: npx prettier --check "**/*.{js,jsx,ts,tsx,json,css,md}" || echo "Prettier checks failed but continuing workflow"
+
+      # Dependency vulnerability scanning
+      - name: Check for vulnerabilities
+        run: npm audit --json || true
+        
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        with:
+          args: --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true

@@ -9,7 +9,7 @@ exports.createSession = async (req, res) => {
       userId: req.body.userId || 'anonymous',
       subject: req.body.subject || 'General',
       createdAt: new Date(),
-      lastActive: new Date()
+      lastActive: new Date(),
     };
 
     const result = await Message.db.collection('sessions').insertOne(session);
@@ -18,8 +18,8 @@ exports.createSession = async (req, res) => {
       sessionId: result.insertedId.toString(),
       session: {
         ...session,
-        _id: result.insertedId
-      }
+        _id: result.insertedId,
+      },
     });
   } catch (error) {
     console.error('Error in createSession:', error);
@@ -43,7 +43,7 @@ exports.saveMessage = async (req, res) => {
       text,
       sender: sender || 'user',
       sessionId,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     await message.save();
@@ -51,13 +51,13 @@ exports.saveMessage = async (req, res) => {
       sessionId,
       type: 'message',
       subject: req.body.subject,
-      summary: `${message.sender} message saved`
+      summary: `${message.sender} message saved`,
     });
     realtime.broadcast('message:saved', { sessionId, message });
 
     res.status(200).json({
       messageId: message._id,
-      message
+      message,
     });
   } catch (error) {
     console.error('Error in saveMessage:', error);
@@ -70,7 +70,7 @@ exports.sendMessage = async (req, res) => {
     const { sessionId } = req.body;
     const message = req.body.message || req.body.text;
     const subject = req.body.subject || 'general';
-    
+
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
     }
@@ -82,27 +82,30 @@ exports.sendMessage = async (req, res) => {
       sender: 'user',
       sessionId: chatSessionId,
       subject,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
     await userMessage.save();
 
     let aiResult;
     try {
-      const timeoutPromise = new Promise((_, reject) => 
+      const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Request timeout')), 10000)
       );
-      
-      const history = await Message.find({ sessionId: chatSessionId }).sort({ timestamp: -1 }).limit(6);
+
+      const history = await Message.find({ sessionId: chatSessionId })
+        .sort({ timestamp: -1 })
+        .limit(6);
       const aiResultPromise = aiService.generateResponse(message, {
         subject,
-        history: history.reverse()
+        history: history.reverse(),
       });
       aiResult = await Promise.race([aiResultPromise, timeoutPromise]);
     } catch (error) {
       console.error('Error getting AI response:', error);
       aiResult = {
         category: 'error',
-        response: "I'm sorry, but I couldn't process your request in time. Please try again with a simpler question."
+        response:
+          "I'm sorry, but I couldn't process your request in time. Please try again with a simpler question.",
       };
     }
 
@@ -111,21 +114,21 @@ exports.sendMessage = async (req, res) => {
       sender: 'ai',
       sessionId: chatSessionId,
       subject: aiResult.category || subject,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
     await aiMessage.save();
     await Activity.create({
       sessionId: chatSessionId,
       type: 'message',
       subject: aiResult.category || subject,
-      summary: `Asked a ${aiResult.questionType || 'general'} question`
+      summary: `Asked a ${aiResult.questionType || 'general'} question`,
     });
     realtime.broadcast('chat:message', {
       sessionId: chatSessionId,
       userMessage,
       aiMessage,
       sentiment: aiResult.sentiment,
-      suggestions: aiResult.suggestions
+      suggestions: aiResult.suggestions,
     });
 
     res.status(200).json({
@@ -136,7 +139,7 @@ exports.sendMessage = async (req, res) => {
       category: aiResult.category,
       questionType: aiResult.questionType,
       sentiment: aiResult.sentiment,
-      suggestions: aiResult.suggestions
+      suggestions: aiResult.suggestions,
     });
   } catch (error) {
     console.error('Error in sendMessage:', error);
@@ -150,7 +153,7 @@ exports.getChatHistory = async (req, res) => {
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 100);
     const skip = (page - 1) * limit;
-    
+
     if (!sessionId) {
       return res.status(400).json({ error: 'Session ID is required' });
     }
@@ -159,10 +162,7 @@ exports.getChatHistory = async (req, res) => {
     if (req.query.subject) query.subject = req.query.subject.toLowerCase();
 
     const total = await Message.countDocuments(query);
-    const messages = await Message.find(query)
-      .sort({ timestamp: 1 })
-      .skip(skip)
-      .limit(limit);
+    const messages = await Message.find(query).sort({ timestamp: 1 }).skip(skip).limit(limit);
 
     res.status(200).json({
       messages,
@@ -170,8 +170,8 @@ exports.getChatHistory = async (req, res) => {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error in getChatHistory:', error);
@@ -188,7 +188,7 @@ exports.markRead = async (req, res) => {
 
     realtime.broadcast('chat:read', {
       sessionId: req.params.sessionId,
-      modifiedCount: result.nModified || result.modifiedCount || 0
+      modifiedCount: result.nModified || result.modifiedCount || 0,
     });
 
     res.json({ updated: result.nModified || result.modifiedCount || 0 });
