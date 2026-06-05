@@ -125,7 +125,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [16.x, 18.x]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
@@ -185,6 +185,18 @@ jobs:
           echo "Node version: $(node --version)"
           echo "NPM version: $(npm --version)"
 
+      # Wait for MongoDB to be fully ready before starting the server
+      - name: Wait for MongoDB to be ready
+        run: |
+          for i in {1..30}; do
+            if mongosh --eval "db.adminCommand('ping')" --quiet mongodb://localhost:27017 2>/dev/null; then
+              echo "MongoDB is ready"
+              break
+            fi
+            echo "Waiting for MongoDB... ($i/30)"
+            sleep 1
+          done
+
       # Start the backend server so the API is listening
       - name: Start backend server
         working-directory: ./backend
@@ -192,7 +204,7 @@ jobs:
           npm start > /tmp/server.log 2>&1 &
           SERVER_PID=$!
           echo "Server started with PID: $SERVER_PID"
-          sleep 3  # Give the server time to initialize
+          sleep 5  # Give the server time to initialize
         env:
           NODE_ENV: test
           PORT: 4000

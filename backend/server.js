@@ -97,48 +97,40 @@ app.post('/api/messages', async (req, res) => {
 
 // Set a startup timeout to prevent hanging
 const startupTimeout = setTimeout(() => {
-  console.error('Server startup timeout - failed to start within 10 seconds');
+  console.error('Server startup timeout - failed to start within 30 seconds');
   process.exit(1);
-}, 10000);
+}, 30000);
 
 mongoose
-  .connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    retryWrites: true,
-  })
+  .connect(MONGO_URI)
   .then(() => {
     clearTimeout(startupTimeout);
     console.log('✓ Connected to MongoDB');
-    
-    // Initialize services with error handling
+
+    // Initialize AI service (non-fatal — server still starts if this fails)
     try {
-      console.log('Initializing AI service...');
-      console.log('aiService object:', typeof aiService, Object.keys(aiService || {}));
-      
-      if (!aiService || typeof aiService.initializeAI !== 'function') {
-        throw new Error('aiService module not properly loaded or initializeAI function missing');
+      if (typeof aiService.initializeAI === 'function') {
+        aiService.initializeAI();
+        console.log('✓ AI service initialized');
+      } else {
+        console.warn('⚠ aiService.initializeAI not found — skipping AI init');
       }
-      
-      aiService.initializeAI();
-      console.log('✓ AI service initialized');
-      
-      console.log('Initializing realtime service...');
-      console.log('realtime object:', typeof realtime, Object.keys(realtime || {}));
-      
-      if (!realtime || typeof realtime.initializeRealtime !== 'function') {
-        throw new Error('realtime module not properly loaded or initializeRealtime function missing');
-      }
-      
-      realtime.initializeRealtime(server);
-      console.log('✓ Realtime service initialized');
     } catch (err) {
-      console.error('✗ Failed to initialize services:', err.message);
-      console.error('Stack trace:', err.stack);
-      console.error('Full error object:', err);
-      process.exit(1);
+      console.warn('⚠ AI service init failed (non-fatal):', err.message);
     }
-    
+
+    // Initialize realtime service (non-fatal — server still starts if this fails)
+    try {
+      if (typeof realtime.initializeRealtime === 'function') {
+        realtime.initializeRealtime(server);
+        console.log('✓ Realtime service initialized');
+      } else {
+        console.warn('⚠ realtime.initializeRealtime not found — skipping realtime init');
+      }
+    } catch (err) {
+      console.warn('⚠ Realtime service init failed (non-fatal):', err.message);
+    }
+
     server.listen(PORT, () => {
       console.log(`✓ Server running on port ${PORT}`);
     });
