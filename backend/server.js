@@ -33,9 +33,7 @@ app.use(
   })
 );
 
-// MOVE service initialization to after MongoDB connection
-// aiService.initializeAI();
-// realtime.initializeRealtime(server);
+// Services are started after the database connects — order matters here.
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the BrainBytes API' });
@@ -95,7 +93,7 @@ app.post('/api/messages', async (req, res) => {
   }
 });
 
-// Set a startup timeout to prevent hanging
+// If the server takes longer than 30 seconds to start, something went wrong — bail out cleanly.
 const startupTimeout = setTimeout(() => {
   console.error('Server startup timeout - failed to start within 30 seconds');
   process.exit(1);
@@ -107,7 +105,7 @@ mongoose
     clearTimeout(startupTimeout);
     console.log('✓ Connected to MongoDB');
 
-    // Initialize AI service (non-fatal — server still starts if this fails)
+    // Try to start the AI service. If it fails, just log a warning — the server keeps running.
     try {
       if (typeof aiService.initializeAI === 'function') {
         aiService.initializeAI();
@@ -119,7 +117,7 @@ mongoose
       console.warn('⚠ AI service init failed (non-fatal):', err.message);
     }
 
-    // Initialize realtime service (non-fatal — server still starts if this fails)
+    // Same here for WebSocket/realtime — a hiccup here won't take the whole server down.
     try {
       if (typeof realtime.initializeRealtime === 'function') {
         realtime.initializeRealtime(server);
@@ -142,14 +140,14 @@ mongoose
     process.exit(1);
   });
 
-// Handle uncaught exceptions
+// Catch any unexpected errors that slipped through and shut down gracefully.
 process.on('uncaughtException', (err) => {
   console.error('✗ Uncaught Exception:', err.message);
   console.error('Stack trace:', err.stack);
   process.exit(1);
 });
 
-// Handle unhandled promise rejections
+// Catch any forgotten async errors (missing .catch()) and exit safely.
 process.on('unhandledRejection', (reason, promise) => {
   console.error('✗ Unhandled Rejection:', reason);
   process.exit(1);

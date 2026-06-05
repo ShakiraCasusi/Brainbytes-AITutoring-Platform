@@ -16,7 +16,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
       
-      # Cache Node.js dependencies
+      # Reuse previously downloaded packages to speed up the pipeline.
       - name: Cache Node.js dependencies
         uses: actions/cache@v3
         with:
@@ -36,7 +36,7 @@ jobs:
         run: |
           npm install
       
-      # Configure ESLint
+      # Scan code for style and syntax issues before anything else runs.
       - name: Run ESLint
         run: |
           npx eslint . --format json --output-file eslint-report.json || echo "[]" > eslint-report.json
@@ -48,11 +48,11 @@ jobs:
           report-json: "eslint-report.json"
         continue-on-error: true
 
-      # Check formatting with Prettier
+      # Make sure all files follow consistent formatting rules.
       - name: Check formatting with Prettier
         run: npx prettier --check "**/*.{js,jsx,ts,tsx,json,css,md}" || echo "Prettier formatting check failed but continuing workflow"
 
-      # Dependency vulnerability scanning
+      # Check our dependencies for known security vulnerabilities.
       - name: Check for vulnerabilities
         run: npm audit --json || true
         
@@ -73,7 +73,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
       
-      # Cache Docker layers
+      # Cache built Docker layers so repeat builds are faster.
       - name: Cache Docker layers
         uses: actions/cache@v3
         with:
@@ -103,14 +103,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       
-      # Test Docker Compose (Updated from standalone docker-compose to docker compose)
+      # Spin up all containers together to verify everything connects properly.
       - name: Test Docker Compose
         run: |
           docker compose -f docker-compose.yml up -d
           docker compose ps
           docker compose down
 
-      # Save build artifacts
+      # Save any compiled output so later jobs don't need to rebuild from scratch.
       - name: Save build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -130,7 +130,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
 
-    # Spin up MongoDB service so mongoose.connect succeeds and server can start listening
+    # Spin up a MongoDB container so our app has a real database to talk to during tests.
     services:
       mongodb:
         image: mongo:5
@@ -146,9 +146,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
       
-      # (Removed redundant download of build artifacts to avoid failures, testing builds fresh)
+      # Fresh install — no leftover artifacts from the build job needed here.
 
-      # Cache Node.js dependencies
+      # Reuse previously downloaded packages to speed up the pipeline.
       - name: Cache Node.js dependencies
         uses: actions/cache@v3
         with:
@@ -158,13 +158,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      # Set up Node.js with Matrix versions
+      # Node version comes from the matrix above — we test on multiple versions at once.
       - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
       
-      # Frontend tests
+      # --- Frontend ---
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: npm install
@@ -173,7 +173,7 @@ jobs:
         working-directory: ./frontend
         run: npm test
       
-      # Backend tests
+      # --- Backend ---
       - name: Install backend dependencies
         working-directory: ./backend
         run: npm install
@@ -185,7 +185,7 @@ jobs:
           echo "Node version: $(node --version)"
           echo "NPM version: $(npm --version)"
 
-      # Wait for MongoDB to be fully ready before starting the server
+      # MongoDB can take a moment to be ready. This waits until it actually accepts connections.
       - name: Wait for MongoDB to be ready
         run: |
           for i in {1..30}; do
@@ -197,7 +197,7 @@ jobs:
             sleep 1
           done
 
-      # Start the backend server so the API is listening
+      # Start the server in the background and give it a few seconds to boot up.
       - name: Start backend server
         working-directory: ./backend
         run: |
@@ -210,7 +210,7 @@ jobs:
           PORT: 4000
           MONGO_URI: mongodb://localhost:27017/brainbytes
 
-      # Wait for the backend port to be responsive
+      # Repeatedly ping the health endpoint until the server responds or we give up.
       - name: Wait for server to be ready
         run: |
           for i in {1..30}; do
@@ -233,7 +233,7 @@ jobs:
         working-directory: ./backend
         run: npm test
 
-      # Code Coverage
+      # --- Coverage ---
       - name: Run backend tests with coverage
         working-directory: ./backend
         run: npm run test:coverage || echo "Coverage run failed but continuing"
@@ -247,7 +247,7 @@ jobs:
             frontend/coverage
           if-no-files-found: ignore
 
-      # E2E Tests
+      # --- End-to-end tests ---
       - name: Install Playwright browsers
         run: npx playwright install --with-deps || echo "Playwright not required or installed"
 
