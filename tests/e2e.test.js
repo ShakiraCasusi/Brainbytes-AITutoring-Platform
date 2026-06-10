@@ -31,7 +31,10 @@ describe('End-to-End Tests', () => {
     await page.waitForSelector('.aiMessage');
 
     // Verify response exists
-    const responseText = await page.$eval('.aiMessage .messageContent', (el) => el.textContent);
+    const responseText = await page.$eval(
+      '.aiMessage .messageContent',
+      (el) => el.textContent
+    );
     expect(responseText).toBeTruthy();
     expect(responseText.length).toBeGreaterThan(0);
   });
@@ -44,7 +47,10 @@ describe('End-to-End Tests', () => {
 
     // Wait for message to appear
     await page.waitForFunction(
-      (text) => document.querySelector('.userMessage .messageContent')?.textContent.includes(text),
+      (text) =>
+        document
+          .querySelector('.userMessage .messageContent')
+          ?.textContent.includes(text),
       {},
       uniqueMessage
     );

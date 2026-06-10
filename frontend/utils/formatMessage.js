@@ -3,11 +3,16 @@ export function formatMessage(text) {
 
   return parts.map((part, index) => {
     if (part.startsWith('```') && part.endsWith('```')) {
-      return { type: 'code', value: part.replace(/```/g, '').trim(), key: index };
+      return {
+        type: 'code',
+        value: part.replace(/```/g, '').trim(),
+        key: index,
+      };
     }
 
     const lines = part.split('\n').filter(Boolean);
-    const isList = lines.length > 1 && lines.every((line) => /^[-*]\s+/.test(line.trim()));
+    const isList =
+      lines.length > 1 && lines.every((line) => /^[-*]\s+/.test(line.trim()));
     if (isList) {
       return {
         type: 'list',

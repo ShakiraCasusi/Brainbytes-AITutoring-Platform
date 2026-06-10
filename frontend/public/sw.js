@@ -16,7 +16,10 @@ if (!self.define) {
       })
   );
   self.define = (t, a) => {
-    const i = e || ('document' in self ? document.currentScript.src : '') || location.href;
+    const i =
+      e ||
+      ('document' in self ? document.currentScript.src : '') ||
+      location.href;
     if (s[i]) return;
     let c = {};
     const o = (e) => n(e, i),
@@ -39,9 +42,18 @@ define(['./workbox-4754cb34'], function (e) {
           url: '/_next/static/CTb6SusPGsGdLxGtOo7XW/_ssgManifest.js',
           revision: 'b6652df95db52feb4daf4eca35380933',
         },
-        { url: '/_next/static/chunks/752-fde54b40dab976a6.js', revision: 'fde54b40dab976a6' },
-        { url: '/_next/static/chunks/framework-b759e809ec16812b.js', revision: 'b759e809ec16812b' },
-        { url: '/_next/static/chunks/main-a741b1035e7b7ed8.js', revision: 'a741b1035e7b7ed8' },
+        {
+          url: '/_next/static/chunks/752-fde54b40dab976a6.js',
+          revision: 'fde54b40dab976a6',
+        },
+        {
+          url: '/_next/static/chunks/framework-b759e809ec16812b.js',
+          revision: 'b759e809ec16812b',
+        },
+        {
+          url: '/_next/static/chunks/main-a741b1035e7b7ed8.js',
+          revision: 'a741b1035e7b7ed8',
+        },
         {
           url: '/_next/static/chunks/pages/_app-dc14f8483464b560.js',
           revision: 'dc14f8483464b560',
@@ -58,9 +70,15 @@ define(['./workbox-4754cb34'], function (e) {
           url: '/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js',
           revision: '837c0df77fd5009c9e46d446188ecfd0',
         },
-        { url: '/_next/static/chunks/webpack-9b312e20a4e32339.js', revision: '9b312e20a4e32339' },
+        {
+          url: '/_next/static/chunks/webpack-9b312e20a4e32339.js',
+          revision: '9b312e20a4e32339',
+        },
         { url: '/manifest.json', revision: '6f8739bc272595729e4412ece6a2c786' },
-        { url: '/service-worker.js', revision: '6b9507b2957efa21b6f2a23b3e540708' },
+        {
+          url: '/service-worker.js',
+          revision: '6b9507b2957efa21b6f2a23b3e540708',
+        },
       ],
       { ignoreURLParametersMatching: [] }
     ),
@@ -71,9 +89,18 @@ define(['./workbox-4754cb34'], function (e) {
         cacheName: 'start-url',
         plugins: [
           {
-            cacheWillUpdate: async ({ request: e, response: s, event: n, state: t }) =>
+            cacheWillUpdate: async ({
+              request: e,
+              response: s,
+              event: n,
+              state: t,
+            }) =>
               s && 'opaqueredirect' === s.type
-                ? new Response(s.body, { status: 200, statusText: 'OK', headers: s.headers })
+                ? new Response(s.body, {
+                    status: 200,
+                    statusText: 'OK',
+                    headers: s.headers,
+                  })
                 : s,
           },
         ],
@@ -84,7 +111,9 @@ define(['./workbox-4754cb34'], function (e) {
       /^https:\/\/fonts\.(?:gstatic)\.com\/.*/i,
       new e.CacheFirst({
         cacheName: 'google-fonts-webfonts',
-        plugins: [new e.ExpirationPlugin({ maxEntries: 4, maxAgeSeconds: 31536e3 })],
+        plugins: [
+          new e.ExpirationPlugin({ maxEntries: 4, maxAgeSeconds: 31536e3 }),
+        ],
       }),
       'GET'
     ),
@@ -92,7 +121,9 @@ define(['./workbox-4754cb34'], function (e) {
       /^https:\/\/fonts\.(?:googleapis)\.com\/.*/i,
       new e.StaleWhileRevalidate({
         cacheName: 'google-fonts-stylesheets',
-        plugins: [new e.ExpirationPlugin({ maxEntries: 4, maxAgeSeconds: 604800 })],
+        plugins: [
+          new e.ExpirationPlugin({ maxEntries: 4, maxAgeSeconds: 604800 }),
+        ],
       }),
       'GET'
     ),
@@ -100,7 +131,9 @@ define(['./workbox-4754cb34'], function (e) {
       /\.(?:eot|otf|ttc|ttf|woff|woff2|font.css)$/i,
       new e.StaleWhileRevalidate({
         cacheName: 'static-font-assets',
-        plugins: [new e.ExpirationPlugin({ maxEntries: 4, maxAgeSeconds: 604800 })],
+        plugins: [
+          new e.ExpirationPlugin({ maxEntries: 4, maxAgeSeconds: 604800 }),
+        ],
       }),
       'GET'
     ),
@@ -108,7 +141,9 @@ define(['./workbox-4754cb34'], function (e) {
       /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
       new e.StaleWhileRevalidate({
         cacheName: 'static-image-assets',
-        plugins: [new e.ExpirationPlugin({ maxEntries: 64, maxAgeSeconds: 86400 })],
+        plugins: [
+          new e.ExpirationPlugin({ maxEntries: 64, maxAgeSeconds: 86400 }),
+        ],
       }),
       'GET'
     ),
@@ -116,7 +151,9 @@ define(['./workbox-4754cb34'], function (e) {
       /\/_next\/image\?url=.+$/i,
       new e.StaleWhileRevalidate({
         cacheName: 'next-image',
-        plugins: [new e.ExpirationPlugin({ maxEntries: 64, maxAgeSeconds: 86400 })],
+        plugins: [
+          new e.ExpirationPlugin({ maxEntries: 64, maxAgeSeconds: 86400 }),
+        ],
       }),
       'GET'
     ),
@@ -146,7 +183,9 @@ define(['./workbox-4754cb34'], function (e) {
       /\.(?:js)$/i,
       new e.StaleWhileRevalidate({
         cacheName: 'static-js-assets',
-        plugins: [new e.ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 86400 })],
+        plugins: [
+          new e.ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 86400 }),
+        ],
       }),
       'GET'
     ),
@@ -154,7 +193,9 @@ define(['./workbox-4754cb34'], function (e) {
       /\.(?:css|less)$/i,
       new e.StaleWhileRevalidate({
         cacheName: 'static-style-assets',
-        plugins: [new e.ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 86400 })],
+        plugins: [
+          new e.ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 86400 }),
+        ],
       }),
       'GET'
     ),
@@ -162,7 +203,9 @@ define(['./workbox-4754cb34'], function (e) {
       /\/_next\/data\/.+\/.+\.json$/i,
       new e.StaleWhileRevalidate({
         cacheName: 'next-data',
-        plugins: [new e.ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 86400 })],
+        plugins: [
+          new e.ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 86400 }),
+        ],
       }),
       'GET'
     ),
@@ -170,7 +213,9 @@ define(['./workbox-4754cb34'], function (e) {
       /\.(?:json|xml|csv)$/i,
       new e.NetworkFirst({
         cacheName: 'static-data-assets',
-        plugins: [new e.ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 86400 })],
+        plugins: [
+          new e.ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 86400 }),
+        ],
       }),
       'GET'
     ),
@@ -183,7 +228,9 @@ define(['./workbox-4754cb34'], function (e) {
       new e.NetworkFirst({
         cacheName: 'apis',
         networkTimeoutSeconds: 10,
-        plugins: [new e.ExpirationPlugin({ maxEntries: 16, maxAgeSeconds: 86400 })],
+        plugins: [
+          new e.ExpirationPlugin({ maxEntries: 16, maxAgeSeconds: 86400 }),
+        ],
       }),
       'GET'
     ),
@@ -195,7 +242,9 @@ define(['./workbox-4754cb34'], function (e) {
       new e.NetworkFirst({
         cacheName: 'others',
         networkTimeoutSeconds: 10,
-        plugins: [new e.ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 86400 })],
+        plugins: [
+          new e.ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 86400 }),
+        ],
       }),
       'GET'
     ),
@@ -204,7 +253,9 @@ define(['./workbox-4754cb34'], function (e) {
       new e.NetworkFirst({
         cacheName: 'cross-origin',
         networkTimeoutSeconds: 10,
-        plugins: [new e.ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 3600 })],
+        plugins: [
+          new e.ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 3600 }),
+        ],
       }),
       'GET'
     ));

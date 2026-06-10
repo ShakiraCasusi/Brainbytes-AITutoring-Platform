@@ -19,22 +19,31 @@ exports.getSettings = async (req, res) => {
 exports.updateSettings = async (req, res) => {
   try {
     const updates = {};
-    ['theme', 'notifications', 'readingLevel', 'dailyGoalMinutes'].forEach((key) => {
-      if (req.body[key] !== undefined) updates[key] = req.body[key];
-    });
+    ['theme', 'notifications', 'readingLevel', 'dailyGoalMinutes'].forEach(
+      (key) => {
+        if (req.body[key] !== undefined) updates[key] = req.body[key];
+      }
+    );
 
-    const settings = await UserSettings.findOneAndUpdate({ userId: req.params.userId }, updates, {
-      new: true,
-      upsert: true,
-      runValidators: true,
-    });
+    const settings = await UserSettings.findOneAndUpdate(
+      { userId: req.params.userId },
+      updates,
+      {
+        new: true,
+        upsert: true,
+        runValidators: true,
+      }
+    );
 
     await Activity.create({
       userId: req.params.userId,
       type: 'settings',
       summary: 'Updated learning preferences',
     });
-    realtime.broadcast('settings:updated', { userId: req.params.userId, settings });
+    realtime.broadcast('settings:updated', {
+      userId: req.params.userId,
+      settings,
+    });
 
     res.json({ settings });
   } catch (error) {

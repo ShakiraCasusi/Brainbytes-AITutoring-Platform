@@ -12,7 +12,9 @@ export default function ChatPanel({ profile, onActivityRefresh }) {
   const [error, setError] = useState('');
   const readReceiptRef = useRef(null);
   const sessionId =
-    typeof window !== 'undefined' ? localStorage.getItem('chatSessionId') || `${Date.now()}` : '';
+    typeof window !== 'undefined'
+      ? localStorage.getItem('chatSessionId') || `${Date.now()}`
+      : '';
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -22,17 +24,23 @@ export default function ChatPanel({ profile, onActivityRefresh }) {
 
   useEffect(() => {
     readReceiptRef.current?.scrollIntoView({ behavior: 'smooth' });
-    if (messages.some((message) => message.sender === 'ai' && !message.readAt)) {
+    if (
+      messages.some((message) => message.sender === 'ai' && !message.readAt)
+    ) {
       api.post(`/chat/read/${sessionId}`).catch(() => {});
     }
   }, [messages]);
 
   async function loadHistory() {
     try {
-      const response = await api.get(`/chat/history/${sessionId}`, { params: { subject } });
+      const response = await api.get(`/chat/history/${sessionId}`, {
+        params: { subject },
+      });
       setMessages(response.data.messages || []);
     } catch {
-      setError('Chat history is unavailable. New messages will retry when the API is reachable.');
+      setError(
+        'Error: Chat history is unavailable. New messages will retry when the API is reachable.'
+      );
     }
   }
 
@@ -51,7 +59,11 @@ export default function ChatPanel({ profile, onActivityRefresh }) {
     setError('');
 
     try {
-      const response = await api.post('/chat/send', { message: input, sessionId, subject });
+      const response = await api.post('/chat/send', {
+        message: input,
+        sessionId,
+        subject,
+      });
       setMessages((current) =>
         current
           .filter((item) => item._id !== pending._id)
@@ -60,12 +72,16 @@ export default function ChatPanel({ profile, onActivityRefresh }) {
       setInput('');
       onActivityRefresh();
     } catch {
-      const offline = JSON.parse(localStorage.getItem('offlineMessages') || '[]');
+      const offline = JSON.parse(
+        localStorage.getItem('offlineMessages') || '[]'
+      );
       localStorage.setItem(
         'offlineMessages',
         JSON.stringify([...offline, { message: input, subject, sessionId }])
       );
-      setError('Message saved offline. It will be available here for retry when the API is back.');
+      setError(
+        'Error: Message saved offline. It will be available here for retry when the API is back.'
+      );
     } finally {
       setLoading(false);
     }
@@ -90,13 +106,17 @@ export default function ChatPanel({ profile, onActivityRefresh }) {
           ))}
         </select>
       </header>
-      <MessageList messages={messages} loading={loading} readReceiptRef={readReceiptRef} />
+      <MessageList
+        messages={messages}
+        loading={loading}
+        readReceiptRef={readReceiptRef}
+      />
       {error && <p className="error">{error}</p>}
       <form onSubmit={sendMessage}>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask your question..."
+          placeholder="Type your question..."
         />
         <button disabled={loading}>Send</button>
       </form>

@@ -1,6 +1,7 @@
 const axios = require('axios');
 
-const API_URL = process.env.API_URL || `http://localhost:${process.env.PORT || 4000}/api`;
+const API_URL =
+  process.env.API_URL || `http://localhost:${process.env.PORT || 4000}/api`;
 const TEST_SESSION_ID = 'test-session-' + Date.now();
 
 async function runTests() {
@@ -12,7 +13,10 @@ async function runTests() {
     const healthResponse = await axios.get(`${API_URL}/health`);
     console.log('Health check response:', healthResponse.data);
     console.assert(healthResponse.data.status === 'ok', 'Health check failed');
-    console.assert(healthResponse.data.databaseConnected === true, 'Database not connected');
+    console.assert(
+      healthResponse.data.databaseConnected === true,
+      'Database not connected'
+    );
     console.log('✓ Test 1: PASSED\n');
 
     // Test 2: Send message
@@ -22,13 +26,23 @@ async function runTests() {
       sessionId: TEST_SESSION_ID,
     });
     console.log('Send message response:', sendMessageResponse.data);
-    console.assert(sendMessageResponse.data.userMessage, 'User message not received');
-    console.assert(sendMessageResponse.data.aiMessage, 'AI message not received');
     console.assert(
-      sendMessageResponse.data.userMessage.text === 'Hello, can you help me with math?',
+      sendMessageResponse.data.userMessage,
+      'User message not received'
+    );
+    console.assert(
+      sendMessageResponse.data.aiMessage,
+      'AI message not received'
+    );
+    console.assert(
+      sendMessageResponse.data.userMessage.text ===
+        'Hello, can you help me with math?',
       'User message text does not match'
     );
-    console.assert(sendMessageResponse.data.sessionId === TEST_SESSION_ID, 'Session ID mismatch');
+    console.assert(
+      sendMessageResponse.data.sessionId === TEST_SESSION_ID,
+      'Session ID mismatch'
+    );
     console.log('✓ Test 2: PASSED\n');
 
     // Test 3: Send message without body returns 400
@@ -37,17 +51,28 @@ async function runTests() {
       await axios.post(`${API_URL}/chat/send`, { sessionId: TEST_SESSION_ID });
       console.assert(false, 'Expected 400 but request succeeded');
     } catch (error) {
-      console.assert(error.response?.status === 400, `Expected 400, got ${error.response?.status}`);
+      console.assert(
+        error.response?.status === 400,
+        `Expected 400, got ${error.response?.status}`
+      );
       console.log('Response:', error.response.data);
     }
     console.log('✓ Test 3: PASSED\n');
 
     // Test 4: Get chat history
     console.log('Test 4: Get chat history');
-    const historyResponse = await axios.get(`${API_URL}/chat/history/${TEST_SESSION_ID}`);
+    const historyResponse = await axios.get(
+      `${API_URL}/chat/history/${TEST_SESSION_ID}`
+    );
     console.log('History response:', historyResponse.data);
-    console.assert(Array.isArray(historyResponse.data.messages), 'Messages not returned as array');
-    console.assert(historyResponse.data.messages.length >= 2, 'Expected at least 2 messages');
+    console.assert(
+      Array.isArray(historyResponse.data.messages),
+      'Messages not returned as array'
+    );
+    console.assert(
+      historyResponse.data.messages.length >= 2,
+      'Expected at least 2 messages'
+    );
     console.assert(
       historyResponse.data.messages[0].sessionId === TEST_SESSION_ID,
       'Session ID mismatch in history'
@@ -60,7 +85,10 @@ async function runTests() {
       `${API_URL}/chat/history/${TEST_SESSION_ID}?limit=1`
     );
     console.log('Limited history response:', limitedHistoryResponse.data);
-    console.assert(limitedHistoryResponse.data.messages.length <= 1, 'Limit not respected');
+    console.assert(
+      limitedHistoryResponse.data.messages.length <= 1,
+      'Limit not respected'
+    );
     console.log('✓ Test 5: PASSED\n');
 
     // Test 6: History for unknown session returns empty array
@@ -73,7 +101,10 @@ async function runTests() {
       Array.isArray(unknownSessionResponse.data.messages),
       'Messages not returned as array'
     );
-    console.assert(unknownSessionResponse.data.messages.length === 0, 'Expected empty array');
+    console.assert(
+      unknownSessionResponse.data.messages.length === 0,
+      'Expected empty array'
+    );
     console.log('✓ Test 6: PASSED\n');
 
     // Test 7: Auth register endpoint exists

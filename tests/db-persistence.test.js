@@ -4,6 +4,7 @@ const { execSync } = require('child_process');
 
 describe('Database Persistence Tests', () => {
   let client;
+  let db;
   const dbName = 'brainbytes_test';
   const url = 'mongodb://localhost:27017';
 

@@ -31,7 +31,9 @@ export default function LearningWorkspace() {
   }, []);
 
   async function bootstrap() {
-    const stored = JSON.parse(localStorage.getItem('brainbytesProfile') || 'null');
+    const stored = JSON.parse(
+      localStorage.getItem('brainbytesProfile') || 'null'
+    );
     if (stored) {
       setProfile(stored);
       await loadSettings(stored.id);
@@ -42,7 +44,10 @@ export default function LearningWorkspace() {
   async function ensureUser(nextProfile) {
     if (profile.id) return profile.id;
     const password = `Brainbytes-${Date.now()}`;
-    const response = await api.post('/auth/register', { ...nextProfile, password });
+    const response = await api.post('/auth/register', {
+      ...nextProfile,
+      password,
+    });
     setToken(response.data.token);
     return response.data.user.id;
   }
@@ -50,7 +55,10 @@ export default function LearningWorkspace() {
   async function saveProfile(nextProfile) {
     const id = await ensureUser(nextProfile);
     const response = await api.put(`/users/${id}`, nextProfile);
-    localStorage.setItem('brainbytesProfile', JSON.stringify(response.data.user));
+    localStorage.setItem(
+      'brainbytesProfile',
+      JSON.stringify(response.data.user)
+    );
     setProfile(response.data.user);
     await refreshActivity();
   }
@@ -75,8 +83,12 @@ export default function LearningWorkspace() {
 
   return (
     <AppLayout activeView={view} onNavigate={setView}>
-      {view === 'chat' && <ChatPanel profile={profile} onActivityRefresh={refreshActivity} />}
-      {view === 'dashboard' && <Dashboard activity={activity} profile={profile} online={online} />}
+      {view === 'chat' && (
+        <ChatPanel profile={profile} onActivityRefresh={refreshActivity} />
+      )}
+      {view === 'dashboard' && (
+        <Dashboard activity={activity} profile={profile} online={online} />
+      )}
       {view === 'profile' && (
         <ProfilePage
           profile={profile}

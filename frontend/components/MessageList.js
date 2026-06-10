@@ -26,7 +26,10 @@ export default function MessageList({ messages, loading, readReceiptRef }) {
       {messages.length === 0 ? (
         <div className="welcome">
           <h2>Ask a focused question</h2>
-          <p>Choose a subject, then ask for a definition, explanation, example, or steps.</p>
+          <p>
+            Choose a subject, then ask for a definition, explanation, example,
+            or steps.
+          </p>
         </div>
       ) : (
         messages.map((message) => (
@@ -36,13 +39,15 @@ export default function MessageList({ messages, loading, readReceiptRef }) {
           >
             <MessageContent text={message.text} />
             <span>
-              {message.readAt ? 'Read' : new Date(message.timestamp).toLocaleTimeString()}
+              {message.readAt
+                ? 'Read'
+                : new Date(message.timestamp).toLocaleTimeString()}
             </span>
           </article>
         ))
       )}
       {loading && (
-        <article className="ai typing">
+        <article className="ai typing" data-testid="loading-indicator">
           <span></span>
           <span></span>
           <span></span>

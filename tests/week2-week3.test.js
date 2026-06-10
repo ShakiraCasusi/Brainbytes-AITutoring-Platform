@@ -44,11 +44,14 @@ describe('Week 2 and Week 3 feature coverage', () => {
     const material = await axios.post(`${API_BASE_URL}/api/materials`, {
       subject: 'science',
       topic: `Water cycle ${Date.now()}`,
-      content: 'Evaporation, condensation, and precipitation form the water cycle.',
+      content:
+        'Evaporation, condensation, and precipitation form the water cycle.',
     });
     expect(material.status).toBe(201);
 
-    const materials = await axios.get(`${API_BASE_URL}/api/materials?subject=science`);
+    const materials = await axios.get(
+      `${API_BASE_URL}/api/materials?subject=science`
+    );
     expect(materials.data.materials.length).toBeGreaterThan(0);
   });
 

@@ -6,10 +6,14 @@ describe('MessageList Component Rendering', () => {
   const mockRef = React.createRef();
 
   it('renders welcome screen when there are no messages', () => {
-    render(<MessageList messages={[]} loading={false} readReceiptRef={mockRef} />);
+    render(
+      <MessageList messages={[]} loading={false} readReceiptRef={mockRef} />
+    );
 
     expect(screen.getByText('Ask a focused question')).toBeDefined();
-    expect(screen.getByText(/Choose a subject, then ask for a definition/i)).toBeDefined();
+    expect(
+      screen.getByText(/Choose a subject, then ask for a definition/i)
+    ).toBeDefined();
   });
 
   it('renders messages correctly with correct alignment classes', () => {
@@ -29,7 +33,11 @@ describe('MessageList Component Rendering', () => {
     ];
 
     const { container } = render(
-      <MessageList messages={messages} loading={false} readReceiptRef={mockRef} />
+      <MessageList
+        messages={messages}
+        loading={false}
+        readReceiptRef={mockRef}
+      />
     );
 
     // Verify text content is rendered

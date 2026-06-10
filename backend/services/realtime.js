@@ -20,7 +20,11 @@ function initializeRealtime(httpServer) {
 function broadcast(type, payload) {
   if (!server) return;
 
-  const message = JSON.stringify({ type, payload, sentAt: new Date().toISOString() });
+  const message = JSON.stringify({
+    type,
+    payload,
+    sentAt: new Date().toISOString(),
+  });
   server.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(message);

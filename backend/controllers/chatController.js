@@ -23,7 +23,9 @@ exports.createSession = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in createSession:', error);
-    res.status(500).json({ error: 'An error occurred while creating a chat session' });
+    res
+      .status(500)
+      .json({ error: 'An error occurred while creating a chat session' });
   }
 };
 
@@ -61,7 +63,9 @@ exports.saveMessage = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in saveMessage:', error);
-    res.status(500).json({ error: 'An error occurred while saving your message' });
+    res
+      .status(500)
+      .json({ error: 'An error occurred while saving your message' });
   }
 };
 
@@ -134,6 +138,7 @@ exports.sendMessage = async (req, res) => {
     res.status(200).json({
       userMessage,
       aiMessage,
+      message: aiResult.response,
       messageId: userMessage._id,
       sessionId: chatSessionId,
       category: aiResult.category,
@@ -143,7 +148,9 @@ exports.sendMessage = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in sendMessage:', error);
-    res.status(500).json({ error: 'An error occurred while processing your message' });
+    res
+      .status(500)
+      .json({ error: 'An error occurred while processing your message' });
   }
 };
 
@@ -151,7 +158,10 @@ exports.getChatHistory = async (req, res) => {
   try {
     const { sessionId } = req.params;
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 100);
+    const limit = Math.min(
+      Math.max(parseInt(req.query.limit, 10) || 100, 1),
+      100
+    );
     const skip = (page - 1) * limit;
 
     if (!sessionId) {
@@ -162,7 +172,10 @@ exports.getChatHistory = async (req, res) => {
     if (req.query.subject) query.subject = req.query.subject.toLowerCase();
 
     const total = await Message.countDocuments(query);
-    const messages = await Message.find(query).sort({ timestamp: 1 }).skip(skip).limit(limit);
+    const messages = await Message.find(query)
+      .sort({ timestamp: 1 })
+      .skip(skip)
+      .limit(limit);
 
     res.status(200).json({
       messages,
@@ -175,14 +188,20 @@ exports.getChatHistory = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in getChatHistory:', error);
-    res.status(500).json({ error: 'An error occurred while retrieving chat history' });
+    res
+      .status(500)
+      .json({ error: 'An error occurred while retrieving chat history' });
   }
 };
 
 exports.markRead = async (req, res) => {
   try {
     const result = await Message.updateMany(
-      { sessionId: req.params.sessionId, sender: 'ai', readAt: { $exists: false } },
+      {
+        sessionId: req.params.sessionId,
+        sender: 'ai',
+        readAt: { $exists: false },
+      },
       { readAt: new Date() }
     );
 

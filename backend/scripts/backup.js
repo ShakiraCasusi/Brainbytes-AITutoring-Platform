@@ -7,8 +7,10 @@ const UserSettings = require('../models/UserSettings');
 const LearningMaterial = require('../models/LearningMaterial');
 const Activity = require('../models/Activity');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/brainbytes_test';
-const outputDir = process.env.BACKUP_DIR || path.join(__dirname, '..', 'backups');
+const MONGO_URI =
+  process.env.MONGO_URI || 'mongodb://localhost:27017/brainbytes_test';
+const outputDir =
+  process.env.BACKUP_DIR || path.join(__dirname, '..', 'backups');
 
 async function exportCollection(name, model) {
   const records = await model.find({}).lean();

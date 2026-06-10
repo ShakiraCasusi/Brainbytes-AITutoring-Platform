@@ -13,7 +13,9 @@ describe('AI Service Unit Tests', () => {
     });
 
     it('should detect history subject for history-related words', () => {
-      const subject = aiService.detectSubject('Who is the president of the Philippines?');
+      const subject = aiService.detectSubject(
+        'Who is the president of the Philippines?'
+      );
       expect(subject).toBe('history');
     });
 

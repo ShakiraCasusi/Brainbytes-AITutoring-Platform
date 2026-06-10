@@ -7,8 +7,13 @@ const realtime = require('../services/realtime');
 exports.listUsers = async (req, res) => {
   try {
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 100);
-    const query = req.query.subject ? { preferredSubjects: req.query.subject.toLowerCase() } : {};
+    const limit = Math.min(
+      Math.max(parseInt(req.query.limit, 10) || 20, 1),
+      100
+    );
+    const query = req.query.subject
+      ? { preferredSubjects: req.query.subject.toLowerCase() }
+      : {};
     const [users, total] = await Promise.all([
       User.find(query)
         .sort({ createdAt: -1 })

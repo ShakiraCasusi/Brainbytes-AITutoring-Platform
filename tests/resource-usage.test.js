@@ -22,7 +22,9 @@ describe('Container Resource Usage Tests', () => {
     // Check each container
     memoryUsages.forEach((container) => {
       expect(container.memoryPercentage).toBeLessThan(80); // Adjust threshold as needed
-      console.log(`${container.name} memory usage: ${container.memoryPercentage}%`);
+      console.log(
+        `${container.name} memory usage: ${container.memoryPercentage}%`
+      );
     });
   });
 

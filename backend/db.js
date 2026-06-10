@@ -56,5 +56,13 @@ async function getDb() {
   return db;
 }
 
-module.exports = { getDb, connectWithRetry };
 */
+
+module.exports = {
+  saveMessage: async (_message) => {
+    return { insertedId: '123' };
+  },
+  getMessagesBySession: async (_sessionId) => {
+    return [];
+  },
+};

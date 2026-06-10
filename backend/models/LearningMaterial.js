@@ -28,6 +28,10 @@ const learningMaterialSchema = new mongoose.Schema(
 );
 
 learningMaterialSchema.index({ subject: 1, topic: 1 });
-learningMaterialSchema.index({ subject: 'text', topic: 'text', content: 'text' });
+learningMaterialSchema.index({
+  subject: 'text',
+  topic: 'text',
+  content: 'text',
+});
 
 module.exports = mongoose.model('LearningMaterial', learningMaterialSchema);

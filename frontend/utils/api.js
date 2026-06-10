@@ -1,7 +1,11 @@
 import axios from 'axios';
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
-export const WS_URL = API_BASE_URL.replace(/^http/, 'ws').replace(/\/api$/, '/ws');
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+export const WS_URL = API_BASE_URL.replace(/^http/, 'ws').replace(
+  /\/api$/,
+  '/ws'
+);
 
 export function getToken() {
   if (typeof window === 'undefined') return '';

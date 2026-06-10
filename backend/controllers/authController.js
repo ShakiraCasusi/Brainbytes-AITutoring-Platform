@@ -21,11 +21,15 @@ exports.register = async (req, res) => {
     const { name, email, password, preferredSubjects = [] } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ error: 'Name, email, and password are required' });
+      return res
+        .status(400)
+        .json({ error: 'Name, email, and password are required' });
     }
 
     if (password.length < 8) {
-      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+      return res
+        .status(400)
+        .json({ error: 'Password must be at least 8 characters' });
     }
 
     const existing = await User.findOne({ email: email.toLowerCase() });
@@ -34,7 +38,12 @@ exports.register = async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, passwordHash, preferredSubjects });
+    const user = await User.create({
+      name,
+      email,
+      passwordHash,
+      preferredSubjects,
+    });
     await UserSettings.create({ userId: user._id });
     await Activity.create({
       userId: user._id,
@@ -43,7 +52,9 @@ exports.register = async (req, res) => {
     });
     realtime.broadcast('user:created', { user: sanitizeUser(user) });
 
-    res.status(201).json({ token: createToken(user), user: sanitizeUser(user) });
+    res
+      .status(201)
+      .json({ token: createToken(user), user: sanitizeUser(user) });
   } catch (error) {
     res.status(500).json({ error: 'Unable to register user' });
   }

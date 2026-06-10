@@ -44,10 +44,13 @@ describe('Container Communication Tests', () => {
 
   test('Complete communication flow: Backend -> MongoDB', async () => {
     // Create a session
-    const sessionResponse = await axios.post(`${config.backend}/api/chat/session`, {
-      userId: 'test-user-' + Date.now(),
-      subject: 'Communication Test',
-    });
+    const sessionResponse = await axios.post(
+      `${config.backend}/api/chat/session`,
+      {
+        userId: 'test-user-' + Date.now(),
+        subject: 'Communication Test',
+      }
+    );
 
     expect(sessionResponse.status).toBe(200);
     const sessionId = sessionResponse.data.sessionId.toString();
@@ -56,12 +59,15 @@ describe('Container Communication Tests', () => {
     const testMessage = `Test message ${Date.now()}`;
 
     // Send message through backend API
-    const messageResponse = await axios.post(`${config.backend}/api/chat/message`, {
-      text: testMessage,
-      sender: 'user',
-      sessionId: sessionId,
-      metadata: {},
-    });
+    const messageResponse = await axios.post(
+      `${config.backend}/api/chat/message`,
+      {
+        text: testMessage,
+        sender: 'user',
+        sessionId: sessionId,
+        metadata: {},
+      }
+    );
 
     expect(messageResponse.status).toBe(200);
     expect(messageResponse.data.messageId).toBeDefined();
@@ -81,10 +87,13 @@ describe('Container Communication Tests', () => {
 
   test('Message history pagination works correctly', async () => {
     // Create a session
-    const sessionResponse = await axios.post(`${config.backend}/api/chat/session`, {
-      userId: 'pagination-test-' + Date.now(),
-      subject: 'Pagination Test',
-    });
+    const sessionResponse = await axios.post(
+      `${config.backend}/api/chat/session`,
+      {
+        userId: 'pagination-test-' + Date.now(),
+        subject: 'Pagination Test',
+      }
+    );
 
     const sessionId = sessionResponse.data.sessionId.toString();
 
@@ -99,7 +108,9 @@ describe('Container Communication Tests', () => {
     }
 
     // Retrieve with pagination
-    const page1 = await axios.get(`${config.backend}/api/chat/history/${sessionId}?page=1&limit=2`);
+    const page1 = await axios.get(
+      `${config.backend}/api/chat/history/${sessionId}?page=1&limit=2`
+    );
     expect(page1.status).toBe(200);
     expect(page1.data.messages.length).toBeLessThanOrEqual(2);
     expect(page1.data.pagination.total).toBeGreaterThanOrEqual(5);

@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const Message = require('../backend/Message');
 
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:4000';
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/brainbytes_test';
+const MONGO_URI =
+  process.env.MONGO_URI || 'mongodb://localhost:27017/brainbytes_test';
 
 // Configure Axios base URL to support exact relative endpoint paths from the institution spec
 axios.defaults.baseURL = API_BASE_URL;

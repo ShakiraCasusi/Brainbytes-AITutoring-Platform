@@ -24,7 +24,9 @@ function createWindow() {
   //     });
   const startUrl =
     process.env.FRONTEND_URL ||
-    (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'http://localhost:8080');
+    (process.env.NODE_ENV === 'development'
+      ? 'http://localhost:3000'
+      : 'http://localhost:8080');
 
   mainWindow.loadURL(startUrl);
 

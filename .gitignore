@@ -34,3 +34,7 @@ logs
 # Misc
 .cache
 .turbo
+
+# Test outputs
+junit.xml
+test-results/

@@ -2,9 +2,18 @@ const fetch = require('node-fetch');
 
 /* ---------------- TRAINING EXAMPLES ---------------- */
 const examples = {
-  math: ['Break numbers step by step.', 'Identify operation then solve carefully.'],
-  science: ['Explain using real-world cause and effect.', 'Use observation and evidence.'],
-  history: ['Mention people, time period, and impact.', 'Explain causes and consequences.'],
+  math: [
+    'Break numbers step by step.',
+    'Identify operation then solve carefully.',
+  ],
+  science: [
+    'Explain using real-world cause and effect.',
+    'Use observation and evidence.',
+  ],
+  history: [
+    'Mention people, time period, and impact.',
+    'Explain causes and consequences.',
+  ],
   english: ['Focus on structure and meaning.', 'Use examples from the text.'],
   general: ['Break the question into smaller parts.', 'Explain step by step.'],
 };
@@ -80,7 +89,11 @@ function detectSubject(question, preferredSubject) {
 function detectQuestionType(question) {
   const text = question.toLowerCase();
 
-  if (text.includes('what is') || text.includes('define') || text.includes('meaning')) {
+  if (
+    text.includes('what is') ||
+    text.includes('define') ||
+    text.includes('meaning')
+  ) {
     return 'definition';
   }
   if (text.startsWith('why') || text.includes('explain')) {
@@ -124,7 +137,10 @@ function directAnswer(question) {
     return 'Evaporation is when liquid water turns into vapor due to heat.';
   }
 
-  if (text.includes('capitalofthephilippines') || text.includes('capitalofphilippines')) {
+  if (
+    text.includes('capitalofthephilippines') ||
+    text.includes('capitalofphilippines')
+  ) {
     return 'The capital of the Philippines is Manila.';
   }
 
@@ -148,7 +164,8 @@ function localResponse(subject, questionType, sentiment, question, context) {
 
   const tone = sentiment.label === 'confused' ? "Let's simplify this. " : '';
 
-  const recent = context.history?.length > 1 ? 'Based on your recent questions, ' : '';
+  const recent =
+    context.history?.length > 1 ? 'Based on your recent questions, ' : '';
 
   if (direct) return tone + direct;
 
@@ -190,18 +207,21 @@ async function callHuggingFace(prompt) {
   const timeout = setTimeout(() => controller.abort(), 5000);
 
   try {
-    const res = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-cnn', {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        inputs: prompt,
-        options: { wait_for_model: false },
-      }),
-    });
+    const res = await fetch(
+      'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
+      {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          inputs: prompt,
+          options: { wait_for_model: false },
+        }),
+      }
+    );
 
     clearTimeout(timeout);
 
@@ -227,14 +247,21 @@ async function generateResponse(question, context = {}) {
   const hf = await callHuggingFace(`Explain: ${question}`);
 
   const response =
-    math || direct || hf || localResponse(subject, type, sentiment, question, context);
+    math ||
+    direct ||
+    hf ||
+    localResponse(subject, type, sentiment, question, context);
 
   return {
     category: subject,
     questionType: type,
     sentiment,
     response,
-    suggestions: ['Can you explain more?', 'Give me an example', 'Break it down step by step'],
+    suggestions: [
+      'Can you explain more?',
+      'Give me an example',
+      'Break it down step by step',
+    ],
     trainingExamples: examples[subject],
   };
 }

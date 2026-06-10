@@ -1,6 +1,11 @@
 import { useState } from 'react';
 
-export default function ProfilePage({ profile, settings, onSaveProfile, onSaveSettings }) {
+export default function ProfilePage({
+  profile,
+  settings,
+  onSaveProfile,
+  onSaveSettings,
+}) {
   const [form, setForm] = useState({
     name: profile.name || '',
     email: profile.email || '',
@@ -35,17 +40,25 @@ export default function ProfilePage({ profile, settings, onSaveProfile, onSaveSe
         <h2>User profile</h2>
         <label>
           Name
-          <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          <input
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
         </label>
         <label>
           Email
-          <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          <input
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
         </label>
         <label>
           Preferred subjects
           <input
             value={form.preferredSubjects}
-            onChange={(e) => setForm({ ...form, preferredSubjects: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, preferredSubjects: e.target.value })
+            }
           />
         </label>
         <button>Save profile</button>
@@ -56,7 +69,9 @@ export default function ProfilePage({ profile, settings, onSaveProfile, onSaveSe
           Reading level
           <select
             value={prefs.readingLevel}
-            onChange={(e) => setPrefs({ ...prefs, readingLevel: e.target.value })}
+            onChange={(e) =>
+              setPrefs({ ...prefs, readingLevel: e.target.value })
+            }
           >
             <option value="beginner">Beginner</option>
             <option value="intermediate">Intermediate</option>
@@ -81,14 +96,18 @@ export default function ProfilePage({ profile, settings, onSaveProfile, onSaveSe
             min="5"
             max="240"
             value={prefs.dailyGoalMinutes}
-            onChange={(e) => setPrefs({ ...prefs, dailyGoalMinutes: Number(e.target.value) })}
+            onChange={(e) =>
+              setPrefs({ ...prefs, dailyGoalMinutes: Number(e.target.value) })
+            }
           />
         </label>
         <label className="check">
           <input
             type="checkbox"
             checked={prefs.notifications}
-            onChange={(e) => setPrefs({ ...prefs, notifications: e.target.checked })}
+            onChange={(e) =>
+              setPrefs({ ...prefs, notifications: e.target.checked })
+            }
           />{' '}
           Notifications
         </label>

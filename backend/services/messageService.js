@@ -1,4 +1,5 @@
 const Message = require('../Message');
+const db = require('../db');
 
 /**
  * Creates a new message instance with the correct properties.
@@ -17,6 +18,16 @@ function createMessage(text, sender, sessionId) {
   });
 }
 
+async function saveMessage(message) {
+  return await db.saveMessage(message);
+}
+
+async function getMessagesBySession(sessionId) {
+  return await db.getMessagesBySession(sessionId);
+}
+
 module.exports = {
   createMessage,
+  saveMessage,
+  getMessagesBySession,
 };

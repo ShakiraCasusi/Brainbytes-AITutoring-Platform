@@ -27,7 +27,10 @@ exports.createMaterial = async (req, res) => {
 exports.listMaterials = async (req, res) => {
   try {
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 100);
+    const limit = Math.min(
+      Math.max(parseInt(req.query.limit, 10) || 20, 1),
+      100
+    );
     const query = {};
 
     if (req.query.subject) query.subject = req.query.subject.toLowerCase();

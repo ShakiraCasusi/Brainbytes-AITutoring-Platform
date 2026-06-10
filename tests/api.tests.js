@@ -5,7 +5,8 @@ const { MongoClient } = require('mongodb');
 // const API_BASE_URL = 'http://localhost:4000';
 // const MONGO_URI = 'mongodb://localhost:27017/brainbytes';
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:4000';
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/brainbytes_test';
+const MONGO_URI =
+  process.env.MONGO_URI || 'mongodb://localhost:27017/brainbytes_test';
 
 describe('API Communication Tests', () => {
   let mongoClient;
@@ -40,7 +41,10 @@ describe('API Communication Tests', () => {
       metadata: {},
     };
 
-    const response = await axios.post(`${API_BASE_URL}/api/chat/message`, testMessage);
+    const response = await axios.post(
+      `${API_BASE_URL}/api/chat/message`,
+      testMessage
+    );
     expect(response.status).toBe(200);
     expect(response.data.messageId).toBeDefined();
 
@@ -56,10 +60,13 @@ describe('API Communication Tests', () => {
 
   test('Backend can retrieve message history', async () => {
     // Create a session first
-    const sessionResponse = await axios.post(`${API_BASE_URL}/api/chat/session`, {
-      userId: 'test-user-' + Date.now(),
-      subject: 'Test',
-    });
+    const sessionResponse = await axios.post(
+      `${API_BASE_URL}/api/chat/session`,
+      {
+        userId: 'test-user-' + Date.now(),
+        subject: 'Test',
+      }
+    );
 
     const sessionId = sessionResponse.data.sessionId;
 
@@ -72,7 +79,9 @@ describe('API Communication Tests', () => {
     });
 
     // Retrieve history
-    const historyResponse = await axios.get(`${API_BASE_URL}/api/chat/history/${sessionId}`);
+    const historyResponse = await axios.get(
+      `${API_BASE_URL}/api/chat/history/${sessionId}`
+    );
     expect(historyResponse.status).toBe(200);
     expect(historyResponse.data.messages).toBeDefined();
     expect(Array.isArray(historyResponse.data.messages)).toBe(true);

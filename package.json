@@ -11,7 +11,9 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint:js": "eslint"
+    "lint:js": "eslint",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "repository": {
     "type": "git",
@@ -26,7 +28,13 @@
   },
   "homepage": "https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform#readme",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "eslint": "^9.39.4",
-    "eslint-plugin-react": "^7.37.5"
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jest": "^29.15.2",
+    "eslint-plugin-prettier": "^5.5.6",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "prettier": "^3.8.4"
   }
 }
