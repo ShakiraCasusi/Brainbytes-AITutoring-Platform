@@ -11,7 +11,7 @@ jobs:
     name: Run Tests
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [18.x, 20.x]
         os: [ubuntu-latest]
     
     runs-on: ${{ matrix.os }}
@@ -31,11 +31,11 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Reuse previously downloaded packages to speed up the pipeline.
       - name: Cache Node.js dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             **/node_modules
@@ -45,7 +45,7 @@ jobs:
 
       # --- Frontend ---
       - name: Set up Node.js for Frontend
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -61,7 +61,7 @@ jobs:
 
       # --- Backend ---
       - name: Set up Node.js for Backend
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
