@@ -32,16 +32,18 @@ export default function MessageList({ messages, loading, readReceiptRef }) {
           </p>
         </div>
       ) : (
-        messages.map((message) => (
+        messages.map((message, index) => (
           <article
-            key={message._id || message.timestamp}
+            key={message._id || message.timestamp || index}
             className={message.sender === 'user' ? 'user' : 'ai'}
           >
             <MessageContent text={message.text} />
             <span>
               {message.readAt
                 ? 'Read'
-                : new Date(message.timestamp).toLocaleTimeString()}
+                : message.timestamp
+                ? new Date(message.timestamp).toLocaleTimeString()
+                : ''}
             </span>
           </article>
         ))
