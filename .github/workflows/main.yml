@@ -135,7 +135,7 @@ jobs:
       mongodb:
         image: mongo:5
         options: >-
-          --health-cmd mongosh
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -189,13 +189,15 @@ jobs:
       - name: Wait for MongoDB to be ready
         run: |
           for i in {1..30}; do
-            if mongosh --eval "db.adminCommand('ping')" --quiet mongodb://localhost:27017 2>/dev/null; then
+            if node -e "const net = require('net'); const client = net.connect({ port: 27017 }, () => process.exit(0)); client.on('error', () => process.exit(1));" 2>/dev/null; then
               echo "MongoDB is ready"
-              break
+              exit 0
             fi
             echo "Waiting for MongoDB... ($i/30)"
             sleep 1
           done
+          echo "MongoDB failed to start"
+          exit 1
 
       # Start the server in the background and give it a few seconds to boot up.
       - name: Start backend server
