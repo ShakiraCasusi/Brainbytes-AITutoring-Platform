@@ -34,7 +34,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          npm install
+          npm install --legacy-peer-deps
       
       # Scan code for style and syntax issues before anything else runs.
       - name: Run ESLint
