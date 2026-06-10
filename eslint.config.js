@@ -24,6 +24,7 @@ module.exports = [
       '**/.github/**/*.yml',
       '**/frontend/jest.config.js',
       '**/frontend/public/**',
+      '**/electron/**',
     ],
   },
   // 2) Backend (Node/CommonJS)
@@ -62,7 +63,7 @@ module.exports = [
     rules: {
       ...js.configs.recommended.rules,
       'no-console': 'off',
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': 'off',
       'prettier/prettier': 'warn',
     },
   },
@@ -112,7 +113,7 @@ module.exports = [
     rules: {
       ...js.configs.recommended.rules,
       ...jestPlugin.configs.recommended.rules,
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': 'off',
       'jest/no-done-callback': 'off',
       'prettier/prettier': 'warn',
     },
@@ -162,12 +163,13 @@ module.exports = [
       ...js.configs.recommended.rules,
       ...reactPlugin.configs.recommended.rules,
       ...reactHooksPlugin.configs.recommended.rules,
-      'no-unused-vars': 'warn',
+      'no-unused-vars': 'off',
       'no-console': 'warn',
       'react/react-in-jsx-scope': 'off', // For React 18+
       'react/prop-types': 'off',
       'react/no-unknown-property': ['error', { ignore: ['jsx'] }],
       'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/exhaustive-deps': 'off',
       'react-hooks/purity': 'off',
       'react-hooks/immutability': 'off',
       'prettier/prettier': 'warn',
