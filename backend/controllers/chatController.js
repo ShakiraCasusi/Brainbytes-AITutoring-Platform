@@ -91,10 +91,11 @@ exports.sendMessage = async (req, res) => {
     await userMessage.save();
 
     let aiResult;
+    let timeoutId;
     try {
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
-      );
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Request timeout')), 10000);
+      });
 
       const history = await Message.find({ sessionId: chatSessionId })
         .sort({ timestamp: -1 })
@@ -111,6 +112,10 @@ exports.sendMessage = async (req, res) => {
         response:
           "I'm sorry, but I couldn't process your request in time. Please try again with a simpler question.",
       };
+    } finally {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     }
 
     const aiMessage = new Message({

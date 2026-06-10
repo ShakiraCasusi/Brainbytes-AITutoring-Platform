@@ -1,3 +1,27 @@
+jest.mock('mongoose', () => {
+  const Schema = function () {
+    this.index = jest.fn();
+    this.pre = jest.fn();
+    this.post = jest.fn();
+  };
+  Schema.Types = {
+    ObjectId: String,
+  };
+  return {
+    connect: jest.fn().mockResolvedValue(true),
+    connection: {
+      readyState: 1,
+    },
+    Schema: Schema,
+    model: jest.fn().mockImplementation((_name, _schema) => {
+      function MockModel(data) {
+        Object.assign(this, data);
+      }
+      return MockModel;
+    }),
+  };
+});
+
 const messageService = require('../services/messageService');
 const db = require('../db');
 

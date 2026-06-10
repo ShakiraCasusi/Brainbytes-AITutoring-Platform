@@ -1,3 +1,6 @@
+jest.mock('express-rate-limit', () => {
+  return jest.fn().mockReturnValue((req, res, next) => next());
+});
 const request = require('supertest');
 const app = require('../app');
 
