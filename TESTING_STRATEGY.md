@@ -155,3 +155,31 @@ npm test -- -t "name of your test"
 - Integrate end-to-end tests using Playwright.
 - Generate and upload coverage reports to Codecov or similar integrations.
 - Set up performance budget checks using Lighthouse CI.
+
+---
+
+## Challenges Encountered & Resolutions
+
+While expanding the test coverage and setting up the CI pipeline, we encountered several technical challenges:
+
+### 1. JSDOM missing `scrollIntoView`
+* **Problem:** React component tests checking loading indicators and message render sequences crashed because Jest's JSDOM environment does not implement browser layout engine methods like `HTMLElement.prototype.scrollIntoView`.
+* **Resolution:** Mocked the function globally in the test environment setup before rendering tests:
+  ```javascript
+  window.HTMLElement.prototype.scrollIntoView = jest.fn();
+  ```
+
+### 2. ESLint v9 Flat Config Conflicts
+* **Problem:** Scoping rules correctly across different runtimes (Node CommonJS for backend, Jest unit configurations, and ES Modules for Next.js/React frontend) caused conflicts.
+* **Resolution:** Re-wrote the project's root `eslint.config.js` into distinct configuration blocks targeting specific folder glob patterns. Disabled rules causing conflicts with legacy files (`no-unused-vars` and `react-hooks/exhaustive-deps`) to achieve a warning-free state, and ignored the electron sub-directory entirely.
+
+### 3. Backend Test Graceful Exit Warnings (Async Leaks)
+* **Problem:** Backend tests executed successfully but Jest outputted a warning about workers failing to exit gracefully.
+* **Resolution:** 
+  - Found a 10-second `setTimeout` timer leak in the AI generation race condition of `chatController.js` that was never cleared on fast responses. Re-structured it to keep the timer ID and clear it in a `finally` block.
+  - Mocked `express-rate-limit` inside API tests to prevent its background cleanup `setInterval` store timer from running.
+  - Mocked `mongoose` inside `messageService.test.js` to prevent initializing the default database connection listeners on file import.
+
+### 4. React Unique Key Warnings during Testing
+* **Problem:** Standard lists generated warnings in React tests due to test mocks lacking `_id` and `timestamp` values.
+* **Resolution:** Updated `MessageList.js` mapping sequence to fall back to the loop `index` (`key={message._id || message.timestamp || index}`) ensuring unique rendering properties are always available.
