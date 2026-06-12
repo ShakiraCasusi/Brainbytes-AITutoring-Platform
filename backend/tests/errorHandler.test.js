@@ -93,7 +93,7 @@ describe('Chat endpoint error handling', () => {
       .post('/api/chat/send')
       .send({ message: 'a'.repeat(1001), sessionId: 'session-001' });
     console.log('Long message response status:', res.status);
-    expect([400, 500]).toContain(res.status);
+    expect(res.status).toBe(400);
   });
 
   test('returns 400 when saving message without text', async () => {

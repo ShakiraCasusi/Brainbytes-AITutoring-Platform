@@ -153,6 +153,9 @@ exports.sendMessage = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in sendMessage:', error);
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: error.message });
+    }
     res
       .status(500)
       .json({ error: 'An error occurred while processing your message' });
