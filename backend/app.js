@@ -28,6 +28,8 @@ app.use(
   })
 );
 
+aiService.initializeAI();
+
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the BrainBytes API' });
 });
@@ -84,6 +86,10 @@ app.post('/api/messages', async (req, res) => {
     console.error('Error in /api/messages route:', err);
     res.status(400).json({ error: err.message });
   }
+});
+
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
 });
 
 module.exports = app;
