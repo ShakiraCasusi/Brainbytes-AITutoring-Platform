@@ -8,9 +8,9 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Test Environment
+    name: Deploy to Railway.app
     runs-on: ubuntu-latest
-    environment: test
+    environment: production
     
     steps:
       - name: Check out repository
@@ -24,18 +24,61 @@ jobs:
       - name: Build Docker images
         run: docker compose build
       
-      - name: Prepare deployment
+      - name: Prepare deployment environment variables
         run: |
           echo "DEPLOY_TIME=$(date)" >> $GITHUB_ENV
           echo "DEPLOY_SHA=${{ github.sha }}" >> $GITHUB_ENV
       
-      - name: Deploy to test environment
-        run: |
-          echo "Deploying to test environment..."
-          echo "This is a placeholder for your actual deployment script"
-          echo "In future weeks, this will deploy to Oracle Cloud"
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+        if: ${{ secrets.RAILWAY_TOKEN != '' }}
       
-      - name: Verify deployment
+      - name: Deploy Frontend Service to Railway
         run: |
-          echo "Verifying deployment..."
-          curl -s http://localhost:3000/health || echo "Service not available yet"
+          echo "Deploying frontend container service to Railway..."
+          railway deploy --service brainbytes-frontend --prod --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        working-directory: ./frontend
+        if: ${{ secrets.RAILWAY_TOKEN != '' }}
+
+      - name: Deploy Backend Service to Railway
+        run: |
+          echo "Deploying backend container service to Railway..."
+          railway deploy --service brainbytes-backend --prod --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        working-directory: ./backend
+        if: ${{ secrets.RAILWAY_TOKEN != '' }}
+
+      - name: Simulation mode deployment (Fallback)
+        run: |
+          echo "Warning: No production RAILWAY_TOKEN found. Operating in local simulation mode."
+          echo "Building stack locally using docker-compose..."
+          docker compose up -d
+          docker compose ps
+          docker compose down
+        if: ${{ secrets.RAILWAY_TOKEN == '' }}
+
+      - name: Verify deployment health
+        run: |
+          echo "Verifying service availability..."
+          # In local simulation mode, check localhost, in Railway mode check Railway service URL
+          TARGET_URL="http://localhost:4000/api/health"
+          if [ -n "${{ secrets.RAILWAY_BACKEND_URL }}" ]; then
+            TARGET_URL="${{ secrets.RAILWAY_BACKEND_URL }}/api/health"
+          fi
+          
+          # Ping the backend health endpoint
+          for i in {1..10}; do
+            if curl -sf $TARGET_URL; then
+              echo "BrainBytes backend is healthy and responding!"
+              exit 0
+            fi
+            echo "Waiting for backend service to stand up ($i/10)..."
+            sleep 5
+          done
+          echo "Error: Backend did not respond on $TARGET_URL"
+          exit 1
+
+

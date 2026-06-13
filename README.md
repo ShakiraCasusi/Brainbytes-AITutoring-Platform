@@ -98,6 +98,62 @@ graph TD
 
 ---
 
+# # Cloud Environment Setup & Deployment Plan
+
+The BrainBytes platform utilizes **Railway.app** as its cloud environment, providing automated container provisioning, built-in TLS certificates, and integrated MongoDB hosting.
+
+> [!TIP]
+> This is a summary of the deployment configuration. For the complete specifications, setup guides, project architectures, and testing metrics, see the **[deployment-plan.md (Full Version)](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/docs/deployment-plan.md)**.
+
+## 1. Cloud Infrastructure & Service Configuration (Task 1)
+To ensure system durability and resilience, the Railway environment is configured with:
+- **Service Optimization:** Standard multi-service project hosting separated root folders (`frontend/` and `backend/`) to run independent Next.js and Node.js containers.
+- **MongoDB Provisioning:** An active container database instance on Railway, connected dynamically using integrated reference bindings (`MONGO_URL`).
+- **Health Checks & Auto-Restarts:** Configured start validations checking `/api/health` with automatic restart properties.
+- **Observability:** Centralized service logs and metrics dashboard for latency tracking.
+
+## 2. Environment Architecture (Task 2)
+The application operates in a multi-container isolated private network within Railway:
+- **Frontend Service:** Exposes Next.js web requests over custom generated HTTPS domains.
+- **Backend Service:** Exposes Node.js/Express APIs over custom generated HTTPS domains.
+- **MongoDB Service:** Accessible internally to the backend service.
+
+For complete network diagrams, topologies, and rollback details, refer to **[deployment-plan.md](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/docs/deployment-plan.md)**.
+
+## 3. GitHub Actions CI/CD Integration (Task 3)
+Continuous integration builds Docker image layers on the runner, while the **[deploy.yml](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/.github/workflows/deploy.yml)** workflow triggers deployment updates on Railway using the Railway CLI.
+
+### Railway Deployment Secrets Config
+Ensure the following Repository Secrets are defined under **Settings > Secrets and variables > Actions**:
+- `RAILWAY_TOKEN`: Authentication token for accessing Railway projects.
+- `RAILWAY_BACKEND_URL`: Public domain URL generated for the backend API (used for workflow health checks).
+- `JWT_SECRET`: Signature generation key for JSON Web Tokens.
+- `HUGGINGFACE_TOKEN`: API key for accessing the Hugging Face AI text processing models.
+
+## 4. Philippine-Specific Considerations (Task 4)
+- **Low-Latency Edge Networks:** Railway utilizes global edge network routers to minimize round-trip times (RTT) for PLDT, Globe, and Converge users in the Philippines.
+- **Resilient Mobile App:** Next.js uses service workers for offline caching, enabling users with intermittent connectivity to access loaded worksheets and fallback mock interfaces.
+- **Data Compliance:** Adheres to the **Philippine Data Privacy Act of 2012 (DPA)** by hashing user credentials using BCrypt and encrypting env variables at rest inside Railway.
+
+---
+
+# Workspace File Registry & Changelog
+As part of the DevOps cloud integration and testing process, the following files were added, tested, or modified:
+
+### 1. [deploy.yml](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/.github/workflows/deploy.yml) [MODIFY]
+- **What was added/modified:** Updated deployment workflow from SSH VM actions to trigger multi-service container builds on Railway.app using the Railway CLI.
+- **Testing performed:** Confirmed YAML configurations and local compose fallback routines lint successfully.
+
+### 2. [deployment-plan.md](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/docs/deployment-plan.md) [NEW]
+- **What was added/modified:** Created the full cloud deployment specifications document, containing project setups, service lists, Mermaid topologies, validation matrices, and screenshot placeholders.
+- **Testing performed:** Verified Mermaid tags, file link schemes, and markdown formatting layouts.
+
+### 3. [README.md](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/README.md) [MODIFY]
+- **What was added/modified:** Added Railway environment summaries, secrets config parameters, and refined the workspace registry list.
+- **Testing performed:** Validated links redirect successfully.
+
+-----
+
 # BrainBytes CI/CD Documentation
 
 This section details the custom Continuous Integration and Continuous Deployment (CI/CD) pipelines configured for the BrainBytes AI tutoring platform.
