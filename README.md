@@ -98,12 +98,12 @@ graph TD
 
 ---
 
-# # Cloud Environment Setup & Deployment Plan
+# Cloud Environment Setup & Deployment Plan
 
 The BrainBytes platform utilizes **Railway.app** as its cloud environment, providing automated container provisioning, built-in TLS certificates, and integrated MongoDB hosting.
 
 > [!TIP]
-> This is a summary of the deployment configuration. For the complete specifications, setup guides, project architectures, and testing metrics, see the **[deployment-plan.md (Full Version)](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/docs/deployment-plan.md)**.
+> This is a summary of the deployment configuration. For the complete specifications, setup guides, project architectures, and testing metrics, see the **[deployment-plan.md (Full Version)](./docs/deployment-plan.md)**.
 
 ## 1. Cloud Infrastructure & Service Configuration (Task 1)
 To ensure system durability and resilience, the Railway environment is configured with:
@@ -118,10 +118,10 @@ The application operates in a multi-container isolated private network within Ra
 - **Backend Service:** Exposes Node.js/Express APIs over custom generated HTTPS domains.
 - **MongoDB Service:** Accessible internally to the backend service.
 
-For complete network diagrams, topologies, and rollback details, refer to **[deployment-plan.md](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/docs/deployment-plan.md)**.
+For complete network diagrams, topologies, and rollback details, refer to **[deployment-plan.md](./docs/deployment-plan.md)**.
 
 ## 3. GitHub Actions CI/CD Integration (Task 3)
-Continuous integration builds Docker image layers on the runner, while the **[deploy.yml](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/.github/workflows/deploy.yml)** workflow triggers deployment updates on Railway using the Railway CLI.
+Continuous integration builds Docker image layers on the runner, while the **[deploy.yml](./.github/workflows/deploy.yml)** workflow triggers deployment updates on Railway using the Railway CLI.
 
 ### Railway Deployment Secrets Config
 Ensure the following Repository Secrets are defined under **Settings > Secrets and variables > Actions**:
@@ -140,19 +140,19 @@ Ensure the following Repository Secrets are defined under **Settings > Secrets a
 # Workspace File Registry & Changelog
 As part of the DevOps cloud integration and testing process, the following files were added, tested, or modified:
 
-### 1. [deploy.yml](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/.github/workflows/deploy.yml) [MODIFY]
+### 1. [deploy.yml](./.github/workflows/deploy.yml) [MODIFY]
 - **What was added/modified:** Updated deployment workflow from SSH VM actions to trigger multi-service container builds on Railway.app using the Railway CLI.
 - **Testing performed:** Confirmed YAML configurations and local compose fallback routines lint successfully.
 
-### 2. [deployment-plan.md](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/docs/deployment-plan.md) [NEW]
+### 2. [deployment-plan.md](./docs/deployment-plan.md) [NEW]
 - **What was added/modified:** Created the full cloud deployment specifications document, containing project setups, service lists, Mermaid topologies, validation matrices, and screenshot placeholders.
 - **Testing performed:** Verified Mermaid tags, file link schemes, and markdown formatting layouts.
 
-### 3. [README.md](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/README.md) [MODIFY]
+### 3. [README.md](./README.md) [MODIFY]
 - **What was added/modified:** Added Railway environment summaries, secrets config parameters, and refined the workspace registry list.
 - **Testing performed:** Validated links redirect successfully.
 
-### 4. [Dockerfile (Backend)](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/backend/Dockerfile) [MODIFY]
+### 4. [Dockerfile (Backend)](./backend/Dockerfile) [MODIFY]
 - **What was added/modified:** Added missing `app.js` and `db.js` file copy commands to the production build stage to prevent deployment boot crashes.
 - **Testing performed:** Confirmed it resolves the `MODULE_NOT_FOUND` server boot crash during deployment.
 
