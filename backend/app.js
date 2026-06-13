@@ -33,19 +33,41 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    databaseConnected: mongoose.connection.readyState === 1,
-  });
+  const state = mongoose.connection.readyState; // 1 = connected
+  if (state === 1) {
+    res.json({
+      status: 'ok',
+      db: 'connected',
+      databaseConnected: true,
+      timestamp: new Date().toISOString(),
+    });
+  } else {
+    res.status(500).json({
+      status: 'error',
+      db: 'disconnected',
+      databaseConnected: false,
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    databaseConnected: mongoose.connection.readyState === 1,
-  });
+  const state = mongoose.connection.readyState; // 1 = connected
+  if (state === 1) {
+    res.json({
+      status: 'ok',
+      db: 'connected',
+      databaseConnected: true,
+      timestamp: new Date().toISOString(),
+    });
+  } else {
+    res.status(500).json({
+      status: 'error',
+      db: 'disconnected',
+      databaseConnected: false,
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 app.use('/api/chat', chatRoutes);
