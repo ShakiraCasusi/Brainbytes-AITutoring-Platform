@@ -12,7 +12,6 @@ WORKDIR /app
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV MONGO_URI=mongodb://mongo:27017/brainbytes
 
 # Copy files from build stage
 COPY --from=build /app/package*.json ./
