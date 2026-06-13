@@ -22,9 +22,10 @@ const examples = {
 function initializeAI() {
   console.log('AI service initialized');
 
-  if (!process.env.HUGGINGFACE_TOKEN) {
-    console.warn('HUGGINGFACE_TOKEN missing - HF API disabled');
-  }
+  // HUGGINGFACE_TOKEN check disabled to avoid startup warning logs
+  // if (!process.env.HUGGINGFACE_TOKEN) {
+  //   console.warn('HUGGINGFACE_TOKEN missing - HF API disabled');
+  // }
 }
 
 /* ---------------- SAFE MATH SOLVER ---------------- */
@@ -244,7 +245,9 @@ async function generateResponse(question, context = {}) {
   const math = solveMath(question);
   const direct = directAnswer(question);
 
-  const hf = await callHuggingFace(`Explain: ${question}`);
+  // HuggingFace API calls disabled to avoid missing token errors
+  // const hf = await callHuggingFace(`Explain: ${question}`);
+  const hf = null;
 
   const response =
     math ||
