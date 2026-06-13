@@ -33,16 +33,19 @@ Before setting up the deployment on Railway.app, prepare the following:
      - Click **Configure**. Set **Root Directory** to `backend/`.
      - Name the service `brainbytes-backend`.
 
-### 1.3 MongoDB Database Provisioning
-1. On the Railway project canvas, click **New** and select **Database > Add MongoDB**.
-2. Railway will deploy a standalone, containerized MongoDB instance.
-3. **Private Networking:** Under the database service's **Variables** tab, locate the reference `MONGODB_URL` or `MONGO_URL`. Railway automatically provides this connection string to other services within the same project network.
+### 1.3 MongoDB Database Provisioning (MongoDB Atlas)
+Dahil nililimitahan na ng Railway Free Tier ang direktang paggawa ng MongoDB database service, gagamitin natin ang **MongoDB Atlas** (ang opisyal at permanenteng libreng cloud database provider ng MongoDB):
+1. **Sign Up:** Pumunta sa [MongoDB Atlas Cloud Website](https://www.mongodb.com/cloud/atlas) at mag-create ng libreng account.
+2. **Cluster Creation:** Gumawa ng bagong cluster at piliin ang **M0 Shared Free Tier**. Itakda ang Cloud Provider at Region sa **AWS / Singapore (ap-southeast-1)** para sa pinakamababang latency.
+3. **Database User:** Gumawa ng database user account (username at password). Tandaan ito dahil ilalagay ito sa connection string.
+4. **Network Access (IP Whitelisting):** Pumunta sa **Security > Network Access** at i-click ang **Add IP Address**. Piliin ang **Allow Access From Anywhere** (`0.0.0.0/0`) para makakonekta ang mga dynamic container IPs ng Railway.
+5. **Get Connection String:** I-click ang **Connect** button sa iyong cluster, piliin ang **Drivers**, at kopyahin ang ibinigay na connection URI (halimbawa: `mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/brainbytes?retryWrites=true&w=majority`).
 
-### 1.4 Service Variables & Binding Configuration
+### 1.4 Service Variables & Configuration
 Configure the environment variables under the **Variables** tab for each service:
 
 - **For `brainbytes-backend`:**
-  - `MONGO_URI`: `${{Mongo.MONGO_URL}}` (This binds the database URL variable dynamically).
+  - `MONGO_URI`: I-paste ang nakuha mong **MongoDB Atlas connection string** (palitan ang `<username>` at `<password>` ng ginawa mo sa Hakbang 3).
   - `JWT_SECRET`: `${{secrets.JWT_SECRET}}` (Or enter your secret token).
   - `HUGGINGFACE_TOKEN`: Enter your Hugging Face API key.
   - `NODE_ENV`: `production`
@@ -70,17 +73,16 @@ graph TD
     %% Entry Points
     Student[Filipino Students / Users] -->|HTTPS: Ports 80, 443| Edge[Railway Edge Router / Ingress]
 
-    subgraph Railway Project Canvas [Railway Private Network Network Subnet]
+    subgraph Railway Project Canvas [Railway Container Subnet]
         %% Services
         Edge -->|Routes /| FE[Frontend Service: Next.js PWA]
         Edge -->|Routes /api| BE[Backend Service: Node.js API]
         
         FE <-->|REST API & Websockets| BE
-        
-        BE -->|Internal Routing / MONGO_URL| DB[(MongoDB Database Service)]
     end
 
     %% External Systems
+    BE -->|MongoDB Connection URI| DB[(MongoDB Atlas Cloud DB)]
     BE -->|REST Queries| HF[Hugging Face API]
     GHA[GitHub Actions Runner] -->|CLI deployment trigger / RAILWAY_TOKEN| Edge
 ```
