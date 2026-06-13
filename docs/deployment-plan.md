@@ -71,7 +71,7 @@ The following diagram outlines the system containers, mapping ports, and continu
 ```mermaid
 graph TD
     %% Entry Points
-    Student[Filipino Students / Users] -->|HTTPS: Ports 80, 443| Edge[Railway Edge Router / Ingress]
+    Student[Students / Users] -->|HTTPS: Ports 80, 443| Edge[Railway Edge Router / Ingress]
 
     subgraph Railway Project Canvas [Railway Container Subnet]
         %% Services
@@ -117,8 +117,8 @@ The deployment strategy is split into defined phases:
 | :--- | :--- | :--- | :--- | :--- |
 | **Phase 1** | Project Setup & DB Provisioning | - Register Railway tenancy.<br>- Deploy MongoDB service instance.<br>- Create frontend and backend services. | Days 1–2 | DevOps Engineer |
 | **Phase 2** | Variables & Domain Setup | - Configure environment variables for both services.<br>- Set up dynamic Mongo bindings.<br>- Generate HTTPS domains. | Days 3–4 | DevOps Engineer |
-| **Phase 3** | Pipeline Integration & Secrets | - Setup `RAILWAY_TOKEN` and `RAILWAY_BACKEND_URL` in GitHub secrets.<br>- Validate GHA triggers on `development`. | Days 5–6 | DevOps Engineer / Full Stack Developer |
-| **Phase 4** | Verification & Readiness | - Set up health checks.<br>- Verify offline caching using Next-PWA service workers. | Days 7–8 | QA Engineer / Full Stack Developer |
+| **Phase 3** | Pipeline Integration & Secrets | - Setup `RAILWAY_TOKEN` and `RAILWAY_BACKEND_URL` in GitHub secrets.<br>- Validate GHA triggers on `development`. | Days 5–6 | DevOps Engineer / Backend & Frontend Developer |
+| **Phase 4** | Verification & Readiness | - Set up health checks.<br>- Verify offline caching using Next-PWA service workers. | Days 7–8 | QA Engineer / Backend & Frontend Developer |
 
 ### 5.1 Rollback Procedures
 If a deployment fails the startup health check:
@@ -202,37 +202,19 @@ jobs:
 
 ---
 
-## 7. Cloud Dashboard Screenshot Placeholders
-
-Please replace these placeholders with actual screenshots from your Railway Console when compiling the final report.
+## 7. Cloud Dashboard Screenshots
 
 ### 7.1 Railway Project Canvas
-```
-[SCREENSHOT PLACEHOLDER: RAILWAY PROJECT CANVAS]
-- Target Area: Railway Dashboard > Select Project
-- Visible Content: Verify that you can see three services on the canvas: "brainbytes-frontend", "brainbytes-backend", and "MongoDB", showing healthy green indicators.
-```
+![Railway Project Canvas](./screenshots/RAILWAY%20PROJECT%20CANVAS.jpg)
 
 ### 7.2 Service Settings & Health Checks
-```
-[SCREENSHOT PLACEHOLDER: HEALTH CHECK PATH SETTING]
-- Target Area: brainbytes-backend service > Settings > Deployments
-- Visible Content: Show the health check path configured as "/api/health" with health check status passing.
-```
+![Service Settings & Health Checks](./screenshots/HEALTH%20CHECK%20PATH%20SETTING.jpg)
 
 ### 7.3 Service Environment Variables
-```
-[SCREENSHOT PLACEHOLDER: BACKEND ENVIRONMENT VARIABLES]
-- Target Area: brainbytes-backend service > Variables
-- Visible Content: Verify variables are listed: MONGO_URI (referencing Mongo service), JWT_SECRET, HUGGINGFACE_TOKEN, and NODE_ENV.
-```
+![Service Environment Variables](./screenshots/BACKEND%20ENVIRONMENT%20VARIABLES.jpg)
 
 ### 7.4 Service Live Deployment Logs
-```
-[SCREENSHOT PLACEHOLDER: BACKEND DEPLOYMENT LOGS]
-- Target Area: brainbytes-backend service > Deployments > View Logs
-- Visible Content: Verify output shows backend server starting successfully and database connection established.
-```
+![Service Live Deployment Logs](./screenshots/BACKEND%20DEPLOYMENT%20LOGS.jpg)
 
 ---
 
