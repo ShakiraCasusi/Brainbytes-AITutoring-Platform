@@ -21,7 +21,7 @@
     "express-rate-limit": "^8.5.2",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^5.13.7",
+    "mongoose": "^8.14.1",
     "node-cache": "^5.1.2",
     "node-fetch": "^2.6.7",
     "ws": "^8.20.1"
