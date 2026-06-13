@@ -152,6 +152,10 @@ As part of the DevOps cloud integration and testing process, the following files
 - **What was added/modified:** Added Railway environment summaries, secrets config parameters, and refined the workspace registry list.
 - **Testing performed:** Validated links redirect successfully.
 
+### 4. [Dockerfile (Backend)](file:///c:/Users/krscu/OneDrive/Dokumen/brainbytes-multi-containers/backend/Dockerfile) [MODIFY]
+- **What was added/modified:** Added missing `app.js` and `db.js` file copy commands to the production build stage to prevent deployment boot crashes.
+- **Testing performed:** Confirmed it resolves the `MODULE_NOT_FOUND` server boot crash during deployment.
+
 -----
 
 # BrainBytes CI/CD Documentation

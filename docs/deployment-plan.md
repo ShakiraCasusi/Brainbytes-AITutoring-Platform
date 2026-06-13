@@ -261,6 +261,10 @@ During the Railway integration testing phase, the following blockers were encoun
 * **Problem:** The backend service crashed on startup because it tried to listen on port `4000` while Railway binds the routing port dynamically via the `$PORT` environment variable.
 * **Resolution:** Updated the backend startup configuration to use `process.env.PORT` dynamically rather than hardcoding port `4000`.
 
+#### Challenge 3: Missing Code Files in Docker Image
+* **Problem:** The production deployment crashed on startup with `MODULE_NOT_FOUND` errors because the multi-stage Docker build omitted `app.js` and `db.js` from the final Alpine production image.
+* **Resolution:** Modified the backend `Dockerfile` to explicitly copy `app.js` and `db.js` to the final stage.
+
 ---
 
 ## 9. Philippine-Specific Considerations

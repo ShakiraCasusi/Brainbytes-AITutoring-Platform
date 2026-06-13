@@ -20,6 +20,8 @@ COPY --from=build /app/node_modules ./node_modules
 # Legacy broad copy was very slow during Docker image unpacking:
 # COPY --from=build /app . ./
 COPY --from=build /app/server.js ./server.js
+COPY --from=build /app/app.js ./app.js
+COPY --from=build /app/db.js ./db.js
 COPY --from=build /app/aiService.js ./aiService.js
 COPY --from=build /app/healthcheck.js ./healthcheck.js
 COPY --from=build /app/Message.js ./Message.js
