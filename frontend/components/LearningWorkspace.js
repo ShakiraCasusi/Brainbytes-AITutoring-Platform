@@ -3,7 +3,7 @@ import AppLayout from './AppLayout';
 import ChatPanel from './ChatPanel';
 import Dashboard from './Dashboard';
 import ProfilePage from './ProfilePage';
-import { api, setToken, WS_URL } from '../utils/api';
+import { api, setToken, getToken, WS_URL } from '../utils/api';
 
 const defaultProfile = { name: '', email: '', preferredSubjects: [] };
 const defaultSettings = {
@@ -64,21 +64,34 @@ export default function LearningWorkspace() {
   }
 
   async function loadSettings(userId) {
-    if (!userId) return;
-    const response = await api.get(`/settings/${userId}`);
-    setSettings(response.data.settings);
+    if (!userId || !getToken()) return;
+    try {
+      const response = await api.get(`/settings/${userId}`);
+      setSettings(response.data.settings);
+    } catch (err) {
+      console.warn('Failed to load settings:', err.message);
+    }
   }
 
   async function saveSettings(nextSettings) {
     if (!profile.id) return;
-    const response = await api.put(`/settings/${profile.id}`, nextSettings);
-    setSettings(response.data.settings);
-    await refreshActivity();
+    try {
+      const response = await api.put(`/settings/${profile.id}`, nextSettings);
+      setSettings(response.data.settings);
+      await refreshActivity();
+    } catch (err) {
+      console.warn('Failed to save settings:', err.message);
+    }
   }
 
   async function refreshActivity() {
-    const response = await api.get('/activity');
-    setActivity(response.data.activities || []);
+    if (!getToken()) return;
+    try {
+      const response = await api.get('/activity');
+      setActivity(response.data.activities || []);
+    } catch (err) {
+      console.warn('Failed to fetch activity:', err.message);
+    }
   }
 
   return (
