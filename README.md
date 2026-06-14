@@ -1,38 +1,59 @@
-# BrainBytes AI Tutoring Platform
+# BrainBytes AI Tutoring Platform: Milestone 2 Documentation
 
 [![BrainBytes CI/CD](https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform/actions/workflows/main.yml/badge.svg)](https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform/actions/workflows/main.yml)
 
-## Project Overview
+---
 
-BrainBytes is an AI-powered tutoring platform designed to provide accessible academic assistance to students. This project implements the platform using modern DevOps practices and containerization.
+## Deployment and Operations Guide
 
-## Development Team
+This is the official deployment and operations package for the **BrainBytes AI Tutoring Platform**. In this milestone, we have built a **CI/CD pipeline** (using GitHub Actions) and deployed our application to **Railway.app** (our Cloud Platform).
 
-- [Shakira Angela Casusi] - Team Lead - [lr.sacasusi@mmdc.mcl.edu.ph]
-- [Jerico Gabriel Crisostomo] - Backend Developer - [lr.jgcrisostomo@mmdc.mcl.edu.ph]
-- [Juliana Martina Relox] - Frontend Developer - [lr.jmrelox@mmdc.mcl.edu.ph]
-- [Shirly Rose Montes] - DevOps Engineer - [lr.srmontes@mmdc.mcl.edu.ph]
+This guide is written to help students and developers understand how our code moves safely from a local computer to the cloud environment.
 
-## Project Goals
+---
 
-- Implement a containerized application with proper networking
-- Create an automated CI/CD pipeline using GitHub Actions
-- Deploy the application to Oracle Cloud Free Tier
-- Set up monitoring and observability tools
+# 1. Introduction & Project Overview
 
-## Technology Stack
+### 1.1 Project Overview
 
-- Frontend: Next.js
-- Backend: Node.js
-- Database: MongoDB
-- Containerization: Docker
-- PWA: next-pwa
-- Desktop: Electron and Electron Builder
-- CI/CD: GitHub Actions
-- Cloud Provider: Oracle Cloud Free Tier
-- Monitoring: Prometheus & Grafana
+**BrainBytes** is an AI-powered study partner designed to help students learn. It answers academic questions, tracks study activities, and stores learning materials. To make sure the application is always running and stable, we containerized the frontend and backend using Docker and deployed them to the cloud. This ensures that the application runs consistently across different environments.
 
-## Project Architecture Diagram - Updated
+### 1.2 Milestone 2 Objectives
+
+In this milestone, our team achieved the following goals:
+
+1. **Container Integration**: We wrapped our frontend (user interface) and backend (server engine) into independent, isolated Docker containers.
+2. **CI/CD Automation**: We set up GitHub Actions workflows to automatically test, build, and check the quality of our code whenever we update it.
+3. **Cloud Deployment**: We hosted our services on Railway.app and connected them to a cloud-based MongoDB Atlas database.
+4. **Security & Monitoring**: We set up secure secret managers, created rollback procedures, and enabled logs to watch system health.
+
+### 1.3 Team Responsibilities & Project Roles
+
+Our team is divided into specific roles to manage the development and deployment process:
+
+| Team Member                   | Project Role       | Core Responsibilities                                                                               | Contact Email                     |
+| :---------------------------- | :----------------- | :-------------------------------------------------------------------------------------------------- | :-------------------------------- |
+| **Shakira Angela Casusi**     | Team Lead          | Steers the project, coordinates the team, and makes sure all parts fit together.                    | `lr.sacasusi@mmdc.mcl.edu.ph`     |
+| **Jerico Gabriel Crisostomo** | Backend Developer  | Maintains the server backend engine, handles AI responses, and sets up database schemas.            | `lr.jgcrisostomo@mmdc.mcl.edu.ph` |
+| **Juliana Martina Relox**     | Frontend Developer | Builds the user dashboard, designs the chat screen, and optimizes user interactions.                | `lr.jmrelox@mmdc.mcl.edu.ph`      |
+| **Shirly Rose Montes**        | DevOps Engineer    | Sets up the automated CI/CD pipelines, configures Docker containers, and manages cloud deployments. | `lr.srmontes@mmdc.mcl.edu.ph`     |
+
+### 1.4 Technology Stack
+
+We use the following technology stack for our project:
+
+- **Frontend**: Next.js (Web interface) and `next-pwa` (Offline caching for mobile devices).
+- **Backend**: Node.js & Express API Server.
+- **Database**: MongoDB Atlas (Cloud database).
+- **Containerization**: Docker & Docker Compose.
+- **Desktop Version**: Electron and Electron Builder.
+- **CI/CD**: GitHub Actions pipelines.
+- **Cloud Provider**: Railway.app.
+- **Security Scanners**: Snyk (Vulnerability check) and Trivy (Docker image check).
+
+### 1.5 System Architecture Diagram
+
+This diagram shows how our containers talk to each other and how public web requests reach our services:
 
 ```mermaid
 graph TD
@@ -85,201 +106,243 @@ graph TD
     classDef middleware fill:#ff4d4d,stroke:#fff,stroke-width:2px,color:#fff;
 ```
 
-### Project Architecture Diagram - Components Explained
+#### System Components Explained
 
-| **Component**                       | **Role / Function**                                                       | **Port / Mechanism** | **Data Flows & Features**                                                                                                                               |
-| ----------------------------------- | ------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Frontend Container (Next.js)**    | User interface for chat, profiles, and dashboards.                        | `3000`               | - Sends REST API & WebSocket requests to Backend<br>- Receives AI responses, paginated history, and realtime events<br>- PWA caching via Service Worker |
-| **Security & Middleware**           | Protects the backend from excessive load and vulnerabilities.             | Internal             | - Uses `express-rate-limit` for DDoS protection<br>- Uses `helmet` for secure HTTP headers                                                              |
-| **Backend Container (Node.js API)** | Core logic; handles auth, WebSockets, rate limiting, and chat processing. | `4000`               | - Handles JWT Authentication<br>- Generates JSON Backups (`scripts/backup.js`)<br>- Manages user settings & learning materials                          |
-| **Database (MongoDB)**              | Stores all persistent structured data using Mongoose schemas.             | `27017`              | - Validates data upon entry<br>- Uses optimized indexes for fast lookups<br>- Stores Users, Profiles, Messages, and Materials                           |
-| **Academic Chat Logic**             | Processes user input to generate relevant AI answers.                     | Internal             | - Analyzes user sentiment & categorizes subjects<br>- Provides actionable suggestions & math handling                                                   |
-| **Monitoring Stack**                | Future-ready stack for tracking application health.                       | Planned              | - Will collect metrics for observability                                                                                                                |
-
----
-
-# Cloud Environment Setup & Deployment Plan
-
-The BrainBytes platform utilizes **Railway.app** as its cloud environment, providing automated container provisioning, built-in TLS certificates, and integrated MongoDB hosting.
-
-> [!TIP]
-> This is a summary of the deployment configuration. For the complete specifications, setup guides, project architectures, and testing metrics, see the **[deployment-plan.md (Full Version)](./docs/deployment-plan.md)**.
-
-## 1. Cloud Infrastructure & Service Configuration (Task 1)
-To ensure system durability and resilience, the Railway environment is configured with:
-- **Service Optimization:** Standard multi-service project hosting separated root folders (`frontend/` and `backend/`) to run independent Next.js and Node.js containers.
-- **MongoDB Provisioning:** An active container database instance on Railway, connected dynamically using integrated reference bindings (`MONGO_URL`).
-- **Health Checks & Auto-Restarts:** Configured start validations checking `/api/health` with automatic restart properties.
-- **Observability:** Centralized service logs and metrics dashboard for latency tracking.
-
-## 2. Environment Architecture (Task 2)
-The application operates in a multi-container isolated private network within Railway:
-- **Frontend Service:** Exposes Next.js web requests over custom generated HTTPS domains.
-- **Backend Service:** Exposes Node.js/Express APIs over custom generated HTTPS domains.
-- **MongoDB Service:** Accessible internally to the backend service.
-
-For complete network diagrams, topologies, and rollback details, refer to **[deployment-plan.md](./docs/deployment-plan.md)**.
-
-## 3. GitHub Actions CI/CD Integration (Task 3)
-Continuous integration builds Docker image layers on the runner, while the **[deploy.yml](./.github/workflows/deploy.yml)** workflow triggers deployment updates on Railway using the Railway CLI.
-
-### Railway Deployment Secrets Config
-Ensure the following Repository Secrets are defined under **Settings > Secrets and variables > Actions**:
-- `RAILWAY_TOKEN`: Authentication token for accessing Railway projects.
-- `RAILWAY_BACKEND_URL`: Public domain URL generated for the backend API (used for workflow health checks).
-- `JWT_SECRET`: Signature generation key for JSON Web Tokens.
-- `HUGGINGFACE_TOKEN`: API key for accessing the Hugging Face AI text processing models.
-
-## 4. Philippine-Specific Considerations (Task 4)
-- **Low-Latency Edge Networks:** Railway utilizes global edge network routers to minimize round-trip times (RTT) for PLDT, Globe, and Converge users in the Philippines.
-- **Resilient Mobile App:** Next.js uses service workers for offline caching, enabling users with intermittent connectivity to access loaded worksheets and fallback mock interfaces.
-- **Data Compliance:** Adheres to the **Philippine Data Privacy Act of 2012 (DPA)** by hashing user credentials using BCrypt and encrypting env variables at rest inside Railway.
+| Component               | Role / Function                                        | Network Port | Data Flows & Features                                                              |
+| :---------------------- | :----------------------------------------------------- | :----------- | :--------------------------------------------------------------------------------- |
+| **Frontend Container**  | User interface for chat, profiles, and dashboards.     | `3000`       | Sends REST API & WebSocket requests; displays AI answers; caches assets using PWA. |
+| **Security Middleware** | Protects the backend from bad actors.                  | Internal     | Uses rate limiters for DDoS safety and Helmet for secure HTTP headers.             |
+| **Backend Container**   | Core logic layer. Handles chat, security, and backups. | `4000`       | Manages JWT tokens, runs AI queries, and saves backup JSON files.                  |
+| **Database (MongoDB)**  | Persistent data vault.                                 | `27017`      | Stores structured database records (Users, Messages, and Profiles).                |
+| **Academic Chat Logic** | Processes questions.                                   | Internal     | Classifies study subjects and formats response layouts.                            |
+| **Monitoring Stack**    | System health tracker.                                 | Planned      | Will export resource usage data to Grafana dashboards.                             |
 
 ---
 
-# Workspace File Registry & Changelog
-As part of the DevOps cloud integration and testing process, the following files were added, tested, or modified:
+# 2. CI/CD Implementation
 
-### 1. [deploy.yml](./.github/workflows/deploy.yml) [MODIFY]
-- **What was added/modified:** Updated deployment workflow from SSH VM actions to trigger multi-service container builds on Railway.app using the Railway CLI.
-- **Testing performed:** Confirmed YAML configurations and local compose fallback routines lint successfully.
+### 2.1 Pipeline Architecture
 
-### 2. [deployment-plan.md](./docs/deployment-plan.md) [NEW]
-- **What was added/modified:** Created the full cloud deployment specifications document, containing project setups, service lists, Mermaid topologies, validation matrices, and screenshot placeholders.
-- **Testing performed:** Verified Mermaid tags, file link schemes, and markdown formatting layouts.
+Our CI/CD pipeline provides automated testing and integration. Every time a developer pushes code to GitHub:
 
-### 3. [README.md](./README.md) [MODIFY]
-- **What was added/modified:** Added Railway environment summaries, secrets config parameters, and refined the workspace registry list.
-- **Testing performed:** Validated links redirect successfully.
+1. **Lint Job**: The system checks if the code is clean and meets style standards.
+2. **Build Job**: Docker images are compiled. The system starts the containers using `docker-compose up` to check if they boot properly, and saves the build files.
+3. **Test Job**: The pipeline runs tests across a matrix of Node.js engines. It checks unit logic and runs Playwright browser tests.
+4. **Notify Job**: Sends an instant status message to our Slack chat.
+5. **Deploy Job**: Triggers the Railway deployment using the Railway CLI tool.
 
-### 4. [Dockerfile (Backend)](./backend/Dockerfile) [MODIFY]
-- **What was added/modified:** Added missing `app.js` and `db.js` file copy commands to the production build stage to prevent deployment boot crashes.
-- **Testing performed:** Confirmed it resolves the `MODULE_NOT_FOUND` server boot crash during deployment.
+```
+[ Code Push ] ──> [ 1. Lint & Format Check ] ──> [ 2. Docker Build Test ]
+                                                           │
+                                                           ▼
+[ Slack Alert ] <── [ 5. Deploy to Cloud ] <── [ 4. Matrix Unit/E2E Tests ]
+```
 
------
+### 2.2 GitHub Actions Workflow Files
 
-# BrainBytes CI/CD Documentation
+We use five dedicated workflows under [workflows/](file:///.github/workflows) to control this process:
 
-This section details the custom Continuous Integration and Continuous Deployment (CI/CD) pipelines configured for the BrainBytes AI tutoring platform.
+- **[main.yml](file:///.github/workflows/main.yml)**: A sequential pipeline that performs code analysis, compiles Docker layers, runs test matrices, and sends notifications.
+- **[ci.yml](file:///.github/workflows/ci.yml)**: Runs standalone Node.js matrix tests (`14.x`, `16.x`, `18.x`) on every push.
+- **[build.yml](file:///.github/workflows/build.yml)**: Manages Docker Buildx cache to speed up container assembly.
+- **[lint.yml](file:///.github/workflows/lint.yml)**: Inspects code style using Prettier and ESLint, and runs Snyk checks.
+- **[deploy.yml](file:///.github/workflows/deploy.yml)**: Runs on updates to `main` and `development`. Installs the Railway CLI, builds the containers, pushes them to the cloud, and checks deployment health.
 
-## Codebase Workflows
+### 2.3 Integration with Containerized Application
 
-### 1. Main Sequential Workflow (`main.yml`)
+To ensure our code runs the same way on our computers and in the cloud, we package it inside Docker images using two files:
 
-**Purpose**: Comprehensive sequential pipeline running code analysis, image compilation, and multi-version test matrices on pushes and pull requests to `main` and `development`.
+1. **[backend/Dockerfile](file:///backend/Dockerfile)**: Uses a lightweight Alpine Node.js image, copies backend resources, and exposes port `3000` (which binds dynamically in production).
+2. **[frontend/Dockerfile](file:///frontend/Dockerfile)**: Compiles the Next.js static pages and exposes port `3000`.
 
-**Jobs & Stages**:
+In our workflow, the system uses [docker-compose.yml](file:///docker-compose.yml) to spin up the frontend, backend, and database in an isolated sandbox runner. This confirms they can talk to each other before we allow the code to deploy.
 
-1. **`lint` (Lint Code)**:
-   - Restores npm dependencies from GitHub's cache.
-   - Generates ESLint outputs inside `eslint-report.json` and posts inline visual annotations inside pull requests via `eslint-annotate-action@v2`.
-   - Checks code styling conformity via Prettier.
-   - Audits dependencies via `npm audit --json` and executes automated vulnerability scanning via **Snyk Node scan** using your `SNYK_TOKEN`.
-2. **`build` (Build Docker Images)**:
-   - _Depends on successful `lint` (`needs: lint`)_.
-   - Sets up Buildx and restores Docker layer caches from `/tmp/.buildx-cache`.
-   - Compiles both `brainbytes/frontend:latest` and `brainbytes/backend:latest` images.
-   - Tests container lifecycles by starting (`docker-compose up -d`), verifying (`docker-compose ps`), and stopping (`docker-compose down`) the multi-container stack.
-   - Archives compiled bundles (`frontend/build` and `backend/dist`) into a GHA shareable artifact named `build-outputs`.
-3. **`test` (Run Tests)**:
-   - _Depends on successful `build` (`needs: build`)_.
-   - Executes tests in parallel across a matrix of **Node.js versions (`14.x`, `16.x`, `18.x`)** and `ubuntu-latest` OS.
-   - Downloads the archived compiled `build-outputs` artifact.
-   - Installs dependencies and runs unit tests (`npm test`) for frontend and backend.
-   - Executes `npm run test:coverage` and uploads reports under `coverage-reports`.
-   - Downloads Playwright browser engines and runs browser-based E2E tests in the `tests/` directory.
-4. **`notify` (Pipeline Status Notifications)**:
-   - _Runs regardless of overall success or failure (`if: always()`)_.
-   - Dispatches visual color-coded reports to your Slack channel via `action-slack-notify@v2` using your `SLACK_WEBHOOK` secret.
+### 2.4 Testing Strategy in the Pipeline
 
-### 2. Standalone CI Testing Workflow (`ci.yml`)
+We use automated guardrails to check our code quality:
 
-**Purpose**: Runs independent, matrix-based unit, integration, and coverage tests across Node.js versions `14.x`, `16.x`, and `18.x` on every push and pull request, archiving Jest/Node HTML coverage reports.
-
-### 3. Standalone Docker Build Workflow (`build.yml`)
-
-**Purpose**: Standalone image building pipeline which manages Buildx v3 caches and validates Docker Compose up/down lifecycles on code pushes.
-
-### 4. Standalone Code Quality Linting (`lint.yml`)
-
-**Purpose**: Dedicated, non-blocking pipeline checking coding styles and Snyk security parameters on pushes and PRs.
-
-### 5. Independent Deployment Workflow (`deploy.yml`)
-
-**Purpose**: Dedicated test environment release pipeline triggering on pushes to `main` or `development` branches to compile Docker containers, set release metadata (`DEPLOY_TIME`, `DEPLOY_SHA`), and verify health endpoints.
-
-## Pipeline Optimization & Caching
-
-Our workflows are optimized using caching structures:
-
-- **Node package cache**: Caches `**/node_modules` indexed against `**/package-lock.json` to prevent downloading dependencies from scratch on every run.
-- **Docker layer cache**: Caches build layers in `/tmp/.buildx-cache` indexed against the commit SHA.
+- **Code Linting (ESLint & Prettier)**: Automatically flags code mistakes and formats files.
+- **Docker Linting (Hadolint)**: Validates our Dockerfiles against best practice rules.
+- **Dependency Auditing (Snyk Node Scan)**: Scans packages for known security issues.
+- **Node Matrix Execution**: Runs our tests on Node `14.x`, `16.x`, and `18.x` to guarantee backward compatibility.
+- **Playwright E2E Tests**: Boots up a virtual browser to click buttons and test actual user behaviors.
 
 ---
 
-## Required Manual Repository Settings
+# 3. Cloud Deployment
 
-To activate these workflows and satisfy security guidelines, you **must manually configure** the following options in your GitHub repository settings:
+### 3.1 Cloud Platform Architecture
 
-### 1. Configure Branch Protection & Required Status Checks
+Our live application is hosted on **Railway.app**, connected to **MongoDB Atlas** (our remote cloud database engine).
 
-Prevent direct commits to the production branch and ensure quality checks pass before code can be merged:
+```
+   [ Student Browser ]
+           │ (HTTPS Traffic)
+           ▼
+[ Railway Edge Ingress ]
+     ├── /api ───────> [ brainbytes-backend ] ──> [ MongoDB Atlas (AWS Singapore) ]
+     └── / (default) ─> [ brainbytes-frontend ]
+```
 
-1. Go to your GitHub repository and click on **Settings** in the top navigation bar.
-2. In the left-hand sidebar, click on **Branches**.
-3. Under _Branch protection rules_, click on **Add rule**.
-4. Set **Branch name pattern** to `main`.
-5. Check the box **"Require a pull request before merging"** and check **"Require approvals"** (set to at least `1`).
-6. Check the box **"Require status checks to pass before merging"**.
-7. In the search box under _Status checks_, search for and select the specific job identifiers from `main.yml`:
-   - **`Lint Code`** (checks eslint, snyk, prettier)
-   - **`Run Tests`** (checks test suite matrices across node versions)
-   - **`Build Docker Images`** (checks docker compose start/stop validations)
-8. Click **Create** at the bottom to lock the protection rule.
+- **Railway Edge Router**: Accepts incoming traffic over secure HTTPS (port 443) and forwards requests to our services.
+- **brainbytes-frontend Container**: Runs the Next.js user interface.
+- **brainbytes-backend Container**: Runs the API server.
+- **MongoDB Atlas Cloud Database**: Hosts our database. We chose the AWS Singapore region (`ap-southeast-1`) because it is closest to the Philippines, giving us low latency (faster load times).
 
-### 2. Add Repository Secrets for Sensitive Variables
+### 3.2 Resource Configuration
 
-Workflow jobs require external tokens to publish reports, send Slack messages, and scan folders securely. Add these variables to your repository:
+We set strict resource limits to keep our cloud usage cost-efficient and lightweight:
 
-1. Go to your GitHub repository and click on **Settings**.
-2. In the left-hand sidebar, click on **Secrets and variables** > **Actions**.
-3. Click on the green **New repository secret** button.
-4. Add the following secrets:
-   - **`SNYK_TOKEN`**: Your Snyk platform API authorization token. Enable Snyk automated dependency vulnerability checking.
-   - **`SLACK_WEBHOOK`**: The incoming webhook URL for your designated Slack channel. Triggers visual pipeline status alerts.
-   - **`DOCKERHUB_USERNAME`** and **`DOCKERHUB_TOKEN`** _(Optional)_: Set these if you wish to push compiled images to a Docker registry in subsequent weeks.
-5. Click **Add secret** to save.
+| Service Name            | Service Type              | CPU Allocation | Memory (RAM) Limit | Role                                                        |
+| :---------------------- | :------------------------ | :------------- | :----------------- | :---------------------------------------------------------- |
+| **brainbytes-frontend** | Next.js Container         | Shared CPU     | 512 MB             | Serves the web interface and handles page requests.         |
+| **brainbytes-backend**  | Node.js Express Container | Shared CPU     | 512 MB             | Processes chat logic, connects to AI, and queries database. |
+| **MongoDB Atlas**       | M0 Shared Cluster         | Shared CPU     | 512 MB             | Stores user records, settings, and message history.         |
 
-### 3. Create GitHub Issue Templates
+### 3.3 Networking and Security Setup
 
-We have pre-configured GitHub issue templates inside your codebase under `.github/ISSUE_TEMPLATE/`:
+Our cloud network is protected using these settings:
 
-- **Bug Report Template** (`bug_report.md`): Automatically prompts users to enter reproduction steps, environment details, and expected behavior.
-- **Feature Request Template** (`feature_request.md`): Structured to outline proposed enhancements and use cases.
-  These will automatically display under the "Issues" tab when creating new tickets on GitHub!
+- **Private Container Subnet**: The frontend and backend containers communicate internally. The MongoDB Atlas instance is connected using a secure connection string.
+- **SSL/TLS Encryption**: Railway generates SSL certificates automatically. This ensures all data traveling between the user and our app is encrypted (using HTTPS).
+- **IP Address Whitelisting**: We configured MongoDB Atlas network access to accept traffic from anywhere (`0.0.0.0/0`) because Railway's container IPs are dynamic (they change every time the container restarts).
+
+### 3.4 Deployment Process Flow
+
+Here is the step-by-step checklist of how our app gets updated on the cloud:
+
+```
+[ Merge Code to main ] ──> [ GitHub Actions Tests Pass ] ──> [ Railway CLI Triggered ]
+                                                                     │
+                                                                     ▼
+[ Traffic Switched ] <── [ Health Check Passes ] <── [ Build Containers on Cloud ]
+```
+
+1. **Trigger**: A developer merges approved code into the `main` or `development` branch.
+2. **Build**: Railway downloads the repository changes and builds the containers based on our Dockerfiles.
+3. **Verify**: Before routing traffic, Railway pings the `/api/health` path of the backend container.
+4. **Release**: If the health check returns a success status, Railway routes user traffic to the new containers.
 
 ---
 
-## Troubleshooting Common Issues
+# 4. Integration Points
 
-### 1. Workflow Failures
+### 4.1 How GitHub Actions Connects to Your Cloud Platform
 
-- **Symptom**: Jobs inside `main.yml` or `lint.yml` crash or show error statuses.
-- **Troubleshooting**:
-  - Open the **Actions** tab, click on the failed workflow run, and click on the failed job (e.g. _Lint Code_) to inspect logs.
-  - If Snyk scanning fails due to authorization, ensure the `SNYK_TOKEN` has been correctly entered in Settings.
-  - Verify that the local test suites run and pass successfully in your development console (`npm test`) before pushing new commits.
+We connect GitHub Actions to Railway.app using the **Railway CLI tool** and a secure deployment token:
 
-### 2. Slack Notification Failures
+1. The deployment workflow installs the CLI using `npm install -g @railway/cli`.
+2. The workflow authenticates using the secret `RAILWAY_TOKEN`.
+3. It runs `railway deploy --service <name> --prod --detach` to initiate the cloud build.
 
-- **Symptom**: The pipeline completes successfully, but no status alert is sent to your channel.
-- **Troubleshooting**:
-  - Verify that your webhook URL has been added as the `SLACK_WEBHOOK` secret inside repository settings.
-  - Check that the webhook integration has not been deleted or deactivated inside your Slack app dashboard.
+### 4.2 Environment Variable Management
 
-### 3. Deployment Issues
+Our application needs settings that change between development and production. We handle these variables dynamically:
 
-- **Symptom**: The `deploy.yml` workflow run reports "Service not available yet" or crashes.
-- **Troubleshooting**:
-  - Verify that ports in `docker-compose.yml` (`8080:3000`, `4000:3000`) are open and do not clash with other running applications on the host runner.
-  - Inspect running container health statuses using standard logging commands (`docker-compose logs`).
+- **Frontend Variables**: We use `NEXT_PUBLIC_API_URL` to tell the frontend container where to send API requests in the cloud (pointing to our backend domain name).
+- **Backend Variables**: We define the `MONGO_URI` connection string, the `PORT` (assigned dynamically by Railway), and the `NODE_ENV=production` setting.
+
+### 4.3 Secrets Handling
+
+We never write passwords, tokens, or keys directly in our source code. Instead, we store them in two secure locations:
+
+1. **GitHub Repository Secrets**:
+   - `RAILWAY_TOKEN`: Allows GitHub Actions to push deployments.
+   - `JWT_SECRET`: Used to sign web tokens for secure user logins.
+   - `HUGGINGFACE_TOKEN`: Gives our backend access to the AI text processing engines.
+   - `SNYK_TOKEN`: Used to authorize our automated vulnerability security scans.
+   - `SLACK_WEBHOOK`: Allows our pipeline to post logs to our Slack channel.
+2. **Railway Service Variables**: Configured inside the Railway project dashboard. They are encrypted at rest and injected into the containers at runtime.
+
+### 4.4 Artifact Management
+
+During pipeline execution, GitHub Actions creates and saves **artifacts** (temporary storage packages) for our team to inspect:
+
+- **`build-outputs`**: Contains the compiled bundle directories (`frontend/build` and `backend/dist`). This is shared between the build job and the test job.
+- **`coverage-reports`**: Contains the testing coverage results generated by Jest. It lets us see how much of our code is covered by our unit tests.
+
+---
+
+# 5. Testing and Validation
+
+### 5.1 Pipeline Testing Procedures
+
+We check the pipeline's health through GitHub's user interface. When we open a Pull Request, the status check boxes tell us if the code compiles and passes our test suite. We check the job logs on the **Actions** tab if any step fails.
+
+### 5.2 Deployment Validation (Health Checks)
+
+Once the containers are built, we run validation scripts to verify that they are running correctly:
+
+- **API Health Check**: The deployment script uses `curl` to check `https://<your-backend-url>/api/health`.
+- **Database Status**: The API response must return `databaseConnected: true`. If the response fails, the script retries 10 times before failing the build.
+
+### 5.3 Rollback Procedures (What to do if a deployment fails)
+
+If a new release is broken or crashes:
+
+1. **Automatic Rollback**: Railway does not switch traffic to the new container if the startup health check fails. The old, working version of the app stays active.
+2. **Manual Rollback**: If we discover a bug later, the DevOps engineer goes to the **Railway Project Dashboard**, clicks on the service, opens **Deployments**, and clicks **Redeploy** on the last known stable deployment.
+
+```
+                  ┌─────────────────────────────┐
+                  │   Deployment Health Check   │
+                  └──────────────┬──────────────┘
+                                 │
+                    ┌────────────┴────────────┐
+                    ▼                         ▼
+             [ Success (200 OK) ]       [ Failure / Timeout ]
+                    │                         │
+                    ▼                         ▼
+             [ Route Traffic ]         [ Keep Previous Build ]
+                                       (Auto-Rollback Active)
+```
+
+### 5.4 Monitoring and Observability
+
+We watch our cloud platform using these tools:
+
+- **Railway Live Logs**: In the dashboard, we can see console outputs in real-time, helping us debug backend errors.
+- **Resource Metrics Graphs**: Displays live graphs of CPU and Memory usage.
+- **Alert Notifications**: Our Slack channel receives instant alerts on failed actions.
+
+---
+
+# 6. Operational Guide
+
+### 6.1 Troubleshooting Procedures (Common Failures & Fixes)
+
+Here are three common issues we encountered during setup and how to fix them:
+
+#### Issue 1: Monorepo Root Directory Build Failure
+
+- **Symptom**: Railway attempts to build the root directory and fails because it cannot find a single `package.json` for both frontend and backend.
+- **Fix**: Go to the Railway dashboard, select the service, go to **Settings**, and change the **Root Directory** field to `frontend/` or `backend/` respectively.
+
+#### Issue 2: Backend Container Crashes on Port Binding
+
+- **Symptom**: The backend container boots up but crashes with a connection timeout error.
+- **Fix**: Make sure the backend does not hardcode port `4000`. In `server.js` or `app.js`, it must listen to `process.env.PORT` dynamically. Railway assigns this port variable at startup.
+
+#### Issue 3: Missing Files in Production Image (`MODULE_NOT_FOUND`)
+
+- **Symptom**: The container crashes with a `Cannot find module` error.
+- **Fix**: Check the multi-stage build block in the `Dockerfile`. Ensure that all runtime source files (like `app.js` and `db.js`) are explicitly copied from the builder stage to the final production runner stage.
+
+### 6.2 Maintenance Tasks
+
+To keep our system healthy, the DevOps team performs these routine tasks:
+
+- **Dependency Upgrades**: Check for old Node libraries using `npm outdated` and update them with `npm update`.
+- **Secret Rotation**: Change access keys and tokens every 90 days. Update the credentials in both GitHub Secrets and Railway Settings.
+- **Log Cleaning**: Inspect backend console logs weekly to search for unhandled exceptions or connection errors.
+
+### 6.3 Security Management
+
+We protect our deployment using these tools:
+
+- **Snyk Dependency Checking**: Scans our Node modules for outdated libraries with known security exploits.
+- **Trivy Image Analysis**: Scans our compiled Docker images for base OS vulnerabilities. If Trivy reports a critical issue (such as in `mongoose` or `openssl`), we patch it immediately by upgrading our NPM packages and updating the base Alpine/Ubuntu image tag in our Dockerfiles.
+
+---
+
+_Prepared by Shakira Casusi._
