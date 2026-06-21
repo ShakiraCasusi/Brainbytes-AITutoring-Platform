@@ -1,26 +1,48 @@
-export function formatMessage(text) {
-  const parts = String(text || '').split(/(```[\s\S]*?```)/g);
+export function formatMessage(text = "") {
+    if (!text) return [];
 
-  return parts.map((part, index) => {
-    if (part.startsWith('```') && part.endsWith('```')) {
-      return {
-        type: 'code',
-        value: part.replace(/```/g, '').trim(),
-        key: index,
-      };
+    const parts = [];
+
+    const codeRegex = /```([\s\S]*?)```/g;
+
+    let lastIndex = 0;
+    let match;
+
+    while ((match = codeRegex.exec(text)) !== null) {
+        const before = text.slice(lastIndex, match.index);
+
+        if (before.trim()) {
+            parts.push({
+                type: "text",
+                value: before.trim(),
+                key: Math.random()
+            });
+        }
+
+        parts.push({
+            type: "code",
+            value: match[1],
+            key: Math.random()
+        });
+
+        lastIndex = match.index + match[0].length;
     }
 
-    const lines = part.split('\n').filter(Boolean);
-    const isList =
-      lines.length > 1 && lines.every((line) => /^[-*]\s+/.test(line.trim()));
-    if (isList) {
-      return {
-        type: 'list',
-        value: lines.map((line) => line.replace(/^[-*]\s+/, '')),
-        key: index,
-      };
+    const remaining = text.slice(lastIndex);
+
+    if (remaining.trim()) {
+        const paragraphs = remaining
+            .split(/\n{2,}/)
+            .filter(Boolean);
+
+        paragraphs.forEach((p) => {
+            parts.push({
+                type: "text",
+                value: p.trim(),
+                key: Math.random()
+            });
+        });
     }
 
-    return { type: 'text', value: part, key: index };
-  });
+    return parts;
 }

@@ -1,64 +1,62 @@
+version: "3.9"
+
 services:
-  # Frontend container
+
   frontend:
-    image: brainbytes/frontend:latest
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: brainbytes-frontend
+    command: npm run dev
     ports:
       - "8080:3000"
-    volumes:
-      # Legacy Dockerfile mismatch:
-      # - ./frontend:/usr/src/app
-      # - /usr/src/app/node_modules
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
-    command: npm run dev
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:4000/api
+      - NODE_ENV=development
     depends_on:
       - backend
     restart: unless-stopped
-    environment:
-      - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:4000/api
-    mem_limit: 512m
-    cpus: 0.75
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
-  # Backend API container
+
   backend:
-    image: brainbytes/backend:latest
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: brainbytes-backend
+    command: npm start
     ports:
       - "4000:3000"
-    volumes:
-      # Legacy Dockerfile mismatch:
-      # - ./backend:/usr/src/app
-      # - /usr/src/app/node_modules
-      - ./backend:/app
-      - /app/node_modules
     environment:
-      # Legacy placeholder:
-      # - HUGGINGFACE_TOKEN=your_actual_huggingface_token_here
-      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
-      - JWT_SECRET=${JWT_SECRET:-brainbytes-local-secret}
       - NODE_ENV=development
-      - MONGO_URI=mongodb://mongo:27017/brainbytes
-    command: npm start
-    mem_limit: 512m
-    cpus: 0.75
+      - MONGO_URI=mongodb://mongo:27017/brainbytes_test
+      - JWT_SECRET=brainbytes-local-secret
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
     depends_on:
       - mongo
     restart: unless-stopped
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
 
-  # MongoDB container
+
   mongo:
     image: mongo:4.4
+    container_name: brainbytes-mongo
     ports:
       - "27017:27017"
+    restart: unless-stopped
     volumes:
       - mongo-data:/data/db
-    restart: unless-stopped
-    mem_limit: 512m
-    cpus: 0.75
 
-# Define volumes for persistent data
 volumes:
   mongo-data:
