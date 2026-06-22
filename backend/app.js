@@ -20,10 +20,12 @@ const app = express();
 
 /* ---------------- MIDDLEWARE ---------------- */
 
-app.use(cors({
-  origin: 'http://localhost:8080',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: 'http://localhost:8080',
+    credentials: true,
+  })
+);
 
 app.set('trust proxy', 1);
 app.use(helmet());
@@ -102,7 +104,6 @@ app.post('/api/messages', async (req, res) => {
       aiMessage,
       category: aiResult.category,
     });
-
   } catch (err) {
     console.error('Error in /api/messages:', err);
     res.status(500).json({ error: err.message });
@@ -111,15 +112,13 @@ app.post('/api/messages', async (req, res) => {
 
 /* ---------------- GET CHAT HISTORY  ---------------- */
 
-
 app.get('/api/messages/:sessionId', async (req, res) => {
   try {
     const messages = await Message.find({
-      sessionId: req.params.sessionId
+      sessionId: req.params.sessionId,
     }).sort({ timestamp: 1 });
 
     res.json(messages);
-
   } catch (err) {
     console.error('Error fetching messages:', err);
     res.status(500).json({ error: err.message });
@@ -128,15 +127,11 @@ app.get('/api/messages/:sessionId', async (req, res) => {
 
 /* ---------------- RECENT ACTIVITY ---------------- */
 
-
 app.get('/api/activity/recent', async (req, res) => {
   try {
-    const recent = await Message.find({})
-      .sort({ timestamp: -1 })
-      .limit(20);
+    const recent = await Message.find({}).sort({ timestamp: -1 }).limit(20);
 
     res.json(recent);
-
   } catch (err) {
     console.error('Error fetching activity:', err);
     res.status(500).json({ error: err.message });

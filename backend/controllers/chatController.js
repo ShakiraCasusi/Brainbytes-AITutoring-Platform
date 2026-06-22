@@ -94,7 +94,10 @@ exports.sendMessage = async (req, res) => {
     let timeoutId;
     try {
       const timeoutPromise = new Promise((_, reject) => {
-        timeoutId = setTimeout(() => reject(new Error('Request timeout')), 10000);
+        timeoutId = setTimeout(
+          () => reject(new Error('Request timeout')),
+          10000
+        );
       });
 
       const history = await Message.find({ sessionId: chatSessionId })

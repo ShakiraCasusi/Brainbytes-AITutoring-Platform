@@ -15,48 +15,46 @@ export default function ChatPanel({ profile, onActivityRefresh }) {
 
   /* ---------------- FIXED SESSION ---------------- */
   const sessionId =
-  typeof window !== 'undefined'
-    ? (() => {
-        let id = localStorage.getItem('chatSessionId');
+    typeof window !== 'undefined'
+      ? (() => {
+          let id = localStorage.getItem('chatSessionId');
 
-        if (!id) {
-          id =
-            typeof crypto !== 'undefined' &&
-            crypto.randomUUID
-              ? crypto.randomUUID()
-              : `session-${Date.now()}-${Math.random()
-                  .toString(36)
-                  .substring(2)}`;
+          if (!id) {
+            id =
+              typeof window !== 'undefined' &&
+              typeof window.crypto !== 'undefined' &&
+              window.crypto.randomUUID
+                ? window.crypto.randomUUID()
+                : `session-${Date.now()}-${Math.random()
+                    .toString(36)
+                    .substring(2)}`;
 
-          localStorage.setItem('chatSessionId', id);
-        }
+            localStorage.setItem('chatSessionId', id);
+          }
 
-        return id;
-      })()
-    : '';
+          return id;
+        })()
+      : '';
 
   /* ---------------- LOAD HISTORY ---------------- */
- async function loadHistory() {
-  try {
-    const response = await api.get(`/messages/${sessionId}`);
+  async function loadHistory() {
+    try {
+      const response = await api.get(`/messages/${sessionId}`);
 
-    const history = response.data.messages || response.data || [];
+      const history = response.data.messages || response.data || [];
 
-    setMessages(Array.isArray(history) ? history : []);
-
-  } catch (err) {
-    console.warn('History error:', err.message);
-    setError('Chat history unavailable.');
+      setMessages(Array.isArray(history) ? history : []);
+    } catch (err) {
+      console.warn('History error:', err.message);
+      setError('Chat history unavailable.');
+    }
   }
-}
 
   /* ---------------- SCROLL + READ RECEIPT ---------------- */
   useEffect(() => {
     readReceiptRef.current?.scrollIntoView({ behavior: 'smooth' });
 
-    const unreadAI = messages.some(
-      (m) => m.sender === 'ai' && !m.readAt
-    );
+    const unreadAI = messages.some((m) => m.sender === 'ai' && !m.readAt);
 
     if (unreadAI) {
       api.post(`/messages/read/${sessionId}`).catch(() => {});
@@ -96,7 +94,6 @@ export default function ChatPanel({ profile, onActivityRefresh }) {
       ]);
 
       onActivityRefresh?.();
-
     } catch (err) {
       console.warn('Message send failed:', err.message);
 
@@ -106,10 +103,7 @@ export default function ChatPanel({ profile, onActivityRefresh }) {
 
       localStorage.setItem(
         'offlineMessages',
-        JSON.stringify([
-          ...offline,
-          { message: userText, subject, sessionId },
-        ])
+        JSON.stringify([...offline, { message: userText, subject, sessionId }])
       );
 
       setError(

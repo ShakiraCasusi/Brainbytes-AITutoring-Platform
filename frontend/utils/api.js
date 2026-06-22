@@ -3,7 +3,12 @@ import axios from 'axios';
 export const API_BASE_URL = (() => {
   if (typeof window !== 'undefined') {
     const envUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (envUrl && envUrl !== 'undefined' && envUrl !== '' && envUrl !== 'null') {
+    if (
+      envUrl &&
+      envUrl !== 'undefined' &&
+      envUrl !== '' &&
+      envUrl !== 'null'
+    ) {
       return envUrl;
     }
     const hostname = window.location.hostname;

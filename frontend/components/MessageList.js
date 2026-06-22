@@ -2,18 +2,14 @@ import { formatMessage } from '../utils/formatMessage';
 
 function MessageContent({ text }) {
   return formatMessage(text).map((part) => {
-    return (
-  <p
-    key={part.key}
-    dangerouslySetInnerHTML={{
-      __html: part.value
-        .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-        .replace(/\*(.*?)\*/g, "<i>$1</i>")
-        .replace(/\n/g, "<br/>")
-    }}
-  />
-);
-    if (part.type === 'list')
+    if (part.type === 'code') {
+      return (
+        <pre key={part.key}>
+          <code>{part.value}</code>
+        </pre>
+      );
+    }
+    if (part.type === 'list') {
       return (
         <ul key={part.key}>
           {part.value.map((item) => (
@@ -21,7 +17,18 @@ function MessageContent({ text }) {
           ))}
         </ul>
       );
-    return <p key={part.key}>{part.value}</p>;
+    }
+    return (
+      <p
+        key={part.key}
+        dangerouslySetInnerHTML={{
+          __html: part.value
+            .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+            .replace(/\*(.*?)\*/g, '<i>$1</i>')
+            .replace(/\n/g, '<br/>'),
+        }}
+      />
+    );
   });
 }
 
@@ -47,8 +54,8 @@ export default function MessageList({ messages, loading, readReceiptRef }) {
               {message.readAt
                 ? 'Read'
                 : message.timestamp
-                ? new Date(message.timestamp).toLocaleTimeString()
-                : ''}
+                  ? new Date(message.timestamp).toLocaleTimeString()
+                  : ''}
             </span>
           </article>
         ))
