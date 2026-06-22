@@ -20,9 +20,24 @@ const app = express();
 
 /* ---------------- MIDDLEWARE ---------------- */
 
+const allowedOrigins = [
+  'http://localhost:8080',
+  'https://brainbytes-frontend-production.up.railway.app',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: 'http://localhost:8080',
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.railway.app')
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error('CORS not allowed'), false);
+    },
     credentials: true,
   })
 );
