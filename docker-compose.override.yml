@@ -1,16 +1,16 @@
-services:
-  backend:
-    environment:
-      - NODE_ENV=test
-      - MONGO_URI=mongodb://mongo:27017/brainbytes_test
-    volumes:
-      - ./backend/tests:/app/tests
+# services:
+#   backend:
+#     environment:
+#       - NODE_ENV=test
+#       - MONGO_URI=mongodb://mongo:27017/brainbytes_test
+#     volumes:
+#       - ./backend/tests:/app/tests
   
-  mongo:
-    image: mongo:4.4
-    volumes:
-      - mongodb-test-data:/data/db
-    command: mongod
+#   mongo:
+#     image: mongo:4.4
+#     volumes:
+#       - mongodb-test-data:/data/db
+#     command: mongod
 
-volumes:
-  mongodb-test-data:
+# volumes:
+#   mongodb-test-data:

@@ -2,12 +2,17 @@ import { formatMessage } from '../utils/formatMessage';
 
 function MessageContent({ text }) {
   return formatMessage(text).map((part) => {
-    if (part.type === 'code')
-      return (
-        <pre key={part.key}>
-          <code>{part.value}</code>
-        </pre>
-      );
+    return (
+  <p
+    key={part.key}
+    dangerouslySetInnerHTML={{
+      __html: part.value
+        .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+        .replace(/\*(.*?)\*/g, "<i>$1</i>")
+        .replace(/\n/g, "<br/>")
+    }}
+  />
+);
     if (part.type === 'list')
       return (
         <ul key={part.key}>
