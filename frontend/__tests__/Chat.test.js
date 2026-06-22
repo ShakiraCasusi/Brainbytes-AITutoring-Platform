@@ -91,6 +91,6 @@ test('shows error message when API call fails', async () => {
 
   // Check for error message
   await waitFor(() => {
-    expect(screen.getByText(/error/i)).toBeInTheDocument();
+    expect(screen.getByText(/Message saved offline/i)).toBeInTheDocument();
   });
 });

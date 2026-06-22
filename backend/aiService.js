@@ -1,278 +1,274 @@
-const fetch = require('node-fetch');
-
-/* ---------------- TRAINING EXAMPLES ---------------- */
-const examples = {
-  math: [
-    'Break numbers step by step.',
-    'Identify operation then solve carefully.',
-  ],
-  science: [
-    'Explain using real-world cause and effect.',
-    'Use observation and evidence.',
-  ],
-  history: [
-    'Mention people, time period, and impact.',
-    'Explain causes and consequences.',
-  ],
-  english: ['Focus on structure and meaning.', 'Use examples from the text.'],
-  general: ['Break the question into smaller parts.', 'Explain step by step.'],
-};
+const fetch = require("node-fetch");
 
 /* ---------------- INIT ---------------- */
-function initializeAI() {
-  console.log('AI service initialized');
 
-  // HUGGINGFACE_TOKEN check disabled to avoid startup warning logs
-  // if (!process.env.HUGGINGFACE_TOKEN) {
-  //   console.warn('HUGGINGFACE_TOKEN missing - HF API disabled');
-  // }
+function initializeAI() {
+    console.log("BrainBytes AI Tutor initialized");
+
+    if (!process.env.HUGGINGFACE_TOKEN) {
+        console.warn("HUGGINGFACE_TOKEN missing");
+    }
 }
 
-/* ---------------- SAFE MATH SOLVER ---------------- */
-function solveMath(question) {
-  const cleaned = question.replace(/[^0-9+\-*/(). ]/g, '');
+/* ---------------- GREETING ---------------- */
 
-  if (!/[0-9]/.test(cleaned)) return null;
+function isGreeting(message) {
+    const text = message.toLowerCase().trim();
 
-  try {
-    const result = Function(`return (${cleaned})`)();
-    if (typeof result === 'number' && isFinite(result)) {
-      return `The answer is ${result}.`;
-    }
-  } catch {
-    return null;
-  }
+    return [
+        "hi",
+        "hello",
+        "hey",
+        "good morning",
+        "good afternoon",
+        "good evening"
+    ].some(word => text === word);
+}
 
-  return null;
+function greetingResponse() {
+    return `
+Hello! 👋 I'm BrainBytes AI Tutor.
+
+I can help you learn:
+• Science
+• Mathematics
+• History
+• English
+• Programming
+
+Ask me anything and I'll explain step by step.
+`;
 }
 
 /* ---------------- SUBJECT DETECTION ---------------- */
-function detectSubject(question, preferredSubject) {
-  const text = question.toLowerCase();
 
-  if (preferredSubject && preferredSubject !== 'general') {
-    return preferredSubject.toLowerCase();
-  }
+function detectSubject(question) {
+    const text = question.toLowerCase();
 
-  if (/[+\-*/=]/.test(text)) return 'math';
+    if (/[0-9]\s*[\+\-\*\/]/.test(text) || /math|calculate/.test(text))
+        return "math";
 
-  if (
-    text.includes('science') ||
-    text.includes('water') ||
-    text.includes('chemical') ||
-    text.includes('evaporation')
-  ) {
-    return 'science';
-  }
+    if (/science|biology|chemistry|physics|plant|water|chemical|photosynthesis/.test(text))
+        return "science";
 
-  if (
-    text.includes('history') ||
-    text.includes('capital') ||
-    text.includes('president') ||
-    text.includes('war')
-  ) {
-    return 'history';
-  }
+    if (/history|war|president|country|capital/.test(text))
+        return "history";
 
-  if (
-    text.includes('essay') ||
-    text.includes('grammar') ||
-    text.includes('poem') ||
-    text.includes('sentence')
-  ) {
-    return 'english';
-  }
+    if (/essay|grammar|english|sentence/.test(text))
+        return "english";
 
-  return 'general';
+    return "general";
 }
 
-/* ---------------- QUESTION TYPE ---------------- */
-function detectQuestionType(question) {
-  const text = question.toLowerCase();
+/* ---------------- MATH SOLVER ---------------- */
 
-  if (
-    text.includes('what is') ||
-    text.includes('define') ||
-    text.includes('meaning')
-  ) {
-    return 'definition';
-  }
-  if (text.startsWith('why') || text.includes('explain')) {
-    return 'explanation';
-  }
-  if (text.includes('example') || text.includes('sample')) {
-    return 'example';
-  }
-  if (text.startsWith('how')) {
-    return 'steps';
-  }
+function solveMath(question) {
+    const expression = question.replace(/[^0-9+\-*/().]/g, "");
 
-  return 'general';
-}
+    if (!expression || !/[0-9]/.test(expression)) return null;
 
-/* ---------------- SENTIMENT ---------------- */
-function detectSentiment(question) {
-  const text = question.toLowerCase();
+    try {
+        const answer = Function(`"use strict"; return (${expression})`)();
 
-  const confused = ['confused', 'stuck', 'hard', "don't get", 'help me'];
-  const urgent = ['quick', 'urgent', 'asap', 'now'];
+        if (typeof answer === "number" && Number.isFinite(answer)) {
+            return `Let's solve it step by step:
 
-  if (confused.some((w) => text.includes(w))) {
-    return { label: 'confused', confidence: 0.8 };
-  }
+Expression:
+${expression}
 
-  if (urgent.some((w) => text.includes(w))) {
-    return { label: 'urgent', confidence: 0.7 };
-  }
-
-  return { label: 'neutral', confidence: 0.5 };
-}
-
-/* ---------------- STRONG DIRECT ANSWERS (FIXED) ---------------- */
-function directAnswer(question) {
-  const text = question.toLowerCase().replace(/\s+/g, '');
-
-  if (text.includes('1+1')) return 'The answer to 1 + 1 is 2.';
-
-  if (text.includes('evaporation')) {
-    return 'Evaporation is when liquid water turns into vapor due to heat.';
-  }
-
-  if (
-    text.includes('capitalofthephilippines') ||
-    text.includes('capitalofphilippines')
-  ) {
-    return 'The capital of the Philippines is Manila.';
-  }
-
-  if (text.includes('whatisscience')) {
-    return 'Science is the systematic study of the natural world using observation and evidence.';
-  }
-
-  if (text.includes('what is programming') || text.includes('programming')) {
-    return 'Programming is the process of writing instructions for computers to perform tasks.';
-  }
-
-  return null;
-}
-
-/* ---------------- LOCAL RESPONSE (FIXED: NO MORE META ANSWERS) ---------------- */
-function localResponse(subject, questionType, sentiment, question, context) {
-  const math = solveMath(question);
-  if (math) return math;
-
-  const direct = directAnswer(question);
-
-  const tone = sentiment.label === 'confused' ? "Let's simplify this. " : '';
-
-  const recent =
-    context.history?.length > 1 ? 'Based on your recent questions, ' : '';
-
-  if (direct) return tone + direct;
-
-  // IMPORTANT FIX: always give real content, not templates
-  if (questionType === 'definition') {
-    if (subject === 'science') {
-      return `${tone}${recent}Science is the study of the natural world using observation and evidence.`;
+Answer:
+${answer}`;
+        }
+    } catch (err) {
+        return null;
     }
-    if (subject === 'history') {
-      return `${tone}${recent}History is the study of past events and how they shaped the world.`;
-    }
-    return `${tone}${recent}A definition explains what something is in simple terms.`;
-  }
 
-  if (questionType === 'explanation') {
-    if (subject === 'science') {
-      return `${tone}${recent}This process happens through natural causes and effects in the physical world.`;
-    }
-    return `${tone}${recent}This explains how or why something happens in a step-by-step way.`;
-  }
-
-  if (questionType === 'example') {
-    return `${tone}For example, you can apply the concept in a real-life situation to understand it better.`;
-  }
-
-  if (questionType === 'steps') {
-    return `${tone}Step 1: identify the problem. Step 2: break it down. Step 3: solve it.`;
-  }
-
-  return `${tone}I can help with that. ${examples[subject][0]}`;
-}
-
-/* ---------------- HUGGING FACE ---------------- */
-async function callHuggingFace(prompt) {
-  const token = process.env.HUGGINGFACE_TOKEN;
-  if (!token) return null;
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 5000);
-
-  try {
-    const res = await fetch(
-      'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
-      {
-        method: 'POST',
-        signal: controller.signal,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          inputs: prompt,
-          options: { wait_for_model: false },
-        }),
-      }
-    );
-
-    clearTimeout(timeout);
-
-    if (!res.ok) return null;
-
-    const data = await res.json();
-    return data?.[0]?.generated_text || null;
-  } catch {
-    clearTimeout(timeout);
     return null;
-  }
 }
 
-/* ---------------- MAIN ---------------- */
+/* ---------------- QUICK ANSWERS ---------------- */
+
+function quickAnswers(question) {
+    const q = question.toLowerCase();
+
+    if (q === "1+1" || q === "what is 1+1") {
+        return "The answer to 1+1 is 2.";
+    }
+
+    if (q.includes("what is evaporation")) {
+        return "Evaporation is when liquid water turns into vapor due to heat.";
+    }
+
+    if (q.includes("capital of the philippines")) {
+        return "The capital of the Philippines is Manila.";
+    }
+
+    return null;
+}
+
+/* ---------------- HUGGING FACE AI ---------------- */
+
+async function askAI(question, context = {}) {
+
+    const token = process.env.HUGGINGFACE_TOKEN;
+    if (!token) return null;
+
+    const history =
+        context.history?.slice(-5).map(i => i.content).join("\n") || "";
+
+    const prompt = `
+You are BrainBytes AI Tutor.
+
+RULES:
+- Start directly with the answer in a natural sentence.
+- Then continue with explanation in a new paragraph.
+- Then add a fun fact or example in another paragraph.
+- DO NOT use labels like "Answer:", "Explanation:", "Extra:".
+- Use clear paragraphs separated by line breaks.
+- Use simple formatting:
+  * use **bold** for important words
+  * use *italics* for emphasis
+- Keep it friendly and natural like a human tutor.
+
+Student question:
+${question}
+
+History:
+${history}
+`;
+
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 30000);
+
+        const response = await fetch(
+            "https://router.huggingface.co/v1/chat/completions",
+            {
+                method: "POST",
+                signal: controller.signal,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    model: "meta-llama/Llama-3.1-8B-Instruct",
+
+                    messages: [
+                        {
+                            role: "system",
+                            content: `
+You are BrainBytes AI Tutor.
+You are a friendly teacher.
+Explain clearly for students.
+Use examples.
+Show steps.
+`
+                        },
+                        {
+                            role: "user",
+                            content: prompt
+                        }
+                    ],
+
+                    max_tokens: 300,
+                    temperature: 0.7
+                })
+            }
+        );
+
+        clearTimeout(timeout);
+
+        const data = await response.json();
+
+        console.log("HF RESPONSE:", JSON.stringify(data));
+
+        if (data?.error) {
+            console.error("HF ERROR:", data.error);
+            return null;
+        }
+
+        return data?.choices?.[0]?.message?.content || null;
+
+    } catch (error) {
+        console.error("AI ERROR:", error.message);
+        return null;
+    }
+
+    function formatAIResponse(text) {
+    if (!text) return text;
+
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '$1')     
+        .replace(/\n{3,}/g, '\n\n')         
+        .trim();
+}
+}
+
+/* ---------------- FALLBACK ---------------- */
+
+function fallback(subject) {
+    const answers = {
+        science: "Science explains how the natural world works through observation and experiments.",
+        history: "History studies past events and how they shaped the world.",
+        math: "Math uses numbers and logic to solve problems.",
+        english: "English focuses on communication, writing, and language skills.",
+        general: "I can help you learn science, math, history, and more."
+    };
+
+    return answers[subject];
+}
+
+/* ---------------- MAIN FUNCTION ---------------- */
+
 async function generateResponse(question, context = {}) {
-  const subject = detectSubject(question, context.subject);
-  const type = detectQuestionType(question);
-  const sentiment = detectSentiment(question);
 
-  const math = solveMath(question);
-  const direct = directAnswer(question);
+    if (!question?.trim()) {
+        return {
+            category: "general",
+            response: "Please enter a question so I can help you learn."
+        };
+    }
 
-  // HuggingFace API calls disabled to avoid missing token errors
-  // const hf = await callHuggingFace(`Explain: ${question}`);
-  const hf = null;
+    if (isGreeting(question)) {
+        return {
+            category: "general",
+            response: greetingResponse()
+        };
+    }
 
-  const response =
-    math ||
-    direct ||
-    hf ||
-    localResponse(subject, type, sentiment, question, context);
+    const subject = detectSubject(question);
 
-  return {
-    category: subject,
-    questionType: type,
-    sentiment,
-    response,
-    suggestions: [
-      'Can you explain more?',
-      'Give me an example',
-      'Break it down step by step',
-    ],
-    trainingExamples: examples[subject],
-  };
+    const quick = quickAnswers(question);
+    if (quick) {
+        return { category: subject, response: quick };
+    }
+
+    const math = solveMath(question);
+    if (math) {
+        return { category: "math", response: math };
+    }
+
+    let response = await askAI(question, context);
+
+    if (!response) {
+        response = fallback(subject);
+    }
+
+    return {
+        category: subject,
+        response,
+        suggestions: [
+            "Explain more",
+            "Give an example",
+            "Break it down step by step"
+        ]
+    };
 }
+
+/* ---------------- EXPORTS ---------------- */
 
 module.exports = {
-  initializeAI,
-  generateResponse,
-  detectSubject,
-  detectQuestionType,
-  detectSentiment,
+    initializeAI,
+    generateResponse,
+    detectSubject
 };

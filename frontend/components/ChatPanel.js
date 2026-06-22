@@ -10,83 +10,117 @@ export default function ChatPanel({ profile, onActivityRefresh }) {
   const [subject, setSubject] = useState('general');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
   const readReceiptRef = useRef(null);
+
+  /* ---------------- FIXED SESSION ---------------- */
   const sessionId =
-    typeof window !== 'undefined'
-      ? localStorage.getItem('chatSessionId') || `${Date.now()}`
-      : '';
+  typeof window !== 'undefined'
+    ? (() => {
+        let id = localStorage.getItem('chatSessionId');
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('chatSessionId', sessionId);
-    loadHistory();
-  }, [subject]);
+        if (!id) {
+          id =
+            typeof crypto !== 'undefined' &&
+            crypto.randomUUID
+              ? crypto.randomUUID()
+              : `session-${Date.now()}-${Math.random()
+                  .toString(36)
+                  .substring(2)}`;
 
+          localStorage.setItem('chatSessionId', id);
+        }
+
+        return id;
+      })()
+    : '';
+
+  /* ---------------- LOAD HISTORY ---------------- */
+ async function loadHistory() {
+  try {
+    const response = await api.get(`/messages/${sessionId}`);
+
+    const history = response.data.messages || response.data || [];
+
+    setMessages(Array.isArray(history) ? history : []);
+
+  } catch (err) {
+    console.warn('History error:', err.message);
+    setError('Chat history unavailable.');
+  }
+}
+
+  /* ---------------- SCROLL + READ RECEIPT ---------------- */
   useEffect(() => {
     readReceiptRef.current?.scrollIntoView({ behavior: 'smooth' });
-    if (
-      messages.some((message) => message.sender === 'ai' && !message.readAt)
-    ) {
-      api.post(`/chat/read/${sessionId}`).catch(() => {});
+
+    const unreadAI = messages.some(
+      (m) => m.sender === 'ai' && !m.readAt
+    );
+
+    if (unreadAI) {
+      api.post(`/messages/read/${sessionId}`).catch(() => {});
     }
   }, [messages]);
 
-  async function loadHistory() {
-    try {
-      const response = await api.get(`/chat/history/${sessionId}`, {
-        params: { subject },
-      });
-      setMessages(response.data.messages || []);
-    } catch {
-      setError(
-        'Error: Chat history is unavailable. New messages will retry when the API is reachable.'
-      );
-    }
-  }
-
+  /* ---------------- SEND MESSAGE ---------------- */
   async function sendMessage(event) {
     event.preventDefault();
     if (!input.trim()) return;
 
-    const pending = {
-      _id: `local-${Date.now()}`,
-      text: input,
+    const userText = input;
+
+    const temp = {
+      _id: `temp-${Date.now()}`,
+      text: userText,
       sender: 'user',
       timestamp: new Date(),
     };
-    setMessages((current) => [...current, pending]);
+
+    setMessages((prev) => [...prev, temp]);
+    setInput('');
     setLoading(true);
     setError('');
 
     try {
-      const response = await api.post('/chat/send', {
-        message: input,
+      const response = await api.post('/messages', {
+        text: userText,
         sessionId,
         subject,
       });
-      setMessages((current) =>
-        current
-          .filter((item) => item._id !== pending._id)
-          .concat([response.data.userMessage, response.data.aiMessage])
-      );
-      setInput('');
-      onActivityRefresh();
-    } catch {
+
+      setMessages((prev) => [
+        ...prev.filter((m) => m._id !== temp._id),
+        response.data.userMessage,
+        response.data.aiMessage,
+      ]);
+
+      onActivityRefresh?.();
+
+    } catch (err) {
+      console.warn('Message send failed:', err.message);
+
       const offline = JSON.parse(
         localStorage.getItem('offlineMessages') || '[]'
       );
+
       localStorage.setItem(
         'offlineMessages',
-        JSON.stringify([...offline, { message: input, subject, sessionId }])
+        JSON.stringify([
+          ...offline,
+          { message: userText, subject, sessionId },
+        ])
       );
+
       setError(
-        'Error: Message saved offline. It will be available here for retry when the API is back.'
+        'Error: Message saved offline. Will sync when connection returns.'
       );
     } finally {
       setLoading(false);
     }
   }
 
+  /* ---------------- UI ---------------- */
   return (
     <section className="chat">
       <header>
