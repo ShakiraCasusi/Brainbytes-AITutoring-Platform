@@ -1,14 +1,12 @@
 
-import { BrainBytesMonitor } from '../utils/metrics'; 
-
 const BACKEND_METRICS_API = '/api/frontend-metrics';
 
 function sendMetricToBackend(metricPayload) {
   const data = JSON.stringify(metricPayload);
   
-  if (navigator.sendBeacon) {
+  if (typeof window !== 'undefined' && navigator.sendBeacon) {
     navigator.sendBeacon(BACKEND_METRICS_API, data);
-  } else {
+  } else if (typeof window !== 'undefined') {
     fetch(BACKEND_METRICS_API, {
       method: 'POST',
       body: data,
@@ -19,7 +17,6 @@ function sendMetricToBackend(metricPayload) {
 
 export const BrainBytesMonitor = {
   sessionStartTime: null,
-
 
   initializeSession() {
     this.sessionStartTime = Date.now();
@@ -37,7 +34,6 @@ export const BrainBytesMonitor = {
     });
   },
 
-
   initUserInteractionTracking(pageName) {
     try {
       const observer = new PerformanceObserver((entryList) => {
@@ -45,12 +41,11 @@ export const BrainBytesMonitor = {
           sendMetricToBackend({
             name: 'brainbytes_frontend_ui_latency_seconds',
             type: 'histogram',
-            value: entry.duration / 1000, // Convert ms to seconds
+            value: entry.duration / 1000, 
             labels: { page: pageName, interaction_type: entry.name }
           });
         }
       });
-
       observer.observe({ type: 'first-input', buffered: true });
     } catch (e) {
       console.warn('PerformanceObserver not fully supported in this browser.');
@@ -81,5 +76,47 @@ export const BrainBytesMonitor = {
       });
       throw error;
     }
+  },
+
+  trackNetworkStatus() {
+    if (typeof window === 'undefined') return;
+
+    window.addEventListener('offline', () => {
+      sendMetricToBackend({
+        name: 'brainbytes_frontend_ph_network_offline_events_total',
+        type: 'counter',
+        value: 1,
+        labels: { connection_type: navigator.connection?.effectiveType || 'unknown' }
+      });
+    });
+
+    window.addEventListener('online', () => {
+      sendMetricToBackend({
+        name: 'brainbytes_frontend_ph_network_online_events_total',
+        type: 'counter',
+        value: 1,
+        labels: { connection_type: navigator.connection?.effectiveType || 'unknown' }
+      });
+    });
+  },
+
+  trackDataUsage(bytesSentOrReceived, resourceType) {
+    if (typeof window === 'undefined') return;
+
+    const connectionInfo = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const isDataSaver = connectionInfo?.saveData ? 'enabled' : 'disabled';
+    const netType = connectionInfo?.effectiveType || 'unknown'; 
+    const kilobytes = bytesSentOrReceived / 1024;
+
+    sendMetricToBackend({
+      name: 'brainbytes_frontend_ph_data_usage_kb_total',
+      type: 'counter',
+      value: kilobytes,
+      labels: { 
+        resource_type: resourceType, 
+        network_type: netType, 
+        data_saver: isDataSaver 
+      }
+    });
   }
 };
