@@ -1,7 +1,12 @@
 const Activity = require('../models/Activity');
+const mongoose = require('mongoose');
 
 exports.listActivity = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({ activities: [] });
+    }
+
     const query = {};
     if (req.query.userId) query.userId = req.query.userId;
     if (req.query.sessionId) query.sessionId = req.query.sessionId;

@@ -32,7 +32,7 @@ describe('Database Persistence Tests', () => {
     await collection.insertOne(testMessage);
 
     // Restart the MongoDB container
-    execSync('docker-compose restart mongodb');
+    execSync('docker-compose restart mongo');
 
     // Wait for container to be ready
     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -52,5 +52,5 @@ describe('Database Persistence Tests', () => {
     expect(foundMessage.text).toBe(testMessage.text);
 
     await newClient.close();
-  });
+  }, 45000);
 });

@@ -10,6 +10,7 @@ function sanitizeUser(user) {
     id: user._id,
     name: user.name,
     email: user.email,
+    avatar: user.avatar || '',
     preferredSubjects: user.preferredSubjects || [],
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
@@ -18,7 +19,7 @@ function sanitizeUser(user) {
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, preferredSubjects = [] } = req.body;
+    const { name, email, password, preferredSubjects = [], avatar = '' } = req.body;
 
     if (!name || !email || !password) {
       return res
@@ -43,6 +44,7 @@ exports.register = async (req, res) => {
       email,
       passwordHash,
       preferredSubjects,
+      avatar,
     });
     await UserSettings.create({ userId: user._id });
     await Activity.create({

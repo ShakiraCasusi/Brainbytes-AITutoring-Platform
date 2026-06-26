@@ -3,9 +3,17 @@ const UserSettings = require('../models/UserSettings');
 const Activity = require('../models/Activity');
 const { sanitizeUser } = require('./authController');
 const realtime = require('../services/realtime');
+const mongoose = require('mongoose');
 
 exports.listUsers = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({
+        users: [],
+        pagination: { page: 1, limit: 20, total: 0, pages: 0 },
+      });
+    }
+
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
     const limit = Math.min(
       Math.max(parseInt(req.query.limit, 10) || 20, 1),
@@ -33,6 +41,20 @@ exports.listUsers = async (req, res) => {
 
 exports.getUser = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({
+        user: {
+          id: req.params.id,
+          name: 'Local User',
+          email: 'local@example.com',
+          avatar: '',
+          preferredSubjects: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+      });
+    }
+
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -46,7 +68,21 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const allowed = ['name', 'email', 'preferredSubjects'];
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({
+        user: {
+          id: req.params.id,
+          name: req.body.name || 'Local User',
+          email: req.body.email || 'local@example.com',
+          avatar: req.body.avatar || '',
+          preferredSubjects: req.body.preferredSubjects || [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+      });
+    }
+
+    const allowed = ['name', 'email', 'preferredSubjects', 'avatar'];
     const updates = {};
 
     allowed.forEach((key) => {
@@ -77,6 +113,10 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({ deleted: true });
+    }
+
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });

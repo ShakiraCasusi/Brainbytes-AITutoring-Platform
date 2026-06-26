@@ -1,22 +1,21 @@
 const axios = require('axios');
-const mongoose = require('mongoose');
+const mongoose = require('../backend/node_modules/mongoose');
 const Message = require('../backend/Message');
 
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:4000';
 const MONGO_URI =
-  process.env.MONGO_URI || 'mongodb://localhost:27017/brainbytes_test';
+  process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/brainbytes_test';
 
 // Configure Axios base URL to support exact relative endpoint paths from the institution spec
 axios.defaults.baseURL = API_BASE_URL;
+
+jest.setTimeout(25000);
 
 describe('Chat API Integration', () => {
   beforeAll(async () => {
     // Connect to database to verify persistence
     if (mongoose.connection.readyState === 0) {
-      await mongoose.connect(MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
+      await mongoose.connect(MONGO_URI);
     }
   });
 
@@ -47,5 +46,5 @@ describe('Chat API Integration', () => {
     });
 
     expect(savedMessages).toHaveLength(1);
-  });
+  }, 15000);
 });

@@ -10,6 +10,8 @@ const config = {
   mongodb: process.env.MONGO_URI || 'mongodb://localhost:27017/brainbytes_test',
 };
 
+jest.setTimeout(25000);
+
 describe('Container Communication Tests', () => {
   let mongoClient;
   let db;

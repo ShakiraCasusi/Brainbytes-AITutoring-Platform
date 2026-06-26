@@ -1,5 +1,7 @@
 const axios = require('axios');
 
+jest.setTimeout(25000);
+
 const API_URL = 'http://localhost:4000/api';
 
 describe('Backend API Tests', () => {

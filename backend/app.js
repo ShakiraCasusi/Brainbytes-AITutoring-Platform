@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 
 const aiService = require('./aiService');
 const Message = require('./Message');
+const Activity = require('./models/Activity');
 
 const chatRoutes = require('./routes/chatRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -22,6 +23,8 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:8080',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
   'https://brainbytes-frontend-production.up.railway.app',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
@@ -68,6 +71,7 @@ app.get('/api/health', (req, res) => {
   res.status(state === 1 ? 200 : 500).json({
     status: state === 1 ? 'ok' : 'error',
     db: state === 1 ? 'connected' : 'disconnected',
+    databaseConnected: state === 1,
     timestamp: new Date().toISOString(),
   });
 });
@@ -88,10 +92,39 @@ app.use('/api/activity', requireAuth, activityRoutes);
  */
 app.post('/api/messages', async (req, res) => {
   try {
-    const { text, sessionId = 'legacy' } = req.body;
+    const { text, sessionId = 'legacy', subject = 'general', skipSave = false } = req.body;
 
     if (!text?.trim()) {
       return res.status(400).json({ error: 'Message text is required' });
+    }
+
+    /* Get AI response */
+    const aiResult = await aiService.generateResponse(text);
+
+    const isDbConnected = mongoose.connection.readyState === 1;
+    const shouldSkipSave = skipSave || !isDbConnected;
+
+    if (shouldSkipSave) {
+      // Return response directly without database writes
+      return res.status(200).json({
+        userMessage: {
+          _id: `user-${Date.now()}`,
+          text,
+          sender: 'user',
+          sessionId,
+          subject,
+          timestamp: new Date(),
+        },
+        aiMessage: {
+          _id: `ai-${Date.now()}`,
+          text: aiResult.response,
+          sender: 'ai',
+          sessionId,
+          subject: aiResult.category || subject,
+          timestamp: new Date(),
+        },
+        category: aiResult.category,
+      });
     }
 
     /* 1. Save user message */
@@ -99,21 +132,28 @@ app.post('/api/messages', async (req, res) => {
       text,
       sender: 'user',
       sessionId,
+      subject,
       timestamp: new Date(),
     });
-
-    /* 2. Get AI response */
-    const aiResult = await aiService.generateResponse(text);
 
     /* 3. Save AI message */
     const aiMessage = await Message.create({
       text: aiResult.response,
       sender: 'ai',
       sessionId,
+      subject: aiResult.category || subject,
       timestamp: new Date(),
     });
 
-    /* 4. Return response */
+    /* 4. Log activity */
+    await Activity.create({
+      sessionId,
+      type: 'message',
+      subject: aiResult.category || subject,
+      summary: `Asked a ${aiResult.questionType || 'general'} question`,
+    });
+
+    /* 5. Return response */
     res.status(201).json({
       userMessage,
       aiMessage,
@@ -129,6 +169,9 @@ app.post('/api/messages', async (req, res) => {
 
 app.get('/api/messages/:sessionId', async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json([]);
+    }
     const messages = await Message.find({
       sessionId: req.params.sessionId,
     }).sort({ timestamp: 1 });
@@ -144,6 +187,9 @@ app.get('/api/messages/:sessionId', async (req, res) => {
 
 app.get('/api/activity/recent', async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json([]);
+    }
     const recent = await Message.find({}).sort({ timestamp: -1 }).limit(20);
 
     res.json(recent);

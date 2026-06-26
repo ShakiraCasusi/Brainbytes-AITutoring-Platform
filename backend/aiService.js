@@ -42,7 +42,8 @@ Ask me anything and I'll explain step by step.
 
 /* ---------------- SUBJECT DETECTION ---------------- */
 
-function detectSubject(question) {
+function detectSubject(question, preferredSubject) {
+  if (preferredSubject) return preferredSubject;
   const text = question.toLowerCase();
 
   if (
@@ -53,7 +54,7 @@ function detectSubject(question) {
     return 'math';
 
   if (
-    /science|biology|chemistry|physics|plant|water|chemical|photosynthesis/.test(
+    /science|biology|chemistry|physics|plant|water|chemical|photosynthesis|evaporation/.test(
       text
     )
   )
@@ -226,13 +227,54 @@ function fallback(subject) {
   return answers[subject];
 }
 
+/* ---------------- QUESTION TYPE & SENTIMENT DETECTION ---------------- */
+
+function detectQuestionType(question) {
+  const text = question.toLowerCase();
+  if (/what is|what's|define|definition|meaning/.test(text)) {
+    return 'definition';
+  }
+  if (/why\s/.test(text)) {
+    return 'explanation';
+  }
+  if (/how to|steps|process|procedure|how do we/.test(text)) {
+    return 'steps';
+  }
+  return 'general';
+}
+
+function detectSentiment(question) {
+  const text = question.toLowerCase();
+  if (/confused|lost|dont understand|don't understand|struggling/.test(text)) {
+    return { label: 'confused', confidence: 0.8 };
+  }
+  if (/happy|great|good|thank|awesome|excited/.test(text)) {
+    return { label: 'happy', confidence: 0.9 };
+  }
+  if (/sad|hard|difficult|frustrated/.test(text)) {
+    return { label: 'sad', confidence: 0.7 };
+  }
+  return { label: 'neutral', confidence: 0.5 };
+}
+
 /* ---------------- MAIN FUNCTION ---------------- */
 
 async function generateResponse(question, context = {}) {
+  const questionType = detectQuestionType(question);
+  const sentiment = detectSentiment(question);
+  const suggestions = [
+    'Explain more',
+    'Give an example',
+    'Break it down step by step',
+  ];
+
   if (!question?.trim()) {
     return {
       category: 'general',
       response: 'Please enter a question so I can help you learn.',
+      questionType,
+      sentiment,
+      suggestions,
     };
   }
 
@@ -240,6 +282,9 @@ async function generateResponse(question, context = {}) {
     return {
       category: 'general',
       response: greetingResponse(),
+      questionType,
+      sentiment,
+      suggestions,
     };
   }
 
@@ -247,12 +292,24 @@ async function generateResponse(question, context = {}) {
 
   const quick = quickAnswers(question);
   if (quick) {
-    return { category: subject, response: quick };
+    return { 
+      category: subject, 
+      response: quick,
+      questionType,
+      sentiment,
+      suggestions,
+    };
   }
 
   const math = solveMath(question);
   if (math) {
-    return { category: 'math', response: math };
+    return { 
+      category: 'math', 
+      response: math,
+      questionType,
+      sentiment,
+      suggestions,
+    };
   }
 
   let response = await askAI(question, context);
@@ -264,11 +321,9 @@ async function generateResponse(question, context = {}) {
   return {
     category: subject,
     response,
-    suggestions: [
-      'Explain more',
-      'Give an example',
-      'Break it down step by step',
-    ],
+    questionType,
+    sentiment,
+    suggestions,
   };
 }
 
@@ -278,4 +333,6 @@ module.exports = {
   initializeAI,
   generateResponse,
   detectSubject,
+  detectQuestionType,
+  detectSentiment,
 };

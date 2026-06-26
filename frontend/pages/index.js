@@ -8,7 +8,7 @@ export default function Home() {
       <Head>
         <title>BrainBytes AI Tutor</title>
         <meta name="description" content="AI-powered tutoring platform" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/brain.png" />
       </Head>
       <LearningWorkspace />
     </>

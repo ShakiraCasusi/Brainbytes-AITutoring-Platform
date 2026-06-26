@@ -1,9 +1,21 @@
 const UserSettings = require('../models/UserSettings');
 const Activity = require('../models/Activity');
 const realtime = require('../services/realtime');
+const mongoose = require('mongoose');
 
 exports.getSettings = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({
+        settings: {
+          theme: 'light',
+          readingLevel: 'intermediate',
+          dailyGoalMinutes: 30,
+          notifications: true,
+        }
+      });
+    }
+
     const settings = await UserSettings.findOneAndUpdate(
       { userId: req.params.userId },
       { $setOnInsert: { userId: req.params.userId } },
@@ -18,6 +30,10 @@ exports.getSettings = async (req, res) => {
 
 exports.updateSettings = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({ settings: req.body });
+    }
+
     const updates = {};
     ['theme', 'notifications', 'readingLevel', 'dailyGoalMinutes'].forEach(
       (key) => {

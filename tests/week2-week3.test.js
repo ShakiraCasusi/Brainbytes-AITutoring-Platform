@@ -1,6 +1,8 @@
 const axios = require('axios');
 const WebSocket = require('ws');
 
+jest.setTimeout(25000);
+
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:4000';
 const WS_URL = process.env.WS_URL || 'ws://localhost:4000/ws';
 
@@ -30,6 +32,8 @@ describe('Week 2 and Week 3 feature coverage', () => {
     const update = await axios.put(`${API_BASE_URL}/api/users/${userId}`, {
       name: 'Updated Student',
       preferredSubjects: ['history'],
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
     });
     expect(update.data.user.name).toBe('Updated Student');
 
@@ -38,6 +42,8 @@ describe('Week 2 and Week 3 feature coverage', () => {
       readingLevel: 'advanced',
       dailyGoalMinutes: 45,
       notifications: false,
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
     });
     expect(settings.data.settings.readingLevel).toBe('advanced');
 
@@ -46,11 +52,15 @@ describe('Week 2 and Week 3 feature coverage', () => {
       topic: `Water cycle ${Date.now()}`,
       content:
         'Evaporation, condensation, and precipitation form the water cycle.',
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
     });
     expect(material.status).toBe(201);
 
     const materials = await axios.get(
-      `${API_BASE_URL}/api/materials?subject=science`
+      `${API_BASE_URL}/api/materials?subject=science`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }
     );
     expect(materials.data.materials.length).toBeGreaterThan(0);
   });
@@ -73,9 +83,10 @@ describe('Week 2 and Week 3 feature coverage', () => {
 
     socket.on('message', (data) => {
       const message = JSON.parse(data.toString());
-      expect(message.type).toBe('connected');
-      socket.close();
-      done();
+      if (message.type === 'connected') {
+        socket.close();
+        done();
+      }
     });
 
     socket.on('error', done);

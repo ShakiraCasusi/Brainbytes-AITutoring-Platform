@@ -1,5 +1,5 @@
-import LearningWorkspace from './LearningWorkspace';
+import ChatPanel from './ChatPanel';
 
 export default function Chat() {
-  return <LearningWorkspace />;
+  return <ChatPanel profile={{ name: '' }} onActivityRefresh={() => {}} />;
 }

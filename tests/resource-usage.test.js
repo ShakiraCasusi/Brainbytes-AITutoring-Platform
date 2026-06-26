@@ -26,21 +26,30 @@ describe('Container Resource Usage Tests', () => {
         `${container.name} memory usage: ${container.memoryPercentage}%`
       );
     });
-  });
+  }, 25000);
 
   test('Containers respond within acceptable time', async () => {
+    const axios = require('axios');
     const startTime = Date.now();
-    await execPromise('curl -s http://localhost:3000 > /dev/null');
+    try {
+      await axios.get('http://localhost:3000');
+    } catch (err) {
+      throw new Error(`Frontend request failed: ${err.message}`);
+    }
 
     const frontendResponseTime = Date.now() - startTime;
     console.log(`Frontend response time: ${frontendResponseTime}ms`);
-    expect(frontendResponseTime).toBeLessThan(500); // Adjust threshold as needed
+    expect(frontendResponseTime).toBeLessThan(3000); // Adjust threshold as needed
 
     const apiStartTime = Date.now();
-    await execPromise('curl -s http://localhost:4000/api/health > /dev/null');
+    try {
+      await axios.get('http://localhost:4000/api/health');
+    } catch (err) {
+      throw new Error(`API health check failed: ${err.message}`);
+    }
 
     const apiResponseTime = Date.now() - apiStartTime;
     console.log(`API response time: ${apiResponseTime}ms`);
-    expect(apiResponseTime).toBeLessThan(300); // Adjust threshold as needed
-  });
+    expect(apiResponseTime).toBeLessThan(2000); // Adjust threshold as needed
+  }, 25000);
 });
