@@ -1,0 +1,53 @@
+groups:
+- name: system-alerts
+  rules:
+
+  # Service Down Alert
+  - alert: ServiceDown
+    expr: up == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "A service is down"
+      description: "One of the monitored services is not reachable for more than 1 minute."
+
+  # High CPU Usage
+  - alert: HighCPUUsage
+    expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU usage detected"
+      description: "CPU usage is above 80% for more than 5 minutes."
+
+  # High Memory Usage
+  - alert: HighMemoryUsage
+    expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 15
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Low memory available"
+      description: "Available memory is below 15%."
+
+  # Container Restarting Frequently
+  - alert: ContainerRestarting
+    expr: increase(container_start_time_seconds[10m]) > 3
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Container restarting frequently"
+      description: "A container has restarted multiple times in 10 minutes."
+
+  # High System Load
+  - alert: HighSystemLoad
+    expr: node_load1 > 2
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High system load"
+      description: "System load is higher than normal."
