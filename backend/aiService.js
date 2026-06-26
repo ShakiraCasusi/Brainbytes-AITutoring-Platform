@@ -138,6 +138,7 @@ RULES:
   * use **bold** for important words
   * use *italics* for emphasis
 - Keep it friendly and natural like a human tutor.
+- Be geographically and factually accurate. If you are not absolutely sure about a specific factual detail (such as small local municipal boundaries), state that you don't know instead of guessing.
 
 Student question:
 ${question}
@@ -180,7 +181,7 @@ Show steps.
           ],
 
           max_tokens: 300,
-          temperature: 0.7,
+          temperature: 0.3,
         }),
       }
     );

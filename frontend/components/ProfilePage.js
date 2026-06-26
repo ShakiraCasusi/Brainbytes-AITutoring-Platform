@@ -34,6 +34,14 @@ export default function ProfilePage({
   const [googleEmail, setGoogleEmail] = useState('alex.thompson@gmail.com');
   const [googleAvatar, setGoogleAvatar] = useState('');
 
+  // Reusable custom confirm modal state
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+  });
+
   // Load from props
   useEffect(() => {
     if (profile) {
@@ -170,23 +178,35 @@ export default function ProfilePage({
 
   // Disconnect Google Sandbox
   const handleDisconnectGoogle = () => {
-    if (confirm('Disconnect Google account? This will revert back to standard database synchronization.')) {
-      onSaveProfile({
-        name: '',
-        email: '',
-        avatar: '',
-        preferredSubjects: [],
-        isGoogleUser: false,
-      });
-      localStorage.removeItem('brainbytesProfile');
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: 'Disconnect Google Account',
+      message: 'Disconnect Google account? This will revert back to standard database synchronization.',
+      onConfirm: () => {
+        onSaveProfile({
+          name: '',
+          email: '',
+          avatar: '',
+          preferredSubjects: [],
+          isGoogleUser: false,
+        });
+        localStorage.removeItem('brainbytesProfile');
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
   };
 
   // Deactivate and Delete Account
   const handleDeactivateDelete = () => {
-    if (confirm("Are you sure you want to deactivate and permanently delete your account? This will wipe out all local data, settings, and chat history. This action cannot be undone.")) {
-      onDeactivateAccount?.();
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Account',
+      message: 'Are you sure you want to deactivate and permanently delete your account? This will wipe out all local data, settings, and chat history. This action cannot be undone.',
+      onConfirm: () => {
+        onDeactivateAccount?.();
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
   };
 
   // Display name capitalize
@@ -489,6 +509,37 @@ export default function ProfilePage({
               </button>
               <button type="button" onClick={triggerGoogleLogin} className="gmodal-btn-signin">
                 Connect Google Account
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Confirmation Modal */}
+      {confirmModal.isOpen && (
+        <div className="modal-backdrop">
+          <div className="google-modal confirm-modal">
+            <h3 className="gmodal-title">{confirmModal.title}</h3>
+            <p className="gmodal-subtitle">{confirmModal.message}</p>
+            <div className="gmodal-actions">
+              <button
+                type="button"
+                onClick={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+                className="gmodal-btn-cancel"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmModal.onConfirm}
+                className="gmodal-btn-signin"
+                style={{
+                  background: confirmModal.title.toLowerCase().includes('delete')
+                    ? '#EF4444'
+                    : '#F97316',
+                }}
+              >
+                Confirm
               </button>
             </div>
           </div>
