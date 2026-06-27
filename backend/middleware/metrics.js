@@ -74,10 +74,33 @@ metricsApp.get('/metrics', async (req, res) => {
   }
 });
 
-// Start metrics server
-metricsApp.listen(9080, () => {
-  console.log('✓ Metrics server listening on port 9080');
-});
+// Replace immediate listen() with guarded start/stop functions
+let metricsServer = null;
+
+function startMetricsServer(port = 9080) {
+  // Don't start the dedicated metrics server in test environment
+  if (process.env.NODE_ENV === 'test') {
+    return;
+  }
+  if (!metricsServer) {
+    metricsServer = metricsApp.listen(port, () => {
+      console.log(`✓ Metrics server listening on port ${port}`);
+    });
+  }
+  return metricsServer;
+}
+
+function stopMetricsServer() {
+  if (metricsServer) {
+    metricsServer.close();
+    metricsServer = null;
+  }
+}
+
+// Auto-start only when not testing
+if (process.env.NODE_ENV !== 'test') {
+  startMetricsServer();
+}
 
 // Middleware to track HTTP requests in your main app
 function metricsMiddleware(req, res, next) {
@@ -136,5 +159,7 @@ module.exports = {
   incrementActiveSessions,
   decrementActiveSessions,
   connectionDropsCounter,
-  responseSizeSummary
+  responseSizeSummary,
+  startMetricsServer,
+  stopMetricsServer
 };
