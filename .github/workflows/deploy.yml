@@ -1,56 +1,110 @@
-# .github/workflows/deploy.yml
-name: BrainBytes Deploy
+name: BrainBytes Deploy (Staging vs Production)
 
 on:
   push:
-    branches: [main, development]
+    branches: [ main, development ]
   workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   deploy:
-    name: Deploy to Railway.app
+    name: Build, Tag & Deploy
     runs-on: ubuntu-latest
-    environment: production
     
+    # Select environment based on branch
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+      
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
         with:
-          node-version: '18'
-      
-      - name: Build Docker images
-        run: docker compose build
-      
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Determine Docker tags based on the target branch
+      - name: Set Image Meta Tags
+        id: meta
+        run: |
+          SHA_TAG="sha-${{ github.sha }}"
+          BRANCH_TAG="${{ github.ref_name }}"
+          
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "frontend_tags=ghcr.io/${{ github.repository_owner }}/brainbytes-frontend:latest,ghcr.io/${{ github.repository_owner }}/brainbytes-frontend:${BRANCH_TAG},ghcr.io/${{ github.repository_owner }}/brainbytes-frontend:${SHA_TAG}" >> $GITHUB_OUTPUT
+            echo "backend_tags=ghcr.io/${{ github.repository_owner }}/brainbytes-backend:latest,ghcr.io/${{ github.repository_owner }}/brainbytes-backend:${BRANCH_TAG},ghcr.io/${{ github.repository_owner }}/brainbytes-backend:${SHA_TAG}" >> $GITHUB_OUTPUT
+          else
+            echo "frontend_tags=ghcr.io/${{ github.repository_owner }}/brainbytes-frontend:${BRANCH_TAG},ghcr.io/${{ github.repository_owner }}/brainbytes-frontend:${SHA_TAG}" >> $GITHUB_OUTPUT
+            echo "backend_tags=ghcr.io/${{ github.repository_owner }}/brainbytes-backend:${BRANCH_TAG},ghcr.io/${{ github.repository_owner }}/brainbytes-backend:${SHA_TAG}" >> $GITHUB_OUTPUT
+          fi
+
+      # Build and Push Backend Image
+      - name: Build & Push Backend Production Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ steps.meta.outputs.backend_tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Build and Push Frontend Image
+      - name: Build & Push Frontend Production Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ steps.meta.outputs.frontend_tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Prepare Deployment Environment Variables
       - name: Prepare deployment environment variables
         run: |
           echo "DEPLOY_TIME=$(date)" >> $GITHUB_ENV
           echo "DEPLOY_SHA=${{ github.sha }}" >> $GITHUB_ENV
-      
+          echo "TARGET_ENV=${{ github.ref_name == 'main' && 'production' || 'staging' }}" >> $GITHUB_ENV
+
+      # CLI deployment setup
       - name: Install Railway CLI
         run: npm install -g @railway/cli
         if: ${{ secrets.RAILWAY_TOKEN != '' }}
-      
+
+      # Deploy Frontend to Railway
       - name: Deploy Frontend Service to Railway
+        id: deploy-frontend
         run: |
-          echo "Deploying frontend container service to Railway..."
+          echo "Deploying frontend container service to Railway (Env: $TARGET_ENV)..."
           railway deploy --service brainbytes-frontend --prod --detach
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         working-directory: ./frontend
         if: ${{ secrets.RAILWAY_TOKEN != '' }}
 
+      # Deploy Backend to Railway
       - name: Deploy Backend Service to Railway
+        id: deploy-backend
         run: |
-          echo "Deploying backend container service to Railway..."
+          echo "Deploying backend container service to Railway (Env: $TARGET_ENV)..."
           railway deploy --service brainbytes-backend --prod --detach
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         working-directory: ./backend
         if: ${{ secrets.RAILWAY_TOKEN != '' }}
 
+      # Fallback simulation if no Token is present
       - name: Simulation mode deployment (Fallback)
         run: |
           echo "Warning: No production RAILWAY_TOKEN found. Operating in local simulation mode."
@@ -60,25 +114,42 @@ jobs:
           docker compose down
         if: ${{ secrets.RAILWAY_TOKEN == '' }}
 
+      # Verify deployment health using loop
       - name: Verify deployment health
         run: |
-          echo "Verifying service availability..."
-          # In local simulation mode, check localhost, in Railway mode check Railway service URL
+          echo "Verifying live service availability..."
           TARGET_URL="http://localhost:4000/api/health"
+          
+          # Use Railway public URL if provided, otherwise default to local simulation port
           if [ -n "${{ secrets.RAILWAY_BACKEND_URL }}" ]; then
             TARGET_URL="${{ secrets.RAILWAY_BACKEND_URL }}/api/health"
           fi
           
-          # Ping the backend health endpoint
-          for i in {1..10}; do
-            if curl -sf $TARGET_URL; then
-              echo "BrainBytes backend is healthy and responding!"
+          echo "Pinging backend health endpoint: $TARGET_URL"
+          for i in {1..12}; do
+            if curl -sf "$TARGET_URL" > /dev/null; then
+              echo "✓ BrainBytes backend is healthy and responding!"
               exit 0
             fi
-            echo "Waiting for backend service to stand up ($i/10)..."
-            sleep 5
+            echo "Waiting for service to respond... ($i/12)"
+            sleep 10
           done
-          echo "Error: Backend did not respond on $TARGET_URL"
+          echo "Error: Backend did not respond on $TARGET_URL within timeout."
           exit 1
 
-
+      # Handle rollback guidelines on failure
+      - name: Handle Rollback Actions on Failure
+        if: failure()
+        run: |
+          echo "=========================================================="
+          echo "🚨 CRITICAL WARNING: Deployment health validation failed!"
+          echo "The newly deployed version did not respond successfully."
+          echo "=========================================================="
+          echo "Note: Railway automatically prevents routing public traffic to"
+          echo "crashing services if health check paths are configured in Railway."
+          echo "To manually roll back to a stable release via CLI, execute:"
+          echo "  railway rollback"
+          echo "Or select the last working deployment card in the Railway dashboard"
+          echo "and click 'Redeploy'."
+          echo "=========================================================="
+          exit 1
