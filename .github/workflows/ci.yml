@@ -13,11 +13,10 @@ jobs:
       matrix:
         node-version: [18.x, 20.x]
         os: [ubuntu-latest]
-    
+
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
 
-    # Spin up a MongoDB container so our app has a real database to talk to during tests.
     services:
       mongodb:
         image: mongo:5
@@ -33,7 +32,6 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      # Reuse previously downloaded packages to speed up the pipeline.
       - name: Cache Node.js dependencies
         uses: actions/cache@v4
         with:
@@ -54,7 +52,7 @@ jobs:
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: npm install
-      
+
       - name: Run frontend tests
         working-directory: ./frontend
         run: npm test
@@ -78,7 +76,6 @@ jobs:
           echo "Node version: $(node --version)"
           echo "NPM version: $(npm --version)"
 
-      # MongoDB can take a moment to be ready. This waits until it actually accepts connections.
       - name: Wait for MongoDB to be ready
         run: |
           for i in {1..30}; do
@@ -92,43 +89,39 @@ jobs:
           echo "MongoDB failed to start"
           exit 1
 
-      # Start the server in the background and give it a few seconds to boot up.
       - name: Start backend server
         working-directory: ./backend
         run: |
           npm start > /tmp/server.log 2>&1 &
-          SERVER_PID=$!
-          echo "Server started with PID: $SERVER_PID"
-          sleep 5  # Give the server time to initialize
+          echo "SERVER_PID=$!" >> $GITHUB_ENV
         env:
           NODE_ENV: test
           PORT: 4000
           MONGO_URI: mongodb://localhost:27017/brainbytes
 
-      # Repeatedly ping the health endpoint until the server responds or we give up.
+      # Poll the health endpoint instead of using a fixed sleep
       - name: Wait for server to be ready
         run: |
-          for i in {1..30}; do
-            if curl -f http://localhost:4000/api/health 2>/dev/null; then
-              echo "Server is ready"
+          for i in {1..60}; do
+            if curl -sf http://localhost:4000/api/health > /dev/null 2>&1; then
+              echo "Server is ready after ${i}s"
               exit 0
             fi
-            echo "Waiting for server... ($i/30)"
+            echo "Waiting for server... ($i/60)"
             sleep 1
           done
-          echo "Server failed to start"
+          echo "Server failed to start within 60 seconds"
           echo "=== Server Startup Log ==="
           cat /tmp/server.log || echo "No server log found"
-          echo "=== NPM Debug Log ==="
-          cat /home/runner/.npm/_logs/*debug.log 2>/dev/null | tail -50 || echo "No npm debug log found"
-          echo "=== End Logs ==="
           exit 1
 
-      - name: Run backend tests
+      # Jest uses mongodb-memory-server so no live DB needed for unit tests
+      - name: Run backend unit tests
         working-directory: ./backend
         run: npm test
+        env:
+          NODE_ENV: test
 
-      # --- Coverage ---
       - name: Run backend tests with coverage
         working-directory: ./backend
         run: npm run test:coverage || echo "Coverage run failed but continuing"
@@ -136,17 +129,17 @@ jobs:
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-reports
+          name: coverage-reports-node-${{ matrix.node-version }}
           path: |
             backend/coverage
             frontend/coverage
           if-no-files-found: ignore
 
-      # --- End-to-end tests ---
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps || echo "Playwright not required or installed"
-
-      - name: Run E2E tests
+      # Integration test against the live server started above
+      - name: Run backend integration tests
         working-directory: ./backend/tests
-        run: node chat.test.js
+        run: |
+          API_URL=http://localhost:4000/api node chat.test.js
         continue-on-error: true
+        env:
+          PORT: 4000
