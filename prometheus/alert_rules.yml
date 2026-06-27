@@ -1,53 +1,101 @@
 groups:
-- name: system-alerts
-  rules:
 
-  # Service Down Alert
-  - alert: ServiceDown
-    expr: up == 0
-    for: 1m
-    labels:
-      severity: critical
-    annotations:
-      summary: "A service is down"
-      description: "One of the monitored services is not reachable for more than 1 minute."
+  # ── SYSTEM ALERTS ───────────────────────────────────────────────────────────
+  - name: system-alerts
+    rules:
 
-  # High CPU Usage
-  - alert: HighCPUUsage
-    expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      summary: "High CPU usage detected"
-      description: "CPU usage is above 80% for more than 5 minutes."
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "A service is down"
+          description: "One of the monitored services is not reachable for more than 1 minute."
 
-  # High Memory Usage
-  - alert: HighMemoryUsage
-    expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 15
-    for: 5m
-    labels:
-      severity: critical
-    annotations:
-      summary: "Low memory available"
-      description: "Available memory is below 15%."
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for more than 5 minutes."
 
-  # Container Restarting Frequently
-  - alert: ContainerRestarting
-    expr: increase(container_start_time_seconds[10m]) > 3
-    for: 2m
-    labels:
-      severity: warning
-    annotations:
-      summary: "Container restarting frequently"
-      description: "A container has restarted multiple times in 10 minutes."
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 15
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low memory available"
+          description: "Available memory is below 15%."
 
-  # High System Load
-  - alert: HighSystemLoad
-    expr: node_load1 > 2
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      summary: "High system load"
-      description: "System load is higher than normal."
+      - alert: ContainerRestarting
+        expr: increase(container_start_time_seconds[10m]) > 3
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container restarting frequently"
+          description: "A container has restarted multiple times in 10 minutes."
+
+      - alert: HighSystemLoad
+        expr: node_load1 > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High system load"
+          description: "System load is higher than normal."
+
+  # ── BACKEND ALERTS ───────────────────────────────────────────────────────────
+  - name: brainbytes-backend-alerts
+    rules:
+
+      # Alert when AI query error rate exceeds 10%
+      - alert: HighAIQueryErrorRate
+        expr: |
+          rate(brainbytes_ai_queries_total{status="error"}[5m])
+          /
+          rate(brainbytes_ai_queries_total[5m])
+          > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High AI query error rate"
+          description: "More than 10% of AI queries are failing in the last 5 minutes."
+
+      # Alert when AI response time p95 exceeds 5 seconds
+      - alert: SlowAIResponse
+        expr: |
+          histogram_quantile(0.95,
+            rate(brainbytes_ai_response_duration_seconds_bucket[5m])
+          ) > 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "AI response time is slow"
+          description: "95th percentile AI response time exceeds 5 seconds."
+
+      # Alert when HTTP error rate exceeds 5%
+      - alert: HighHTTPErrorRate
+        expr: job:brainbytes_http_error_rate:5m > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP error rate"
+          description: "More than 5% of HTTP requests are returning 4xx/5xx errors."
+
+      # Alert when backend metrics endpoint is unreachable
+      - alert: BackendMetricsDown
+        expr: up{job="brainbytes-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend metrics endpoint is down"
+          description: "Prometheus cannot scrape the BrainBytes backend /metrics endpoint."
