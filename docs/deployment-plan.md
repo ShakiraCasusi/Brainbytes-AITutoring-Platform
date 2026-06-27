@@ -40,31 +40,31 @@ To support safe validation of releases before they hit production, we maintain a
 ```mermaid
 graph TD
     %% Clients
-    Student[Student Client] -->|HTTPS: Port 443| Edge[Railway Edge Router / Ingress]
-    Developer[Developer Branch Commit] -->|Trigger Git Hook| GHA[GitHub Actions Runner]
+    Student["Student Client"] -->|HTTPS: Port 443| Edge["Railway Edge Router / Ingress"]
+    Developer["Developer Branch Commit"] -->|Trigger Git Hook| GHA["GitHub Actions Runner"]
 
     %% Staging Environment
-    subgraph Staging Environment [Staging Environment]
-        Edge -.->|Path: / - Host: staging.brainbytes.app| FE_Stg[Frontend Service: Next.js Port 3000]
-        Edge -.->|Path: /api - Host: staging.brainbytes.app/api| BE_Stg[Backend Service: Node.js Port 4000]
+    subgraph Staging_Env ["Staging Environment"]
+        Edge -.->|Path: / - Host: staging.brainbytes.app| FE_Stg["Frontend Service: Next.js Port 3000"]
+        Edge -.->|Path: /api - Host: staging.brainbytes.app/api| BE_Stg["Backend Service: Node.js Port 4000"]
         
         FE_Stg <-->|REST / WS| BE_Stg
-        BE_Stg -->|Fixed Static Outbound Proxy| Proxy_Stg[Static IP Proxy Add-On]
+        BE_Stg -->|Fixed Static Outbound Proxy| Proxy_Stg["Static IP Proxy Add-On"]
     end
 
     %% Production Environment
-    subgraph Production Environment [Production Environment]
-        Edge -->|Path: / - Host: brainbytes.app| FE_Prod[Frontend Service: Next.js Port 3000]
-        Edge -->|Path: /api - Host: brainbytes.app/api| BE_Prod[Backend Service: Node.js Port 4000]
+    subgraph Prod_Env ["Production Environment"]
+        Edge -->|Path: / - Host: brainbytes.app| FE_Prod["Frontend Service: Next.js Port 3000"]
+        Edge -->|Path: /api - Host: brainbytes.app/api| BE_Prod["Backend Service: Node.js Port 4000"]
         
         FE_Prod <-->|REST / WS| BE_Prod
-        BE_Prod -->|Fixed Static Outbound Proxy| Proxy_Prod[Static IP Proxy Add-On]
+        BE_Prod -->|Fixed Static Outbound Proxy| Proxy_Prod["Static IP Proxy Add-On"]
     end
 
     %% Database & External Services
-    Proxy_Stg -->|Whitelisted Static IP Only| DB_Stg[(MongoDB Atlas Staging DB)]
-    Proxy_Prod -->|Whitelisted Static IP Only| DB_Prod[(MongoDB Atlas Prod DB)]
-    BE_Prod -->|API Queries| HF[Hugging Face AI API]
+    Proxy_Stg -->|Whitelisted Static IP Only| DB_Stg[("MongoDB Atlas Staging DB")]
+    Proxy_Prod -->|Whitelisted Static IP Only| DB_Prod[("MongoDB Atlas Prod DB")]
+    BE_Prod -->|API Queries| HF["Hugging Face AI API"]
 
     %% CI/CD Delivery
     GHA -->|Push Images & CLI deploy| FE_Stg
@@ -74,8 +74,8 @@ graph TD
 
     classDef envStg fill:#1e293b,stroke:#475569,stroke-width:2px,color:#fff;
     classDef envProd fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#fff;
-    class Staging Environment envStg;
-    class Production Environment envProd;
+    class FE_Stg,BE_Stg,Proxy_Stg,DB_Stg envStg;
+    class FE_Prod,BE_Prod,Proxy_Prod,DB_Prod envProd;
 ```
 
 ---

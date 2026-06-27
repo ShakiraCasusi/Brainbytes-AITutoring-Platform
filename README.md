@@ -43,30 +43,26 @@ The diagram below illustrates how container services interact, terminate SSL, an
 ```mermaid
 graph TD
     %% Users
-    Student[Student Mobile / Desktop Client] -->|HTTPS: Port 443| Edge[Railway Edge Router Ingress]
+    Student["Student Mobile / Desktop Client"] -->|HTTPS: Port 443| Edge["Railway Edge Router Ingress"]
     
-    subgraph Railway VPC [Railway Project Container Subnet]
+    subgraph Railway_VPC ["Railway Project Container Subnet"]
         %% Frontend Service
-        Edge -->|Path: /| FE[Frontend Container: Next.js Port 3000]
-        FE :::frontend
+        Edge -->|Path: /| FE["Frontend Container: Next.js Port 3000"]
         
         %% Backend Service
-        Edge -->|Path: /api| BE[Backend Container: Node.js API Port 3000]
-        BE :::backend
+        Edge -->|Path: /api| BE["Backend Container: Node.js API Port 3000"]
         
         %% Internal Comm
         FE <-->|REST API / WebSockets| BE
     end
 
     %% External Systems
-    subgraph Data Layer
-        BE -->|MongoDB TLS Protocol: Port 27017| DB[(MongoDB Atlas Cloud DB)]
-        DB :::database
+    subgraph Data_Layer ["Data Layer"]
+        BE -->|MongoDB TLS Protocol: Port 27017| DB[("MongoDB Atlas Cloud DB")]
     end
 
-    subgraph External APIs
-        BE -->|HTTPS: Port 443| HF[Hugging Face AI Inference API]
-        HF :::external
+    subgraph External_APIs ["External APIs"]
+        BE -->|HTTPS: Port 443| HF["Hugging Face AI Inference API"]
     end
 
     %% Styling
@@ -74,6 +70,11 @@ graph TD
     classDef backend fill:#854d0e,stroke:#eab308,stroke-width:2px,color:#fff;
     classDef database fill:#065f46,stroke:#10b981,stroke-width:2px,color:#fff;
     classDef external fill:#1f2937,stroke:#4b5563,stroke-width:2px,color:#fff;
+
+    class FE frontend;
+    class BE backend;
+    class DB database;
+    class HF external;
 ```
 
 ---
@@ -85,44 +86,44 @@ Our pipeline consists of a CI gate (`main.yml`) and a CD deployment runner (`dep
 
 ```mermaid
 graph TD
-    Push[Git Push / PR Trigger] --> CI{CI check: main.yml}
+    Push["Git Push / PR Trigger"] --> CI{"CI check: main.yml"}
 
-    subgraph CI Pipeline [CI Pipeline: main.yml]
-        CI --> Lint[1. Lint & Format Check]
-        CI --> Secrets[2. TruffleHog Secret Scan]
+    subgraph CI_Pipeline ["CI Pipeline: main.yml"]
+        CI --> Lint["1. Lint & Format Check"]
+        CI --> Secrets["2. TruffleHog Secret Scan"]
         
-        Lint --> Unit[3. Unit Tests: Frontend & Backend]
+        Lint --> Unit["3. Unit Tests: Frontend & Backend"]
         Secrets --> Unit
         
-        Unit --> SetupServices[4. Start MongoDB Container Service]
-        SetupServices --> WaitDB[5. Health-Check: Wait for DB Port 27017]
-        WaitDB --> StartBE[6. Start Backend Server in Background]
-        StartBE --> WaitBE[7. Health-Check: Poll Backend /api/health]
-        WaitBE --> Integration[8. Run Integration Tests]
+        Unit --> SetupServices["4. Start MongoDB Container Service"]
+        SetupServices --> WaitDB["5. Health-Check: Wait for DB Port 27017"]
+        WaitDB --> StartBE["6. Start Backend Server in Background"]
+        StartBE --> WaitBE["7. Health-Check: Poll Backend /api/health"]
+        WaitBE --> Integration["8. Run Integration Tests"]
         
-        Integration --> BuildVerify[9. Build Docker Images Locally]
-        BuildVerify --> Trivy[10. Trivy Vulnerability Scan]
+        Integration --> BuildVerify["9. Build Docker Images Locally"]
+        BuildVerify --> Trivy["10. Trivy Vulnerability Scan"]
     end
 
-    Trivy -->|Verify Success| CD{CD: deploy.yml}
+    Trivy -->|Verify Success| CD{"CD: deploy.yml"}
 
-    subgraph CD Pipeline [CD Pipeline: deploy.yml]
-        CD --> BranchCheck{Determine Branch}
-        BranchCheck -->|development| StagingEnv[Set Env: staging]
-        BranchCheck -->|main| ProdEnv[Set Env: production]
+    subgraph CD_Pipeline ["CD Pipeline: deploy.yml"]
+        CD --> BranchCheck{"Determine Branch"}
+        BranchCheck -->|development| StagingEnv["Set Env: staging"]
+        BranchCheck -->|main| ProdEnv["Set Env: production"]
         
-        StagingEnv --> GHCR[Log in & Push Tagged Images to GHCR]
+        StagingEnv --> GHCR["Log in & Push Tagged Images to GHCR"]
         ProdEnv --> GHCR
         
-        GHCR --> DeployRailway[Trigger Railway CLI deploy]
-        DeployRailway --> PollHealth[Health check wait-loop on cloud url]
+        GHCR --> DeployRailway["Trigger Railway CLI deploy"]
+        DeployRailway --> PollHealth["Health check wait-loop on cloud url"]
         
-        PollHealth -->|Pass| Route[Expose Domain Traffic]
-        PollHealth -->|Fail| FailAlert[Slack Alerts + Trigger Rollback Guidelines]
+        PollHealth -->|Pass| Route["Expose Domain Traffic"]
+        PollHealth -->|Fail| FailAlert["Slack Alerts + Trigger Rollback Guidelines"]
     end
     
-    Route --> SlackSuccess[Slack Notify: Pipeline Passed]
-    FailAlert --> SlackFail[Slack Notify: Pipeline Failed]
+    Route --> SlackSuccess["Slack Notify: Pipeline Passed"]
+    FailAlert --> SlackFail["Slack Notify: Pipeline Failed"]
 ```
 
 ### 2.2 GitHub Actions Workflows
