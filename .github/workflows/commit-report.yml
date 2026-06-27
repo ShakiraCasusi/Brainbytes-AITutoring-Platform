@@ -3,7 +3,10 @@ name: Commit Report
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
+
+permissions:
+  contents: write   # para makapag-push ng file sa repo
+  actions: write    # para makapag-upload ng artifact
 
 jobs:
   commits-to-csv:
@@ -11,17 +14,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Fetches full history so git shortlog counts all commits
 
       - name: Generate commit report
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git shortlog -s -n > commit_report.txt
           echo "Contributor,Commits" > commit_report.csv
-          git shortlog -sn | sed -E 's/^[[:space:]]*([0-9]+)[[:space:]]+(.*)$/\2,\1/' >> commit_report.csv
+          awk '{print $2","$1}' commit_report.txt >> commit_report.csv
 
       - name: Upload CSV artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: commit-report
           path: commit_report.csv
+
+      - name: Commit CSV to repo
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          mkdir -p docs
+          mv commit_report.csv docs/commits.csv
+          git add docs/commits.csv
+          git commit -m "Update commit distribution report"
+          git push
