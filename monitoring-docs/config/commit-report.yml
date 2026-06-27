@@ -3,13 +3,7 @@ name: Commit Report
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - 'docs/commits.csv' # Prevents infinite workflow trigger loop
-  workflow_dispatch: # Allows manual trigger from Actions tab
-
-permissions:
-  contents: write   # Required to commit the CSV back to the repo
-  actions: write    # Required to upload the artifact
+  workflow_dispatch: # Allows manual trigger from the Actions tab
 
 jobs:
   commits-to-csv:
@@ -31,19 +25,3 @@ jobs:
         with:
           name: commit-report
           path: commit_report.csv
-
-      - name: Commit CSV to repo
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p docs
-          mv commit_report.csv docs/commits.csv
-          git add docs/commits.csv
-          
-          # Only commit and push if there are actual updates to prevent empty-commit failures
-          if git diff --staged --quiet; then
-            echo "No changes to commit distribution report."
-          else
-            git commit -m "docs: update commit distribution report [skip ci]"
-            git push
-          fi
