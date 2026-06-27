@@ -22,6 +22,7 @@ const {
   activeSessions,
   aiResponseDuration,
   httpMetricsMiddleware,
+  connectionDropsCounter,
 } = require('./middleware/metrics');
 
 const app = express();
@@ -226,6 +227,45 @@ app.get('/api/activity/recent', async (req, res) => {
     console.error('Error fetching activity:', err);
     res.status(500).json({ error: err.message });
   }
+});
+
+/* ---------------- MONITORING SIMULATION ROUTES ---------------- */
+
+app.post('/api/session/start', (req, res) => {
+  activeSessions.inc();
+  res.json({ success: true, message: 'Simulated session started' });
+});
+
+app.get('/api/session/start', (req, res) => {
+  activeSessions.inc();
+  res.json({ success: true, message: 'Simulated session started' });
+});
+
+app.post('/api/session/end', (req, res) => {
+  activeSessions.dec();
+  res.json({ success: true, message: 'Simulated session ended' });
+});
+
+app.get('/api/session/end', (req, res) => {
+  activeSessions.dec();
+  res.json({ success: true, message: 'Simulated session ended' });
+});
+
+app.post('/api/question', (req, res) => {
+  res.json({ success: true, message: 'Simulated question processed' });
+});
+
+app.get('/api/question/ask', (req, res) => {
+  res.json({ success: true, message: 'Simulated question asked' });
+});
+
+app.get('/api/simulate-drop', (req, res) => {
+  connectionDropsCounter.inc();
+  res.json({ success: true, message: 'Simulated connection drop logged' });
+});
+
+app.get('/api/simulate-error', (req, res) => {
+  res.status(500).json({ error: 'Simulated internal server error' });
 });
 
 /* ---------------- 404 HANDLER ---------------- */
