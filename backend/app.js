@@ -16,8 +16,19 @@ const settingsRoutes = require('./routes/settingsRoutes');
 const activityRoutes = require('./routes/activityRoutes');
 
 const { requireAuth } = require('./middleware/auth');
+const {
+  register,
+  aiQueriesTotal,
+  activeSessions,
+  aiResponseDuration,
+  httpMetricsMiddleware,
+} = require('./middleware/metrics');
 
 const app = express();
+
+/* ---------------- AI SERVICE INIT ---------------- */
+
+aiService.initializeAI();
 
 /* ---------------- MIDDLEWARE ---------------- */
 
@@ -47,9 +58,7 @@ app.use(
 
 app.set('trust proxy', 1);
 app.use(helmet());
-
 app.use(express.json({ limit: '1mb' }));
-
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -58,6 +67,9 @@ app.use(
     legacyHeaders: false,
   })
 );
+
+// Track HTTP metrics for every request
+app.use(httpMetricsMiddleware);
 
 /* ---------------- BASIC ROUTES ---------------- */
 
@@ -76,6 +88,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+app.get('/metrics', async (req, res) => {
+  try {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+  } catch (err) {
+    res.status(500).end(err.message);
+  }
+});
+
 /* ---------------- ROUTE MODULES ---------------- */
 
 app.use('/api/chat', chatRoutes);
@@ -87,9 +108,6 @@ app.use('/api/activity', requireAuth, activityRoutes);
 
 /* ---------------- CHAT MESSAGE ENDPOINT ---------------- */
 
-/**
- * Save user message + AI response
- */
 app.post('/api/messages', async (req, res) => {
   try {
     const { text, sessionId = 'legacy', subject = 'general', skipSave = false } = req.body;
@@ -98,14 +116,25 @@ app.post('/api/messages', async (req, res) => {
       return res.status(400).json({ error: 'Message text is required' });
     }
 
-    /* Get AI response */
+    // Track active session
+    activeSessions.inc();
+
+    // Time the AI response
+    const end = aiResponseDuration.startTimer();
     const aiResult = await aiService.generateResponse(text);
+    end({ category: aiResult.category || 'general' });
+
+    // Count the query
+    aiQueriesTotal.inc({
+      category: aiResult.category || 'general',
+      status: 'success',
+    });
 
     const isDbConnected = mongoose.connection.readyState === 1;
     const shouldSkipSave = skipSave || !isDbConnected;
 
     if (shouldSkipSave) {
-      // Return response directly without database writes
+      activeSessions.dec();
       return res.status(200).json({
         userMessage: {
           _id: `user-${Date.now()}`,
@@ -127,7 +156,6 @@ app.post('/api/messages', async (req, res) => {
       });
     }
 
-    /* 1. Save user message */
     const userMessage = await Message.create({
       text,
       sender: 'user',
@@ -136,7 +164,6 @@ app.post('/api/messages', async (req, res) => {
       timestamp: new Date(),
     });
 
-    /* 3. Save AI message */
     const aiMessage = await Message.create({
       text: aiResult.response,
       sender: 'ai',
@@ -145,7 +172,6 @@ app.post('/api/messages', async (req, res) => {
       timestamp: new Date(),
     });
 
-    /* 4. Log activity */
     await Activity.create({
       sessionId,
       type: 'message',
@@ -153,7 +179,8 @@ app.post('/api/messages', async (req, res) => {
       summary: `Asked a ${aiResult.questionType || 'general'} question`,
     });
 
-    /* 5. Return response */
+    activeSessions.dec();
+
     res.status(201).json({
       userMessage,
       aiMessage,
@@ -161,11 +188,13 @@ app.post('/api/messages', async (req, res) => {
     });
   } catch (err) {
     console.error('Error in /api/messages:', err);
+    aiQueriesTotal.inc({ category: 'unknown', status: 'error' });
+    activeSessions.dec();
     res.status(500).json({ error: err.message });
   }
 });
 
-/* ---------------- GET CHAT HISTORY  ---------------- */
+/* ---------------- GET CHAT HISTORY ---------------- */
 
 app.get('/api/messages/:sessionId', async (req, res) => {
   try {
@@ -197,6 +226,12 @@ app.get('/api/activity/recent', async (req, res) => {
     console.error('Error fetching activity:', err);
     res.status(500).json({ error: err.message });
   }
+});
+
+/* ---------------- 404 HANDLER ---------------- */
+
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
 });
 
 module.exports = app;
