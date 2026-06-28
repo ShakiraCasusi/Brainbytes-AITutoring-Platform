@@ -2,29 +2,37 @@ name: Auto Generate Commit Sheet
 
 on:
   push:
-    branches:  main 
-
+    branches:
+      - main
 
 jobs:
-  commits-to-csv:
+  generate-sheet:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Fetches full history so git shortlog counts all commits
+          fetch-depth: 0
           token: ${{ secrets.MY_PAT_TOKEN }}
 
-      - name: Export all commits to CSV
+      - name: Export ALL commits to CSV (Filtered and Cleaned)
         run: |
-          echo "Commit Hash, Author, Date, Commit Message" > commits.csv
-          git log --pretty=format:'"%h,%an,%ad,%s"' --date=format:"%Y-%m-%d %H:%M:%S" >> commits.csv
+          
+          echo "Commit Hash,Author,Date,Commit Message" > commits.csv
+          
+         
+          git log --pretty=format:'"%h","%an","%ad","%s"' --date=format:'%Y-%m-%d %H:%M:%S' > temp_commits.csv
+        
+          cat temp_commits.csv | \
+          sed 's/"Shakira Casusi"/"Shakira Angela Casusi"/g' | \
+          grep -ivE "railway|author|github-actions" >> commits.csv
 
+          # 4. Burahin ang temp file
+          rm temp_commits.csv
 
-      - name: Commit CSV and push the spreadsheet file
+      - name: Commit and push the spreadsheet file
         uses: EndBug/add-and-commit@v9
         with:
           add: 'commits.csv'
           default_author: github_actions
-          message: 'chore: rewrite full commit tracking workflow [skip ci]'
-        
+          message: 'chore: auto-update cleaned commit spreadsheet [skip ci]'
