@@ -13,6 +13,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetches full history so git shortlog counts all commits
+          token: ${{ secrets.MY_PAT_TOKEN }}
 
       - name: Calculate commit numbers and create CSV sheet
         run: |
