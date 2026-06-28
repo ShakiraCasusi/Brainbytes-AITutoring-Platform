@@ -80,4 +80,4 @@ Generates an intense flow of simulated network drops and `500 Internal Server Er
 - **Expected Metrics Impact:**
   - `brainbytes_connection_drops_total` increments rapidly, triggering the `NetworkInstability` alert.
   - HTTP `500` status codes surge, causing `HighErrorRate` (critical) to transition to `Firing`.
-  - The alert-receiver on port `8080` logs the dispatched alert JSON payload from Alertmanager.
+  - The alert-receiver on port `8082` logs the dispatched alert JSON payload from Alertmanager.

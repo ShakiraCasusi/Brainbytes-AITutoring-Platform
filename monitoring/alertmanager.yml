@@ -11,7 +11,7 @@ route:
 receivers:
   - name: 'web-hook'
     webhook_configs:
-      - url: 'http://backend:8080/alert'
+      - url: 'http://backend:8082/alert'
         send_resolved: true
 
 inhibit_rules:

@@ -9,7 +9,7 @@ This document lists all active alert rules, explains their thresholds, and outli
 We use **Alertmanager** to ingest, process, and forward alerts.
 1. **Grouping:** Alerts are grouped by `{alertname, job}`. If a cluster of containers restarts, instead of sending 10 individual alerts, Alertmanager waits `30s` (group_wait) to compile them and dispatches a single notification.
 2. **Inhibition:** Critical alerts silence warning alerts on the same instance. For example, if `HighCPUUsage` (warning) is firing and the backend service container crashes, throwing a `ServiceDown` (critical) alert, Alertmanager inhibits the CPU warning, reducing notification noise.
-3. **Routing:** All alerts are POSTed to our central webhook server (`http://backend:8080/alert`) for logging and diagnostic recording.
+3. **Routing:** All alerts are POSTed to our central webhook server (`http://backend:8082/alert`) for logging and diagnostic recording.
 
 ---
 

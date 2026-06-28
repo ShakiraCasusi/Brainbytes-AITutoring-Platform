@@ -38,7 +38,7 @@ graph TD
     
     %% Notifications
     subgraph Webhook_Logs ["Webhook Notification Target"]
-        Receiver["alert-receiver (Express: Port 8080)"]
+        Receiver["alert-receiver (Express: Port 8082)"]
     end
     
     Alertmanager -->|POST /alert| Receiver
@@ -66,7 +66,7 @@ graph TD
 
 ### 5. Alert Receiver Webhook Server
 - **Role:** Webhook endpoint.
-- **Responsibility:** A lightweight Express JS endpoint running on port `8080` internally within the `brainbytes-backend` container. Listens for POST requests at `/alert` and logs details of the active alerts directly to the Node process stdout log for audits.
+- **Responsibility:** A lightweight Express JS endpoint running on port `8082` internally within the `brainbytes-backend` container. Listens for POST requests at `/alert` and logs details of the active alerts directly to the Node process stdout log for audits.
 
 ---
 
@@ -81,4 +81,4 @@ graph TD
 4. **Processing & Rules Storage:**
    Prometheus processes the incoming streams. It runs the pre-configured rules inside `recording_rules.yml` every 30 seconds to cache average latencies. It evaluates the expressions in `alert_rules.yml` every 15 seconds.
 5. **Alerting Pipeline:**
-   When an expression evaluates to true (e.g. error rate > 5%), the alert enters the `Pending` state. If the condition persists for the duration specified in the `for` clause (e.g. 2 minutes), the alert transitions to the `Firing` state and is dispatched to Alertmanager. Alertmanager resolves deduplications and issues a POST to the `alert-receiver` at `http://backend:8080/alert`.
+   When an expression evaluates to true (e.g. error rate > 5%), the alert enters the `Pending` state. If the condition persists for the duration specified in the `for` clause (e.g. 2 minutes), the alert transitions to the `Firing` state and is dispatched to Alertmanager. Alertmanager resolves deduplications and issues a POST to the `alert-receiver` at `http://backend:8082/alert`.

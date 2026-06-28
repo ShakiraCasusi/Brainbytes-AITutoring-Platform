@@ -9,7 +9,7 @@ app.post('/alert', (req, res) => {
   res.status(200).end();
 });
 
-const PORT = 8080;
+const PORT = process.env.ALERT_RECEIVER_PORT || 8082;
 app.listen(PORT, () => {
   console.log(`✓ Alert receiver listening on port ${PORT}`);
 });
