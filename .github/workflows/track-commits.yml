@@ -15,25 +15,16 @@ jobs:
           fetch-depth: 0 # Fetches full history so git shortlog counts all commits
           token: ${{ secrets.MY_PAT_TOKEN }}
 
-      - name: Calculate commit numbers and create CSV sheet
+      - name: Export all commits to CSV
         run: |
-          TOTAL_COMMITS=$(git rev-list --count HEAD)
+          echo "Commit Hash, Author, Date, Commit Message" > commits.csv
+          git log --pretty=format:'"%h,%an,%ad,%s"' --date=format:"%Y-%m-%d %H:%M:%S" >> commits.csv
 
-          LATEST_HASH=$(git log -1 --format="%h")
-          LATEST_MSG=$(git log -1 --format="%s")
-          LATEST_AUTHOR=$(git log -1 --format="%an")
-          LATEST_DATE=$(git log -1 --format="%cd")
 
-          if [ ! -f commits.csv ]; then
-            echo "Timestamp","Total Commits","Latest Hash","Latest Message","Latest Author","Latest Date" > commits.csv
-          fi
-
-          echo "$TIMESTAMP, $TOTAL_COMMITS, $LATEST_HASH, \"$LATEST_MSG\", \"$LATEST_AUTHOR\", \"$LATEST_DATE\"" >> commits.csv
-
-      - name: Commit CSV and push the spreadsheet filw
+      - name: Commit CSV and push the spreadsheet file
         uses: EndBug/add-and-commit@v9
         with:
           add: 'commits.csv'
           default_author: github_actions
-          message: 'chore: Auto update commit spreadsheet [skip ci]'
+          message: 'chore: rewrite full commit tracking workflow [skip ci]'
         
