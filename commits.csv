@@ -1,4 +1,5 @@
 Commit Hash,Author,Date,Commit Message
+"ccde0a3","Shirly Montes","2026-07-03 14:31:21","Add Grafana monitoring config, fix backend healthcheck path and frontend API URL (#12)"
 "d1384ad","ShakiraCasusi","2026-06-28 21:21:03","Merge branch 'main' of https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform"
 "1847130","ShakiraCasusi","2026-06-28 21:20:56","feat: implement Alertmanager configuration, alert receiver service, and comprehensive monitoring documentation"
 "745df3b","ShakiraCasusi","2026-06-28 21:08:31","Merge branch 'main' of https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform"
