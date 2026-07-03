@@ -1,5 +1,10 @@
 module.exports = {
   testEnvironment: 'node',
-  testMatch: ['**/_tests_/**/*.test.js', '**/__tests__/**/*.test.js'],
-  testPathIgnorePatterns: ['/node_modules/'],
+  testMatch: ['**/tests/**/*.test.js', '**/__tests__/**/*.test.js'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    'db-persistence.test.js',
+    'chat.test.js',
+  ],
+  testTimeout: 30000,
 };

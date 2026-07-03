@@ -1,6 +1,6 @@
 groups:
 
-  # ── SYSTEM ALERTS ───────────────────────────────────────────────────────────
+  # ── SYSTEM ALERTS ─────────────────────────────────────────────────────────────
   - name: system-alerts
     rules:
 
@@ -49,48 +49,82 @@ groups:
           summary: "High system load"
           description: "System load is higher than normal."
 
-  # ── BACKEND ALERTS ───────────────────────────────────────────────────────────
+  # ── BACKEND ALERTS — LAYERED WARNING/CRITICAL ─────────────────────────────────
   - name: brainbytes-backend-alerts
     rules:
 
-      # Alert when AI query error rate exceeds 10%
-      - alert: HighAIQueryErrorRate
+      # AI Query Error Rate — layered thresholds
+      - alert: AIQueryErrorRateWarning
         expr: |
           rate(brainbytes_ai_queries_total{status="error"}[5m])
           /
           rate(brainbytes_ai_queries_total[5m])
-          > 0.1
+          > 0.05
         for: 2m
         labels:
           severity: warning
         annotations:
-          summary: "High AI query error rate"
-          description: "More than 10% of AI queries are failing in the last 5 minutes."
+          summary: "AI query error rate elevated"
+          description: "More than 5% of AI queries are failing. Current rate: {{ $value | humanizePercentage }}."
 
-      # Alert when AI response time p95 exceeds 5 seconds
-      - alert: SlowAIResponse
+      - alert: AIQueryErrorRateCritical
+        expr: |
+          rate(brainbytes_ai_queries_total{status="error"}[5m])
+          /
+          rate(brainbytes_ai_queries_total[5m])
+          > 0.20
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "AI query error rate critical"
+          description: "More than 20% of AI queries are failing. Immediate action required. Rate: {{ $value | humanizePercentage }}."
+
+      # AI Response Time — layered thresholds
+      - alert: AIResponseTimeWarning
         expr: |
           histogram_quantile(0.95,
             rate(brainbytes_ai_response_duration_seconds_bucket[5m])
-          ) > 5
+          ) > 3
         for: 2m
         labels:
           severity: warning
         annotations:
-          summary: "AI response time is slow"
-          description: "95th percentile AI response time exceeds 5 seconds."
+          summary: "AI response time degraded"
+          description: "p95 AI response time exceeds 3 seconds. Users may notice slowness."
 
-      # Alert when HTTP error rate exceeds 5%
-      - alert: HighHTTPErrorRate
+      - alert: AIResponseTimeCritical
+        expr: |
+          histogram_quantile(0.95,
+            rate(brainbytes_ai_response_duration_seconds_bucket[5m])
+          ) > 8
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "AI response time critically slow"
+          description: "p95 AI response time exceeds 8 seconds. Users are likely experiencing timeouts."
+
+      # HTTP Error Rate — layered thresholds
+      - alert: HTTPErrorRateWarning
         expr: job:brainbytes_http_error_rate:5m > 0.05
         for: 2m
         labels:
           severity: warning
         annotations:
-          summary: "High HTTP error rate"
-          description: "More than 5% of HTTP requests are returning 4xx/5xx errors."
+          summary: "HTTP error rate elevated"
+          description: "More than 5% of HTTP requests returning 4xx/5xx errors."
 
-      # Alert when backend metrics endpoint is unreachable
+      - alert: HTTPErrorRateCritical
+        expr: job:brainbytes_http_error_rate:5m > 0.15
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "HTTP error rate critical"
+          description: "More than 15% of HTTP requests returning errors. Service reliability at risk."
+
+      # Backend metrics endpoint unreachable
       - alert: BackendMetricsDown
         expr: up{job="brainbytes-backend"} == 0
         for: 1m
@@ -99,3 +133,129 @@ groups:
         annotations:
           summary: "Backend metrics endpoint is down"
           description: "Prometheus cannot scrape the BrainBytes backend /metrics endpoint."
+
+      # DB query latency — layered thresholds
+      - alert: DBQuerySlowWarning
+        expr: |
+          histogram_quantile(0.95,
+            rate(brainbytes_db_query_duration_seconds_bucket[5m])
+          ) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database queries slowing down"
+          description: "p95 DB query time exceeds 100ms. May indicate index issues or high load."
+
+      - alert: DBQuerySlowCritical
+        expr: |
+          histogram_quantile(0.95,
+            rate(brainbytes_db_query_duration_seconds_bucket[5m])
+          ) > 0.5
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database queries critically slow"
+          description: "p95 DB query time exceeds 500ms. Database performance severely degraded."
+
+      # Error distribution spike
+      - alert: ServerErrorSpike
+        expr: rate(brainbytes_errors_total{severity="critical"}[5m]) > 0.5
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical error spike detected"
+          description: "More than 0.5 critical errors per second in the last 5 minutes."
+
+  # ── BUSINESS-LEVEL ALERTS (User Experience + AI Degradation) ─────────────────
+  - name: brainbytes-business-alerts
+    rules:
+
+      # User Experience — end-to-end chat latency
+      - alert: ChatExperienceDegradedWarning
+        expr: |
+          histogram_quantile(0.90,
+            rate(brainbytes_chat_end_to_end_duration_seconds_bucket[5m])
+          ) > 4
+        for: 3m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "Chat experience degraded for users"
+          description: "90% of users are waiting more than 4 seconds for chat responses. Consider investigating AI or DB latency."
+
+      - alert: ChatExperienceCritical
+        expr: |
+          histogram_quantile(0.90,
+            rate(brainbytes_chat_end_to_end_duration_seconds_bucket[5m])
+          ) > 10
+        for: 2m
+        labels:
+          severity: critical
+          team: product
+        annotations:
+          summary: "Chat experience critically poor"
+          description: "90% of users are waiting more than 10 seconds. Users are likely abandoning sessions."
+
+      # User Experience — active session drop (sudden loss of users)
+      - alert: ActiveSessionsDrop
+        expr: |
+          brainbytes_active_sessions < 0
+        for: 1m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "Active sessions counter went negative"
+          description: "Session tracking may be mismatched — inc/dec calls are unbalanced."
+
+      # AI Degradation — AI service returning error category consistently
+      - alert: AIServiceDegradation
+        expr: |
+          sum(rate(brainbytes_ai_queries_total{category="error"}[10m]))
+          /
+          sum(rate(brainbytes_ai_queries_total[10m]))
+          > 0.3
+        for: 5m
+        labels:
+          severity: critical
+          team: ai
+        annotations:
+          summary: "AI service is degraded"
+          description: "Over 30% of AI responses are returning error category in the last 10 minutes. AI service may be down or misconfigured."
+
+      # AI Degradation — timeout errors specifically
+      - alert: AITimeoutRateHigh
+        expr: rate(brainbytes_ai_errors_total{error_type="timeout"}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          team: ai
+        annotations:
+          summary: "High AI timeout rate"
+          description: "AI service is timing out frequently. Check HuggingFace API availability or network connectivity."
+
+      # Auth failures spike — possible attack or bug
+      - alert: AuthFailureSpike
+        expr: rate(brainbytes_auth_operations_total{status="failure"}[5m]) > 1
+        for: 2m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "High auth failure rate"
+          description: "More than 1 auth failure per second. Could indicate brute force attempt or authentication bug."
+
+      # No messages being stored — tutoring platform not working
+      - alert: NoMessagesStored
+        expr: rate(brainbytes_messages_stored_total[10m]) == 0
+        for: 10m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "No messages being stored"
+          description: "No chat messages have been saved in the last 10 minutes. Users may not be able to chat."
