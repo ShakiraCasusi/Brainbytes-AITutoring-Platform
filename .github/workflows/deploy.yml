@@ -13,11 +13,11 @@ jobs:
   deploy:
     name: Build, Tag & Deploy
     runs-on: ubuntu-latest
-    
+
     # Select environment based on branch
     environment:
       name: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
-      
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
         run: |
           SHA_TAG="sha-${{ github.sha }}"
           BRANCH_TAG="${{ github.ref_name }}"
-          
+
           if [ "${{ github.ref_name }}" = "main" ]; then
             echo "frontend_tags=ghcr.io/${{ github.repository_owner }}/brainbytes-frontend:latest,ghcr.io/${{ github.repository_owner }}/brainbytes-frontend:${BRANCH_TAG},ghcr.io/${{ github.repository_owner }}/brainbytes-frontend:${SHA_TAG}" >> $GITHUB_OUTPUT
             echo "backend_tags=ghcr.io/${{ github.repository_owner }}/brainbytes-backend:latest,ghcr.io/${{ github.repository_owner }}/brainbytes-backend:${BRANCH_TAG},ghcr.io/${{ github.repository_owner }}/brainbytes-backend:${SHA_TAG}" >> $GITHUB_OUTPUT
@@ -76,55 +76,60 @@ jobs:
           echo "DEPLOY_TIME=$(date)" >> $GITHUB_ENV
           echo "DEPLOY_SHA=${{ github.sha }}" >> $GITHUB_ENV
           echo "TARGET_ENV=${{ github.ref_name == 'main' && 'production' || 'staging' }}" >> $GITHUB_ENV
+          # Set HAS_RAILWAY_TOKEN flag for use in if conditions
+          if [ -n "${{ secrets.RAILWAY_TOKEN }}" ]; then
+            echo "HAS_RAILWAY_TOKEN=true" >> $GITHUB_ENV
+          else
+            echo "HAS_RAILWAY_TOKEN=false" >> $GITHUB_ENV
+          fi
 
       # CLI deployment setup
       - name: Install Railway CLI
+        if: env.HAS_RAILWAY_TOKEN == 'true'
         run: npm install -g @railway/cli
-        if: ${{ secrets.RAILWAY_TOKEN != '' }}
 
       # Deploy Frontend to Railway
       - name: Deploy Frontend Service to Railway
         id: deploy-frontend
+        if: env.HAS_RAILWAY_TOKEN == 'true'
         run: |
           echo "Deploying frontend container service to Railway (Env: $TARGET_ENV)..."
           railway deploy --service brainbytes-frontend --prod --detach
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         working-directory: ./frontend
-        if: ${{ secrets.RAILWAY_TOKEN != '' }}
 
       # Deploy Backend to Railway
       - name: Deploy Backend Service to Railway
         id: deploy-backend
+        if: env.HAS_RAILWAY_TOKEN == 'true'
         run: |
           echo "Deploying backend container service to Railway (Env: $TARGET_ENV)..."
           railway deploy --service brainbytes-backend --prod --detach
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         working-directory: ./backend
-        if: ${{ secrets.RAILWAY_TOKEN != '' }}
 
       # Fallback simulation if no Token is present
       - name: Simulation mode deployment (Fallback)
+        if: env.HAS_RAILWAY_TOKEN == 'false'
         run: |
           echo "Warning: No production RAILWAY_TOKEN found. Operating in local simulation mode."
           echo "Building stack locally using docker-compose..."
           docker compose up -d
           docker compose ps
           docker compose down
-        if: ${{ secrets.RAILWAY_TOKEN == '' }}
 
       # Verify deployment health using loop
       - name: Verify deployment health
         run: |
           echo "Verifying live service availability..."
           TARGET_URL="http://localhost:4000/api/health"
-          
-          # Use Railway public URL if provided, otherwise default to local simulation port
+
           if [ -n "${{ secrets.RAILWAY_BACKEND_URL }}" ]; then
             TARGET_URL="${{ secrets.RAILWAY_BACKEND_URL }}/api/health"
           fi
-          
+
           echo "Pinging backend health endpoint: $TARGET_URL"
           for i in {1..12}; do
             if curl -sf "$TARGET_URL" > /dev/null; then
