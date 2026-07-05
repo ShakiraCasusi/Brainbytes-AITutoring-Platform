@@ -1,3 +1,4 @@
+import styles from '../styles/ChatInterface.module.css';
 import React, { useState, useEffect } from 'react';
 
 export default function AppLayout({
@@ -137,34 +138,35 @@ export default function AppLayout({
         }
       `}</style>
 
-      {/* Sidebar - SideNavBar */}
-      <aside className="sidebar">
-        <div className="brand-container">
+            {/* Sidebar - SideNavBar */}
+      <aside className={`${styles.customSidebar} sidebar`}>
+        <div className={styles.customBrandContainer}>
           <div className="logo-box">
             <img src="/brain.png" alt="BrainBytes Logo" className="logo-img" />
           </div>
           <div className="brand-text">
-            <h1 className="brand-title">BrainBytes</h1>
-            <p className="brand-subtitle">Your personal tutor</p>
+            <h1 className="brand-title" style={{ color: '#f8fafc', margin: 0, fontSize: '18px' }}>BrainBytes</h1>
+            <p className={styles.customSubtitle}>Your personal tutor</p>
           </div>
         </div>
 
-        <nav className="nav-menu">
+        <nav className="nav-menu" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {items.map((item) => {
             const isActive = activeView === item.id;
             return (
               <button
                 key={item.id}
-                className={`nav-link ${isActive ? 'active' : ''}`}
+                className={`${styles.customNavLink} ${isActive ? styles.customNavLinkActive : ''}`}
                 onClick={() => onNavigate(item.id)}
               >
-                <span className="nav-icon">{renderIcon(item.icon, isActive)}</span>
-                <span className="nav-label">{item.label}</span>
+                <span className={styles.customNavIcon}>{renderIcon(item.icon, isActive)}</span>
+                <span className="nav-label" style={{ color: '#ffffff' }}>{item.label}</span>
               </button>
             );
           })}
         </nav>
       </aside>
+
 
       <div className="main-wrapper">
         {/* Header - TopNavBar */}

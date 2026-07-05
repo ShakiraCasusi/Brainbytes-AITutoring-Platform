@@ -200,8 +200,9 @@ export default function LearningWorkspace() {
       {/* Dynamic Main Wrapper Frames Content Areas Mapping */}
       {view === 'chat' && (
         <ChatPanel 
-          currentSubject={currentSubject} 
-          setCurrentSubject={setCurrentSubject}
+          profile={profile}
+          subject={currentSubject} 
+          setSubject={setCurrentSubject}
           newChatTrigger={newChatTrigger}
           resumeTimerOnQuestion={resumeTimerOnQuestion}
           showToast={showToast}
