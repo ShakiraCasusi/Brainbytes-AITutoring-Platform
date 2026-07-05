@@ -14,6 +14,8 @@ const userRoutes = require('./routes/userRoutes');
 const materialRoutes = require('./routes/materialRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const activityRoutes = require('./routes/activityRoutes');
+const alertRoutes = require('./routes/alertRoutes');
+
 
 const { requireAuth } = require('./middleware/auth');
 const {
@@ -34,6 +36,8 @@ const {
 } = require('./middleware/metrics');
 
 const app = express();
+
+app.use(alertRoutes);
 
 /* ---------------- AI SERVICE INIT ---------------- */
 
