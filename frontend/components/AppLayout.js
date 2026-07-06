@@ -1,3 +1,4 @@
+import styles from '../styles/ChatInterface.module.css';
 import React, { useState, useEffect } from 'react';
 
 export default function AppLayout({
@@ -26,12 +27,15 @@ export default function AppLayout({
     { id: 'chat', label: 'Tutor', icon: 'tutor' },
     { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
     { id: 'profile', label: 'Profile', icon: 'profile' },
+    { id: 'telemetry', label: 'Telemetry', icon: 'telemetry' },
+
   ];
 
   const viewTitles = {
     chat: `Chat Tutor - ${currentSubject ? currentSubject.charAt(0).toUpperCase() + currentSubject.slice(1) : 'General'}`,
     dashboard: 'Dashboard',
     profile: 'Profile',
+    telemetry: 'System Monitoring & Telemetry'
   };
 
   const activeTitle = viewTitles[activeView] || 'BrainBytes';
@@ -62,6 +66,13 @@ export default function AppLayout({
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           <circle cx="12" cy="7" r="4" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      );
+    }
+    if (iconType === 'telemetry') {
+      return (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       );
     }
@@ -127,34 +138,35 @@ export default function AppLayout({
         }
       `}</style>
 
-      {/* Sidebar - SideNavBar */}
-      <aside className="sidebar">
-        <div className="brand-container">
+            {/* Sidebar - SideNavBar */}
+      <aside className={`${styles.customSidebar} sidebar`}>
+        <div className={styles.customBrandContainer}>
           <div className="logo-box">
             <img src="/brain.png" alt="BrainBytes Logo" className="logo-img" />
           </div>
           <div className="brand-text">
-            <h1 className="brand-title">BrainBytes</h1>
-            <p className="brand-subtitle">Your personal tutor</p>
+            <h1 className="brand-title" style={{ color: '#f8fafc', margin: 0, fontSize: '18px' }}>BrainBytes</h1>
+            <p className={styles.customSubtitle}>Your personal tutor</p>
           </div>
         </div>
 
-        <nav className="nav-menu">
+        <nav className="nav-menu" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {items.map((item) => {
             const isActive = activeView === item.id;
             return (
               <button
                 key={item.id}
-                className={`nav-link ${isActive ? 'active' : ''}`}
+                className={`${styles.customNavLink} ${isActive ? styles.customNavLinkActive : ''}`}
                 onClick={() => onNavigate(item.id)}
               >
-                <span className="nav-icon">{renderIcon(item.icon, isActive)}</span>
-                <span className="nav-label">{item.label}</span>
+                <span className={styles.customNavIcon}>{renderIcon(item.icon, isActive)}</span>
+                <span className="nav-label" style={{ color: '#ffffff' }}>{item.label}</span>
               </button>
             );
           })}
         </nav>
       </aside>
+
 
       <div className="main-wrapper">
         {/* Header - TopNavBar */}
