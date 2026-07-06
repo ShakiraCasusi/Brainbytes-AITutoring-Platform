@@ -1,4 +1,6 @@
 Commit Hash,Author,Date,Commit Message
+"5a6bac9","ShakiraCasusi","2026-07-06 15:40:08","Merge branch 'main' of https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform"
+"a1beb61","ShakiraCasusi","2026-07-06 15:40:04","feat: add MessageList component for chat rendering and Dashboard component for user progress tracking"
 "af7e1ba","ShakiraCasusi","2026-07-06 15:35:39","Merge branch 'main' of https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform"
 "338bb71","ShakiraCasusi","2026-07-06 15:35:34","chore: add package-lock.json to frontend dependencies"
 "1aa209d","ShakiraCasusi","2026-07-06 15:33:51","Merge branch 'main' of https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform"
