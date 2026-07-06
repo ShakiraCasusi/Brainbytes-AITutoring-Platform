@@ -1,0 +1,69 @@
+groups:
+  - name: brainbytes_recording_rules
+    interval: 30s
+    rules:
+
+      # ── AI METRICS ──────────────────────────────────────────────────────────
+
+      # Average AI response time per category over 5 minutes
+      - record: job:brainbytes_ai_response_duration_seconds:avg5m
+        expr: |
+          rate(brainbytes_ai_response_duration_seconds_sum[5m])
+          /
+          rate(brainbytes_ai_response_duration_seconds_count[5m])
+
+      # p95 AI response time — used by business alerts
+      - record: job:brainbytes_ai_response_duration_p95:5m
+        expr: |
+          histogram_quantile(0.95,
+            rate(brainbytes_ai_response_duration_seconds_bucket[5m])
+          )
+
+      # AI error rate — used by layered alerts
+      - record: job:brainbytes_ai_error_rate:5m
+        expr: |
+          rate(brainbytes_ai_queries_total{status="error"}[5m])
+          /
+          rate(brainbytes_ai_queries_total[5m])
+
+      # ── HTTP METRICS ─────────────────────────────────────────────────────────
+
+      # HTTP error rate per route over 5 minutes
+      - record: job:brainbytes_http_error_rate:5m
+        expr: |
+          sum by (endpoint) (
+            rate(brainbytes_http_requests_total{status=~"4..|5.."}[5m])
+          )
+          /
+          sum by (endpoint) (
+            rate(brainbytes_http_requests_total[5m])
+          )
+
+      # p95 HTTP request duration per endpoint
+      - record: job:brainbytes_http_duration_p95:5m
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le, endpoint) (
+              rate(brainbytes_http_request_duration_seconds_bucket[5m])
+            )
+          )
+
+      # ── USER EXPERIENCE METRICS ───────────────────────────────────────────────
+
+      # p90 end-to-end chat duration — business SLA metric
+      - record: job:brainbytes_chat_duration_p90:5m
+        expr: |
+          histogram_quantile(0.90,
+            rate(brainbytes_chat_end_to_end_duration_seconds_bucket[5m])
+          )
+
+      # ── DB METRICS ────────────────────────────────────────────────────────────
+
+      # p95 DB query duration per collection
+      - record: job:brainbytes_db_query_duration_p95:5m
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le, collection) (
+              rate(brainbytes_db_query_duration_seconds_bucket[5m])
+            )
+          )

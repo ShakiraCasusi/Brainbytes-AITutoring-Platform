@@ -1,0 +1,27 @@
+name: Commit Report
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Allows manual trigger from the Actions tab
+
+jobs:
+  commits-to-csv:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetches full history so git shortlog counts all commits
+
+      - name: Generate commit report
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          echo "Contributor,Commits" > commit_report.csv
+          git shortlog -sn | sed -E 's/^[[:space:]]*([0-9]+)[[:space:]]+(.*)$/\2,\1/' >> commit_report.csv
+
+      - name: Upload CSV artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: commit-report
+          path: commit_report.csv
