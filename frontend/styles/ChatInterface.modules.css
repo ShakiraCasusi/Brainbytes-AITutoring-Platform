@@ -1,0 +1,43 @@
+/* Base styles for mobile (mobile-first) */
+.chatContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 100%;
+  width: 100%;
+  font-size: 14px;
+}
+
+.messageInput {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Enhance for tablets */
+@media (min-width: 768px) {
+  .chatContainer {
+    max-width: 90%;
+    font-size: 16px;
+  }
+
+  .messageInput {
+    padding: 10px;
+    font-size: 16px;
+  }
+}
+
+/* Enhance for desktops */
+@media (min-width: 1024px) {
+  .chatContainer {
+    max-width: 80%;
+    font-size: 18px;
+  }
+
+  .messageInput {
+    padding: 12px;
+    font-size: 16px;
+  }
+}
