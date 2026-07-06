@@ -84,7 +84,7 @@ export default function MessageList({ messages, loading, readReceiptRef, profile
                   <div className="bubble-text">
                     <MessageContent text={message.text} />
                   </div>
-                  <div className="bubble-meta">
+                  <div className="bubble-meta" suppressHydrationWarning>
                     {isUser ? `YOU - ${timeStr || 'NOW'}` : `BRAINBYTES AI - ${timeStr || 'NOW'}`}
                   </div>
                 </article>

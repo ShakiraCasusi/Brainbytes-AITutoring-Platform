@@ -239,7 +239,7 @@ export default function Dashboard({
                     {/* Status Badge and Time */}
                     <div className="feed-right">
                       <span className={`status-badge ${parsed.badgeClass}`}>{parsed.badgeLabel}</span>
-                      <span className="feed-time">{timeAgo(item.createdAt)}</span>
+                      <span className="feed-time" suppressHydrationWarning>{timeAgo(item.createdAt)}</span>
                     </div>
                   </div>
                 );
