@@ -3,18 +3,12 @@ groups:
     interval: 30s
     rules:
 
-      # Recording Rule 1: Average AI response time over 5 minutes
-      # Precomputes the per-category average so dashboards load faster.
-      # PromQL to query: job:brainbytes_ai_response_duration_seconds:avg5m
       - record: job:brainbytes_ai_response_duration_seconds:avg5m
         expr: |
           rate(brainbytes_ai_response_duration_seconds_sum[5m])
           /
           rate(brainbytes_ai_response_duration_seconds_count[5m])
 
-      # Recording Rule 2: HTTP error rate over 5 minutes
-      # Ratio of 4xx/5xx responses to total requests per endpoint.
-      # PromQL to query: job:brainbytes_http_error_rate:5m
       - record: job:brainbytes_http_error_rate:5m
         expr: |
           sum by (endpoint) (
@@ -24,3 +18,60 @@ groups:
           sum by (endpoint) (
             rate(brainbytes_http_requests_total[5m])
           )
+
+  - name: brainbytes_alerts
+    rules:
+
+      - alert: BackendDown
+        expr: up{job="backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend is unreachable"
+          description: "Prometheus has not been able to scrape the backend target for 1 minute."
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage has been above 80% for 5 minutes."
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage has been above 85% for 5 minutes."
+
+      - alert: HighHTTPErrorRate
+        expr: job:brainbytes_http_error_rate:5m > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP error rate"
+          description: "More than 10% of requests to {{ $labels.endpoint }} are returning 4xx/5xx over the last 5 minutes."
+
+      - alert: SlowAIResponses
+        expr: job:brainbytes_ai_response_duration_seconds:avg5m > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "AI responses are slow"
+          description: "Average AI response time has exceeded 5 seconds over the last 5 minutes."
+
+      - alert: HighActiveSessions
+        expr: brainbytes_active_sessions > 20
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High number of concurrent sessions"
+          description: "More than 20 concurrent tutoring sessions are active."
