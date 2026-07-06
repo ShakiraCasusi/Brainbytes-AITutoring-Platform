@@ -125,12 +125,20 @@ jobs:
       - name: Verify deployment health
         run: |
           echo "Verifying live service availability..."
-          TARGET_URL="http://localhost:4000/api/health"
-
-          if [ -n "${{ secrets.RAILWAY_BACKEND_URL }}" ]; then
-            TARGET_URL="${{ secrets.RAILWAY_BACKEND_URL }}/api/health"
+          
+          # Only verify if we actually deployed to Railway
+          if [ "${{ env.HAS_RAILWAY_TOKEN }}" != "true" ]; then
+            echo " Skipping health check: Running in simulation mode (no Railway token)"
+            exit 0
           fi
-
+          
+          TARGET_URL="${{ secrets.RAILWAY_BACKEND_URL }}/api/health"
+          
+          if [ -z "${{ secrets.RAILWAY_BACKEND_URL }}" ]; then
+            echo " Error: RAILWAY_BACKEND_URL secret is not configured"
+            exit 1
+          fi
+          
           echo "Pinging backend health endpoint: $TARGET_URL"
           for i in {1..12}; do
             if curl -sf "$TARGET_URL" > /dev/null; then
@@ -148,7 +156,7 @@ jobs:
         if: failure()
         run: |
           echo "=========================================================="
-          echo "🚨 CRITICAL WARNING: Deployment health validation failed!"
+          echo " CRITICAL WARNING: Deployment health validation failed!"
           echo "The newly deployed version did not respond successfully."
           echo "=========================================================="
           echo "Note: Railway automatically prevents routing public traffic to"
