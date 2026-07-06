@@ -2,7 +2,10 @@ groups:
   - name: BrainBytes Alerts
     rules:
 
-      # ── SYSTEM ALERTS ───────────────────────────────────────────────────────────
+      # ─────────────────────────────────────────────
+      # SYSTEM ALERTS
+      # ─────────────────────────────────────────────
+
       - alert: HighCPUUsage
         expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
         for: 5m
@@ -28,56 +31,96 @@ groups:
           severity: warning
         annotations:
           summary: "Low disk space detected"
-          description: "Disk space is below 15% on {{ $labels.instance }} at {{ $labels.mountpoint }}."
+          description: "Disk space is below 15% on {{ $labels.instance }}."
 
-      # ── APPLICATION ALERTS ───────────────────────────────────────────────────────
+      # ─────────────────────────────────────────────
+      # APPLICATION ALERTS
+      # ─────────────────────────────────────────────
+
+      - alert: BackendDown
+        expr: up{job="brainbytes-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "BrainBytes backend is down"
+          description: "Prometheus cannot scrape the backend for more than 1 minute."
+
       - alert: HighErrorRate
-        expr: sum(rate(brainbytes_http_requests_total{status=~"5.*"}[5m])) / sum(rate(brainbytes_http_requests_total[5m])) * 100 > 5
+        expr: (sum(rate(brainbytes_http_requests_total{status=~"5.."}[5m])) / sum(rate(brainbytes_http_requests_total[5m]))) * 100 > 5
         for: 2m
         labels:
           severity: critical
         annotations:
-          summary: "High error rate detected"
-          description: "Error rate is above 5% for 2 minutes."
+          summary: "High HTTP error rate"
+          description: "More than 5% of requests are returning 5xx responses."
 
       - alert: SlowResponses
-        expr: histogram_quantile(0.95, rate(brainbytes_http_request_duration_seconds_bucket[5m])) > 2
+        expr: histogram_quantile(0.95, sum(rate(brainbytes_http_request_duration_seconds_bucket[5m])) by (le)) > 2
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: "Slow response times detected"
-          description: "95th percentile of response time is above 2 seconds for 5 minutes."
+          summary: "Slow API responses"
+          description: "95th percentile response time exceeded 2 seconds."
 
       - alert: ContainerHighMemoryUsage
-        expr: container_memory_usage_bytes{name=~"brainbytes-.*"} / container_spec_memory_limit_bytes{name=~"brainbytes-.*"} * 100 > 85
+        expr: (container_memory_usage_bytes{name=~"brainbytes-.*"} / container_spec_memory_limit_bytes{name=~"brainbytes-.*"}) * 100 > 85
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: "Container high memory usage"
-          description: "Container {{ $labels.name }} memory usage is above 85% for 5 minutes."
+          summary: "Container memory usage is high"
+          description: "Container {{ $labels.name }} is using more than 85% of its memory."
 
-      # ── BUSINESS ALERTS ─────────────────────────────────────────────────────────
+      # ─────────────────────────────────────────────
+      # AI ALERTS
+      # ─────────────────────────────────────────────
+
+      - alert: HighAIResponseTime
+        expr: histogram_quantile(0.95, sum(rate(brainbytes_ai_response_duration_seconds_bucket[5m])) by (le)) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow AI responses"
+          description: "95th percentile AI response time is above 5 seconds."
+
+      - alert: AIServiceErrors
+        expr: increase(brainbytes_ai_queries_total{status="error"}[5m]) > 3
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "AI service errors"
+          description: "More than 3 AI errors occurred within the last 5 minutes."
+
+      # ─────────────────────────────────────────────
+      # BUSINESS ALERTS
+      # ─────────────────────────────────────────────
+
       - alert: NoActiveSessions
         expr: brainbytes_active_sessions == 0
         for: 30m
         labels:
           severity: warning
         annotations:
-          summary: "No active sessions"
-          description: "There have been no active tutoring sessions for 30 minutes during business hours."
+          summary: "No active tutoring sessions"
+          description: "There have been no active tutoring sessions for 30 minutes."
 
-      - alert: HighAIResponseTime
-        expr: rate(brainbytes_ai_response_duration_seconds_sum[5m]) / rate(brainbytes_ai_response_duration_seconds_count[5m]) > 5
+      - alert: HighActiveSessions
+        expr: brainbytes_active_sessions > 20
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: "Slow AI responses"
-          description: "AI is taking more than 5 seconds on average to respond to questions."
+          summary: "High number of active sessions"
+          description: "There are more than 20 active tutoring sessions."
 
-      # ── PHILIPPINE CONTEXT ALERTS ─────────────────────────────────────────────────
+      # ─────────────────────────────────────────────
+      # NETWORK ALERTS
+      # ─────────────────────────────────────────────
+
       - alert: NetworkInstability
         expr: rate(brainbytes_connection_drops_total[5m]) > 5
         for: 5m
@@ -85,16 +128,16 @@ groups:
           severity: warning
         annotations:
           summary: "Network instability detected"
-          description: "High rate of connection drops detected, which could affect users with intermittent connectivity."
+          description: "Connection drops exceed 5 per minute."
 
       - alert: SlowMobileResponses
-        expr: histogram_quantile(0.95, rate(brainbytes_http_request_duration_seconds_bucket{user_agent=~".*Mobile.*"}[5m])) > 3
+        expr: histogram_quantile(0.95, sum(rate(brainbytes_http_request_duration_seconds_bucket{user_agent=~".*Mobile.*"}[5m])) by (le)) > 3
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: "Slow mobile response times"
-          description: "95th percentile of mobile response time is above 3 seconds for 5 minutes."
+          summary: "Slow mobile responses"
+          description: "95th percentile mobile response time exceeded 3 seconds."
 
       - alert: HighDataUsage
         expr: sum(rate(brainbytes_response_size_bytes_sum[1h])) > 52428800
@@ -102,5 +145,5 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "High data usage detected"
-          description: "Application is sending more than 50MB of data per hour, which may impact users with limited data plans."
+          summary: "High data usage"
+          description: "Application is sending more than 50 MB of data per hour."
