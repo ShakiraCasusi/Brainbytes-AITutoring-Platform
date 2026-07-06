@@ -1,4 +1,6 @@
 Commit Hash,Author,Date,Commit Message
+"af7e1ba","ShakiraCasusi","2026-07-06 15:35:39","Merge branch 'main' of https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform"
+"338bb71","ShakiraCasusi","2026-07-06 15:35:34","chore: add package-lock.json to frontend dependencies"
 "1aa209d","ShakiraCasusi","2026-07-06 15:33:51","Merge branch 'main' of https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform"
 "13a428b","ShakiraCasusi","2026-07-06 15:33:48","fix: initialize frontend project with Next.js, Jest, and Babel configuration"
 "d440aa2","ShakiraCasusi","2026-07-06 15:24:39","Merge branch 'main' of https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform"
