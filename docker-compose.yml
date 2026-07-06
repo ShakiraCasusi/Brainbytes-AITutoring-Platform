@@ -113,6 +113,7 @@ services:
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./monitoring/alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - ./monitoring/recording_rules.yml:/etc/prometheus/recording_rules.yml
       - prometheus-data:/prometheus
 
     command:
@@ -139,6 +140,8 @@ services:
 
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring-docs/dashboards:/etc/grafana/provisioning/dashboards
 
     restart: unless-stopped
 

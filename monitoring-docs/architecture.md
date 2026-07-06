@@ -82,3 +82,23 @@ graph TD
    Prometheus processes the incoming streams. It runs the pre-configured rules inside `recording_rules.yml` every 30 seconds to cache average latencies. It evaluates the expressions in `alert_rules.yml` every 15 seconds.
 5. **Alerting Pipeline:**
    When an expression evaluates to true (e.g. error rate > 5%), the alert enters the `Pending` state. If the condition persists for the duration specified in the `for` clause (e.g. 2 minutes), the alert transitions to the `Firing` state and is dispatched to Alertmanager. Alertmanager resolves deduplications and issues a POST to the `alert-receiver` at `http://backend:8082/alert`.
+
+---
+
+## Operational Policies
+
+### 1. Data Retention Policy
+* **TSDB Storage Capacity:** Managed inside `docker-compose.yml` via the `--storage.tsdb.retention.time=15d` parameter.
+* **Storage Limit:** Automatically prunes telemetry files older than 15 days, capping disk footprint on the host system to prevent system lockups.
+
+### 2. Performance Considerations
+* **Scrape Schedules:** Tailored to target severity:
+  * Backend API metrics scraped every **5s** for high UX fidelity.
+  * Docker container cAdvisor metrics scraped every **10s**.
+  * Host operating system exporter metrics scraped every **15s**.
+* **Precomputation Recording Rules:** Complex time-series PromQL formulas (like 5-minute HTTP error rates and average AI latency) are computed every 30 seconds by the Prometheus server and saved as cached metrics (`job:brainbytes_http_error_rate:5m`). Grafana reads these precomputed indexes directly, eliminating runtime latency during dashboard loads.
+
+### 3. Security & Access Boundaries
+* **Compliance (DPA 2012):** All telemetry metrics contain **zero** Personally Identifiable Information (PII). Student usernames, email addresses, and tutoring chat conversation texts are fully excluded from Prometheus labels.
+* **Network Isolation:** The Prometheus console, cAdvisor, and Alertmanager metrics endpoints are locked behind internal Docker networks, accessible only through the host boundary via localhost.
+* **Secure Database Access:** Mongoose connection strings use secure authentication parameters. Outbound telemetry data transfer rates are monitored to prevent data leak conditions.
