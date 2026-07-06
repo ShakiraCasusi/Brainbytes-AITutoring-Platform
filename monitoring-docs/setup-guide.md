@@ -51,9 +51,13 @@ npm install
 
 ### Scenario 1: Normal Load
 Simulates standard user tutoring sessions. Students log in, start a session, ask 1 to 3 questions, and log out.
-- **Run command:**
+- **Run command (from backend folder):**
   ```bash
   node simulate-scenarios.js normal-load
+  ```
+- **Alternative (from project root):**
+  ```bash
+  node monitoring-docs/demo/simulate-scenarios.js normal-load
   ```
 - **Expected Metrics Impact:**
   - `brainbytes_active_sessions` fluctuates between `0` and `1`.
@@ -62,9 +66,13 @@ Simulates standard user tutoring sessions. Students log in, start a session, ask
 
 ### Scenario 2: High Load (Stress Test)
 Spawns 8 concurrent worker threads querying the backend and Hugging Face API as fast as possible to stress resource limits.
-- **Run command:**
+- **Run command (from backend folder):**
   ```bash
   node simulate-scenarios.js high-load
+  ```
+- **Alternative (from project root):**
+  ```bash
+  node monitoring-docs/demo/simulate-scenarios.js high-load
   ```
 - **Expected Metrics Impact:**
   - `brainbytes_active_sessions` rises and remains high.
@@ -73,9 +81,13 @@ Spawns 8 concurrent worker threads querying the backend and Hugging Face API as 
 
 ### Scenario 3: Error Spikes & Network Instability
 Generates an intense flow of simulated network drops and `500 Internal Server Errors`.
-- **Run command:**
+- **Run command (from backend folder):**
   ```bash
   node simulate-scenarios.js error-spikes
+  ```
+- **Alternative (from project root):**
+  ```bash
+  node monitoring-docs/demo/simulate-scenarios.js error-spikes
   ```
 - **Expected Metrics Impact:**
   - `brainbytes_connection_drops_total` increments rapidly, triggering the `NetworkInstability` alert.

@@ -2,9 +2,16 @@ groups:
   - name: BrainBytes Alerts
     rules:
 
-      # ─────────────────────────────────────────────
-      # SYSTEM ALERTS
-      # ─────────────────────────────────────────────
+      # ── 1. SYSTEM HEALTH ALERTS ───────────────────────────────────────────────
+
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Monitored service is down"
+          description: "One of the Monitored infrastructure services has been unreachable for more than 1 minute."
 
       - alert: HighCPUUsage
         expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
@@ -12,17 +19,17 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "High CPU usage detected"
-          description: "CPU usage is above 80% for 5 minutes on {{ $labels.instance }}."
+          summary: "Host CPU usage is high"
+          description: "Aggregate host CPU usage has been above 80% for 5 minutes."
 
       - alert: HighMemoryUsage
         expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
         for: 5m
         labels:
-          severity: warning
+          severity: critical
         annotations:
-          summary: "High memory usage detected"
-          description: "Memory usage is above 85% for 5 minutes on {{ $labels.instance }}."
+          summary: "Low memory available"
+          description: "Available host memory is below 15% (Memory usage is above 85%) for 5 minutes."
 
       - alert: LowDiskSpace
         expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
@@ -30,39 +37,26 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Low disk space detected"
-          description: "Disk space is below 15% on {{ $labels.instance }}."
+          summary: "Low disk space"
+          description: "Available disk space on the root mount point is under 15%."
 
-      # ─────────────────────────────────────────────
-      # APPLICATION ALERTS
-      # ─────────────────────────────────────────────
-
-      - alert: BackendDown
-        expr: up{job="brainbytes-backend"} == 0
-        for: 1m
-        labels:
-          severity: critical
-        annotations:
-          summary: "BrainBytes backend is down"
-          description: "Prometheus cannot scrape the backend for more than 1 minute."
-
-      - alert: HighErrorRate
-        expr: (sum(rate(brainbytes_http_requests_total{status=~"5.."}[5m])) / sum(rate(brainbytes_http_requests_total[5m]))) * 100 > 5
+      - alert: ContainerRestarting
+        expr: increase(container_start_time_seconds[10m]) > 3
         for: 2m
         labels:
-          severity: critical
+          severity: warning
         annotations:
-          summary: "High HTTP error rate"
-          description: "More than 5% of requests are returning 5xx responses."
+          summary: "Container restarting frequently"
+          description: "A container has restarted more than 3 times in the last 10 minutes."
 
-      - alert: SlowResponses
-        expr: histogram_quantile(0.95, sum(rate(brainbytes_http_request_duration_seconds_bucket[5m])) by (le)) > 2
+      - alert: HighSystemLoad
+        expr: node_load1 > 2
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: "Slow API responses"
-          description: "95th percentile response time exceeded 2 seconds."
+          summary: "High system load"
+          description: "Host 1-minute system load average is above 2 for 5 minutes."
 
       - alert: ContainerHighMemoryUsage
         expr: (container_memory_usage_bytes{name=~"brainbytes-.*"} / container_spec_memory_limit_bytes{name=~"brainbytes-.*"}) * 100 > 85
@@ -70,56 +64,200 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Container memory usage is high"
-          description: "Container {{ $labels.name }} is using more than 85% of its memory."
+          summary: "Container memory limit warning"
+          description: "Container {{ $labels.name }} is using more than 85% of its memory limit."
 
-      # ─────────────────────────────────────────────
-      # AI ALERTS
-      # ─────────────────────────────────────────────
 
-      - alert: HighAIResponseTime
-        expr: histogram_quantile(0.95, sum(rate(brainbytes_ai_response_duration_seconds_bucket[5m])) by (le)) > 5
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Slow AI responses"
-          description: "95th percentile AI response time is above 5 seconds."
+      # ── 2. BACKEND & HTTP ALERTS (Layered Warning / Critical) ─────────────────
 
-      - alert: AIServiceErrors
-        expr: increase(brainbytes_ai_queries_total{status="error"}[5m]) > 3
+      - alert: HTTPErrorRateWarning
+        expr: (sum(rate(brainbytes_http_requests_total{status=~"5.."}[5m])) / sum(rate(brainbytes_http_requests_total[5m]))) * 100 > 5
         for: 2m
         labels:
           severity: warning
         annotations:
-          summary: "AI service errors"
-          description: "More than 3 AI errors occurred within the last 5 minutes."
+          summary: "HTTP error rate elevated"
+          description: "More than 5% of HTTP responses are 5xx server errors."
 
-      # ─────────────────────────────────────────────
-      # BUSINESS ALERTS
-      # ─────────────────────────────────────────────
+      - alert: HTTPErrorRateCritical
+        expr: (sum(rate(brainbytes_http_requests_total{status=~"5.."}[5m])) / sum(rate(brainbytes_http_requests_total[5m]))) * 100 > 15
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "HTTP error rate critical"
+          description: "More than 15% of HTTP responses are 5xx server errors. Core platform functions are failing."
+
+      - alert: BackendMetricsDown
+        expr: up{job="brainbytes-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend metrics offline"
+          description: "Prometheus has failed to scrape the backend's /metrics endpoint (port 9080) for 1 minute."
+
+      - alert: DBQuerySlowWarning
+        expr: histogram_quantile(0.95, rate(brainbytes_db_query_duration_seconds_bucket[5m])) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database queries are slow"
+          description: "95th percentile database query latency exceeds 100ms."
+
+      - alert: DBQuerySlowCritical
+        expr: histogram_quantile(0.95, rate(brainbytes_db_query_duration_seconds_bucket[5m])) > 0.5
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database queries critically slow"
+          description: "95th percentile database query latency exceeds 500ms. MongoDB Atlas may be overloaded."
+
+      - alert: ServerErrorSpike
+        expr: rate(brainbytes_errors_total{severity="critical"}[5m]) > 0.5
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical error rate spike"
+          description: "Aggregate critical server errors exceed 0.5 per second over the last minute."
+
+
+      # ── 3. AI TUTORING ALERTS (Layered Warning / Critical) ────────────────────
+
+      - alert: AIQueryErrorRateWarning
+        expr: rate(brainbytes_ai_queries_total{status="error"}[5m]) / rate(brainbytes_ai_queries_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "AI queries failing"
+          description: "Over 5% of HuggingFace AI tutoring requests are failing."
+
+      - alert: AIQueryErrorRateCritical
+        expr: rate(brainbytes_ai_queries_total{status="error"}[5m]) / rate(brainbytes_ai_queries_total[5m]) > 0.20
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "AI queries failing critically"
+          description: "Over 20% of HuggingFace AI tutoring requests are failing. Tutor hints are offline."
+
+      - alert: AIResponseTimeWarning
+        expr: histogram_quantile(0.95, rate(brainbytes_ai_response_duration_seconds_bucket[5m])) > 3
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "AI response latency elevated"
+          description: "95th percentile AI response generation time is above 3 seconds."
+
+      - alert: AIResponseTimeCritical
+        expr: histogram_quantile(0.95, rate(brainbytes_ai_response_duration_seconds_bucket[5m])) > 8
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "AI response latency critical"
+          description: "95th percentile AI response generation time is above 8 seconds. Users are likely encountering timeouts."
+
+
+      # ── 4. BUSINESS & USER EXPERIENCE ALERTS ──────────────────────────────────
+
+      - alert: ChatExperienceDegradedWarning
+        expr: histogram_quantile(0.90, rate(brainbytes_chat_end_to_end_duration_seconds_bucket[5m])) > 4
+        for: 3m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "User chat latency elevated"
+          description: "90% of students wait more than 4 seconds for a tutoring response. Check database or network load."
+
+      - alert: ChatExperienceCritical
+        expr: histogram_quantile(0.90, rate(brainbytes_chat_end_to_end_duration_seconds_bucket[5m])) > 10
+        for: 2m
+        labels:
+          severity: critical
+          team: product
+        annotations:
+          summary: "User chat latency critical"
+          description: "90% of students wait more than 10 seconds for tutoring answers. High likelihood of study session abandonment."
+
+      - alert: ActiveSessionsDrop
+        expr: brainbytes_active_sessions < 0
+        for: 1m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "Sessions tracking anomaly"
+          description: "Active sessions gauge dropped below 0. Indicates increment/decrement counter mismatch."
+
+      - alert: AIServiceDegradation
+        expr: sum(rate(brainbytes_ai_queries_total{category="error"}[10m])) / sum(rate(brainbytes_ai_queries_total[10m])) > 0.3
+        for: 5m
+        labels:
+          severity: critical
+          team: ai
+        annotations:
+          summary: "AI classifications degraded"
+          description: "More than 30% of AI requests returned classification errors in the last 10 minutes."
+
+      - alert: AITimeoutRateHigh
+        expr: rate(brainbytes_ai_errors_total{error_type="timeout"}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          team: ai
+        annotations:
+          summary: "AI query timeouts high"
+          description: "HuggingFace classification queries are timing out at a rate of >0.1/s."
+
+      - alert: AuthFailureSpike
+        expr: rate(brainbytes_auth_operations_total{status="failure"}[5m]) > 1
+        for: 2m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "High auth failures"
+          description: "Authentication failures exceed 1/s, suggesting potential brute force or auth broker bug."
 
       - alert: NoActiveSessions
         expr: brainbytes_active_sessions == 0
         for: 30m
         labels:
           severity: warning
+          team: product
         annotations:
-          summary: "No active tutoring sessions"
-          description: "There have been no active tutoring sessions for 30 minutes."
+          summary: "Zero active sessions"
+          description: "No tutoring activity has been logged for 30 minutes. Verify client-side router or DNS availability."
 
       - alert: HighActiveSessions
         expr: brainbytes_active_sessions > 20
         for: 5m
         labels:
           severity: warning
+          team: product
         annotations:
-          summary: "High number of active sessions"
-          description: "There are more than 20 active tutoring sessions."
+          summary: "High tutoring demand"
+          description: "tutoring sessions exceed 20 concurrent students. High load on AI and database."
 
-      # ─────────────────────────────────────────────
-      # NETWORK ALERTS
-      # ─────────────────────────────────────────────
+      - alert: NoMessagesStored
+        expr: rate(brainbytes_messages_stored_total[10m]) == 0
+        for: 10m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "No database message writes"
+          description: "No new chat messages saved to MongoDB in 10 minutes despite active server uptime."
+
+
+      # ── 5. PHILIPPINE CONTEXT NETWORK & DATA LIMIT ALERTS ─────────────────────
 
       - alert: NetworkInstability
         expr: rate(brainbytes_connection_drops_total[5m]) > 5
@@ -127,8 +265,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Network instability detected"
-          description: "Connection drops exceed 5 per minute."
+          summary: "High network connection drops"
+          description: "Students are logging reconnect retries at a rate exceeding 5/minute, indicating localized mobile cells dropouts."
 
       - alert: SlowMobileResponses
         expr: histogram_quantile(0.95, sum(rate(brainbytes_http_request_duration_seconds_bucket{user_agent=~".*Mobile.*"}[5m])) by (le)) > 3
@@ -136,8 +274,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Slow mobile responses"
-          description: "95th percentile mobile response time exceeded 3 seconds."
+          summary: "Slow mobile client responses"
+          description: "95th percentile of response latency for mobile devices exceeds 3 seconds."
 
       - alert: HighDataUsage
         expr: sum(rate(brainbytes_response_size_bytes_sum[1h])) > 52428800
@@ -145,5 +283,5 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "High data usage"
-          description: "Application is sending more than 50 MB of data per hour."
+          summary: "Data usage cap warning"
+          description: "Aggregate outbound bandwidth payload exceeds 50 MB/hour. Minimise schema structures to protect prepaid student limits."
