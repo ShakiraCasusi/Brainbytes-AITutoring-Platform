@@ -371,7 +371,7 @@ export default function ChatPanel({
         </button>
       </form>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .chat {
           height: calc(100vh - 108px); /* Height minus Header and margins */
           background: var(--bg-layout);

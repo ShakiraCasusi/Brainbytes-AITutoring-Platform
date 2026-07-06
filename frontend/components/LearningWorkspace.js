@@ -489,7 +489,7 @@ export default function LearningWorkspace() {
             {toast.type === 'success' ? '✓' : toast.type === 'error' ? '✗' : 'i'}
           </span>
           <span className="toast-text">{toast.message}</span>
-          <style jsx>{`
+          <style jsx="true">{`
             .toast-notification {
               position: fixed;
               bottom: 24px;

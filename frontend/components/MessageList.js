@@ -113,7 +113,7 @@ export default function MessageList({ messages, loading, readReceiptRef, profile
       )}
       <div ref={readReceiptRef} />
 
-      <style jsx>{`
+      <style jsx="true">{`
         .messages-thread {
           flex: 1;
           overflow-y: auto;

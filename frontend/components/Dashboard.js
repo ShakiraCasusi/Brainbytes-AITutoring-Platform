@@ -249,7 +249,7 @@ export default function Dashboard({
         </div>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         .dashboard {
           display: flex;
           flex-direction: column;

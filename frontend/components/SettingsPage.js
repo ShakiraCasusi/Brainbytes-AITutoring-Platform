@@ -599,7 +599,7 @@ export default function SettingsPage({ profile, settings, onSaveSettings }) {
             <strong>{activeToast.name === 'AlertsResolved' ? 'Alerts Resolved' : `${activeToast.name} Triggered!`}</strong>
             <p>{activeToast.message}</p>
           </div>
-          <style jsx>{`
+          <style jsx="true">{`
             .simulated-toast {
               position: fixed;
               top: 24px;
@@ -634,7 +634,7 @@ export default function SettingsPage({ profile, settings, onSaveSettings }) {
         </div>
       )}
 
-      <style jsx>{`
+      <style jsx="true">{`
         .settings-page {
           display: flex;
           flex-direction: column;

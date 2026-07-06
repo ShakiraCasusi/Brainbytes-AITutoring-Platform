@@ -84,7 +84,7 @@ export default function AppLayout({
   return (
     <div className={`layout ${theme === 'dark' ? 'dark-theme' : ''}`}>
       {/* Global CSS variable injector for theming */}
-      <style jsx global>{`
+      <style jsx="true" global="true">{`
         :root {
           --bg-layout: #FAF8FF;
           --bg-card: #FFFFFF;
@@ -270,7 +270,7 @@ export default function AppLayout({
         </div>
       )}
 
-      <style jsx>{`
+      <style jsx="true">{`
         .layout {
           min-height: 100vh;
           display: flex;

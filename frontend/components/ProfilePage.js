@@ -546,7 +546,7 @@ export default function ProfilePage({
         </div>
       )}
 
-      <style jsx>{`
+      <style jsx="true">{`
         .profile-settings-page {
           font-family: 'Public Sans', sans-serif;
           max-width: 800px;
