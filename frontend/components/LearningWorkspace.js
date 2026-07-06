@@ -3,6 +3,7 @@ import AppLayout from './AppLayout';
 import ChatPanel from './ChatPanel';
 import Dashboard from './Dashboard';
 import ProfilePage from './ProfilePage';
+import SettingsPage from './SettingsPage';
 import { api, setToken, getToken, WS_URL } from '../utils/api';
 
 const defaultProfile = { name: '', email: '', preferredSubjects: [] };
@@ -471,6 +472,13 @@ export default function LearningWorkspace() {
             showToast('Logged in with Google. Sandbox enabled.', 'success');
           }}
           onDeactivateAccount={handleDeactivateAccount}
+        />
+      )}
+      {view === 'settings' && (
+        <SettingsPage
+          profile={profile}
+          settings={settings}
+          onSaveSettings={saveSettings}
         />
       )}
 
