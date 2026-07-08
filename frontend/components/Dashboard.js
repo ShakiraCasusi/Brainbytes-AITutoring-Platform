@@ -574,6 +574,7 @@ export default function Dashboard({
 
           .metric-card {
             height: 120px;
+            padding: 16px;
           }
 
           .feed-row {
@@ -587,6 +588,70 @@ export default function Dashboard({
             justify-content: space-between;
             padding-left: 52px;
             box-sizing: border-box;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .welcome-title {
+            font-size: 24px;
+            line-height: 32px;
+          }
+
+          .welcome-subtitle {
+            font-size: 14px;
+            line-height: 20px;
+          }
+
+          .dashboard {
+            gap: 16px;
+          }
+
+          .metric-card {
+            height: auto;
+            padding: 14px 16px;
+          }
+
+          .card-value {
+            font-size: 18px;
+          }
+
+          .feed-header {
+            padding: 12px 16px;
+          }
+
+          .feed-content {
+            padding: 8px 16px 16px;
+          }
+
+          .feed-left {
+            gap: 12px;
+          }
+
+          .feed-icon-circle {
+            width: 32px;
+            height: 32px;
+          }
+
+          .feed-item-title {
+            font-size: 14px;
+          }
+
+          .feed-item-desc {
+            font-size: 12px;
+          }
+
+          .feed-right {
+            padding-left: 44px;
+          }
+        }
+
+        @media (max-width: 320px) {
+          .welcome-title {
+            font-size: 20px;
+          }
+
+          .card-value {
+            font-size: 16px;
           }
         }
       `}</style>

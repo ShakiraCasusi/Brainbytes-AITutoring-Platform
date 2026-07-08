@@ -367,6 +367,43 @@ export default function MessageList({ messages, loading, readReceiptRef, profile
             line-height: 22px;
           }
         }
+
+        @media (max-width: 480px) {
+          .messages-thread {
+            padding: 12px 4px;
+            gap: 16px;
+          }
+
+          .avatar {
+            width: 28px;
+            height: 28px;
+            margin-top: 2px;
+          }
+
+          .avatar-initials {
+            font-size: 12px;
+          }
+
+          .ai-avatar-img {
+            width: 20px;
+            height: 20px;
+          }
+
+          .bubble {
+            padding: 10px 12px;
+            border-radius: 12px;
+          }
+
+          .bubble-text {
+            font-size: 14px;
+            line-height: 20px;
+          }
+
+          pre {
+            padding: 8px;
+            font-size: 12px;
+          }
+        }
       `}</style>
     </div>
   );

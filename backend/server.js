@@ -1,10 +1,10 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 require('./alert-receiver');
-const dns = require('dns');
-if (typeof dns.setDefaultResultOrder === 'function') {
-  dns.setDefaultResultOrder('ipv4first');
-}
+// const dns = require('dns');
+// if (typeof dns.setDefaultResultOrder === 'function') {
+//   dns.setDefaultResultOrder('ipv4first');
+// }
 const mongoose = require('mongoose');
 const http = require('http');
 const app = require('./app');

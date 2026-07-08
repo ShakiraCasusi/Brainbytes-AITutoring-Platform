@@ -1203,6 +1203,62 @@ export default function SettingsPage({ profile, settings, onSaveSettings }) {
           .optional-addons-row {
             grid-template-columns: 1fr;
           }
+          
+          .settings-tabs {
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 8px;
+            width: 100%;
+          }
+          
+          .tab-btn {
+            flex-shrink: 0;
+            padding: 8px 12px;
+            font-size: 14px;
+          }
+
+          .dashboard-controls {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+          }
+          
+          .control-group {
+            width: 100%;
+          }
+          
+          .control-select {
+            width: 100%;
+          }
+
+          .toggle-buttons {
+            width: 100%;
+          }
+
+          .toggle-btn {
+            flex: 1;
+            text-align: center;
+          }
+
+          .card {
+            padding: 16px;
+          }
+
+          .health-dashboard {
+            gap: 16px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .tab-btn {
+            padding: 6px 10px;
+            font-size: 13px;
+          }
+          
+          .card h3 {
+            font-size: 18px;
+          }
         }
       `}</style>
     </div>

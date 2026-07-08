@@ -11,6 +11,7 @@ export default function AppLayout({
   children,
 }) {
   const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
@@ -138,7 +139,7 @@ export default function AppLayout({
       `}</style>
 
       {/* Sidebar - SideNavBar */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="brand-container">
           <div className="logo-box">
             <img src="/brain.png" alt="BrainBytes Logo" className="logo-img" />
@@ -147,6 +148,14 @@ export default function AppLayout({
             <h1 className="brand-title">BrainBytes</h1>
             <p className="brand-subtitle">Your personal tutor</p>
           </div>
+          {/* Close button inside sidebar for mobile */}
+          <button
+            className="sidebar-close-btn"
+            onClick={() => setIsSidebarOpen(false)}
+            aria-label="Close sidebar navigation"
+          >
+            &times;
+          </button>
         </div>
 
         <nav className="nav-menu">
@@ -156,7 +165,10 @@ export default function AppLayout({
               <button
                 key={item.id}
                 className={`nav-link ${isActive ? 'active' : ''}`}
-                onClick={() => onNavigate(item.id)}
+                onClick={() => {
+                  onNavigate(item.id);
+                  setIsSidebarOpen(false);
+                }}
               >
                 <span className="nav-icon">{renderIcon(item.icon, isActive)}</span>
                 <span className="nav-label">{item.label}</span>
@@ -166,10 +178,26 @@ export default function AppLayout({
         </nav>
       </aside>
 
+      {/* Mobile Sidebar backdrop */}
+      {isSidebarOpen && (
+        <div className="sidebar-backdrop" onClick={() => setIsSidebarOpen(false)} />
+      )}
+
       <div className="main-wrapper">
         {/* Header - TopNavBar */}
         <header className="top-navbar">
           <div className="navbar-left">
+            {/* Mobile Hamburger button */}
+            <button
+              className="hamburger-menu-btn"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              aria-label="Toggle navigation menu"
+              title="Toggle Menu"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 6h16M4 12h16M4 18h16" stroke="var(--text-secondary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
             <h2 className="navbar-title">{activeTitle}</h2>
           </div>
           <div className="navbar-right">
@@ -654,40 +682,169 @@ export default function AppLayout({
           to { transform: translateX(0); }
         }
 
+        .hamburger-menu-btn {
+          display: none;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 6px;
+          border-radius: 6px;
+          align-items: center;
+          justify-content: center;
+          transition: background-color 0.2s;
+          margin-right: 8px;
+        }
+
+        .hamburger-menu-btn:hover {
+          background-color: rgba(67, 70, 85, 0.08);
+        }
+
+        .sidebar-close-btn {
+          display: none;
+          background: transparent;
+          border: none;
+          font-size: 28px;
+          cursor: pointer;
+          color: var(--text-secondary);
+          padding: 4px 8px;
+          line-height: 1;
+        }
+
+        .sidebar-backdrop {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0, 0, 0, 0.4);
+          z-index: 9999;
+          animation: fadeIn 0.2s ease-out;
+        }
+
         @media (max-width: 768px) {
-          .layout {
-            flex-direction: column;
+          .hamburger-menu-btn {
+            display: flex;
+          }
+
+          .sidebar-close-btn {
+            display: block;
+            margin-left: auto;
           }
 
           .sidebar {
-            width: 100%;
-            min-height: auto;
-            padding: 16px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 10000;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15);
+            background: var(--bg-sidebar);
+            padding: 24px 0;
+          }
+
+          .sidebar.open {
+            transform: translateX(0);
           }
 
           .brand-container {
-            margin-bottom: 16px;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 16px 0 24px;
+            box-sizing: border-box;
+            margin-bottom: 24px;
           }
 
           .nav-menu {
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: space-around;
+            width: 100%;
+            padding: 0 16px;
+            box-sizing: border-box;
           }
 
           .nav-link {
-            width: auto;
-            padding: 8px 12px;
+            width: 100%;
+            height: 44px;
           }
           
           .nav-link.active {
-            border-right: none;
-            border-bottom: 4px solid var(--accent-orange);
-            border-radius: 8px 8px 0 0;
+            border-right: 4px solid var(--accent-orange);
+            border-bottom: none;
+            border-radius: 8px;
           }
 
           .top-navbar {
             padding: 8px 16px;
+            height: 60px;
+            gap: 8px;
+          }
+
+          .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          }
+
+          .navbar-title {
+            font-size: 18px;
+            line-height: 24px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+          }
+
+          .navbar-right {
+            gap: 8px;
+          }
+
+          .new-chat-btn {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            justify-content: center;
+            border-radius: 50%;
+          }
+
+          .new-chat-text {
+            display: none;
+          }
+
+          .profile-border {
+            width: 32px;
+            height: 32px;
+          }
+
+          .profile-initials {
+            font-size: 14px;
+          }
+
+          .content {
+            padding: 16px;
+          }
+        }
+
+        /* Fluid sizing for extremely narrow devices (320px) */
+        @media (max-width: 360px) {
+          .navbar-title {
+            font-size: 16px;
+            max-width: 100px;
+          }
+
+          .navbar-right {
+            gap: 4px;
+          }
+
+          .icon-button {
+            width: 30px;
+            height: 30px;
+            padding: 6px;
+          }
+
+          .new-chat-btn {
+            width: 30px;
+            height: 30px;
           }
         }
       `}</style>

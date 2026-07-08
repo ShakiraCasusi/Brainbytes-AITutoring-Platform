@@ -562,7 +562,7 @@ export default function ChatPanel({
 
         @media (max-width: 768px) {
           .chat {
-            height: calc(100vh - 160px);
+            height: calc(100vh - 100px);
           }
           
           .status-bar {
@@ -570,10 +570,56 @@ export default function ChatPanel({
             flex-direction: column;
             align-items: stretch;
             gap: 8px;
+            padding: 10px 12px;
           }
 
           .subject-select {
             width: 100%;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .learning-status {
+            padding: 6px 12px;
+            height: 32px;
+          }
+
+          .learning-text {
+            font-size: 12px;
+          }
+
+          .subject-select {
+            height: 32px;
+            font-size: 12px;
+            padding: 6px 12px;
+          }
+
+          .input-area {
+            padding: 10px;
+            gap: 8px;
+          }
+
+          .plus-button {
+            width: 38px;
+            height: 38px;
+            padding: 8px;
+          }
+
+          .textarea-container {
+            height: 38px;
+            padding: 6px 12px;
+            border-radius: 12px;
+          }
+
+          textarea {
+            font-size: 14px;
+            line-height: 20px;
+          }
+
+          .send-button {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
           }
         }
       `}</style>

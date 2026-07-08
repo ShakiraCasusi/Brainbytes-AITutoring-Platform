@@ -61,27 +61,30 @@ export default function ProfilePage({
       if (typeof window !== 'undefined' && window.google) {
         clearInterval(checkInterval);
         try {
-          window.google.accounts.id.initialize({
-            client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "153119868663-jqdmv0u7h9jp94512fju56uioagkenaj.apps.googleusercontent.com",
-            callback: (response) => {
-              const credential = response.credential;
-              const base64Url = credential.split('.')[1];
-              const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-              const jsonPayload = decodeURIComponent(
-                atob(base64)
-                  .split('')
-                  .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                  .join('')
-              );
-              const payload = JSON.parse(jsonPayload);
-              onGoogleLogin?.({
-                name: payload.name || 'Google User',
-                email: payload.email || '',
-                avatar: payload.picture || '',
-              });
-            },
-          });
-
+          if (!window.googleInitialized) {
+            window.googleInitialized = true;
+            window.google.accounts.id.initialize({
+              client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "153119868663-jqdmv0u7h9jp94512fju56uioagkenaj.apps.googleusercontent.com",
+              callback: (response) => {
+                const credential = response.credential;
+                const base64Url = credential.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(
+                  atob(base64)
+                    .split('')
+                    .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                    .join('')
+                );
+                const payload = JSON.parse(jsonPayload);
+                onGoogleLogin?.({
+                  name: payload.name || 'Google User',
+                  email: payload.email || '',
+                  avatar: payload.picture || '',
+                });
+              },
+            });
+          }
+ 
           const container = document.getElementById("google-signin-btn-container");
           if (container) {
             window.google.accounts.id.renderButton(container, {
@@ -1247,7 +1250,9 @@ export default function ProfilePage({
           
           .card-header-profile {
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
           }
 
           .setting-row {
@@ -1259,7 +1264,58 @@ export default function ProfilePage({
           .setting-row-right {
             width: 100%;
             display: flex;
-            justify-content: flex-end;
+            justify-content: flex-start;
+          }
+
+          .google-login-prompt, .google-active-box {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+          }
+
+          .google-buttons-group {
+            flex-direction: column;
+            align-items: stretch;
+            width: 100%;
+          }
+
+          .google-buttons-group button, .google-signin-btn, .google-disconnect-btn {
+            width: 100%;
+            justify-content: center;
+          }
+
+          .settings-card {
+            padding: 16px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .page-title {
+            font-size: 24px;
+          }
+
+          .page-subtitle {
+            font-size: 14px;
+          }
+
+          .card-section-title {
+            font-size: 18px;
+          }
+
+          .subject-tag {
+            padding: 4px 10px;
+            font-size: 12px;
+          }
+
+          .deactivate-account-btn {
+            width: 100%;
+            text-align: center;
+          }
+        }
+
+        @media (max-width: 320px) {
+          .page-title {
+            font-size: 20px;
           }
         }
       `}</style>
