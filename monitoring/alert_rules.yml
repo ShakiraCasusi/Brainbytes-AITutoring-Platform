@@ -43,14 +43,14 @@ groups:
           description: "Root disk storage space has dropped below 15%."
 
       - alert: ContainerRestarting
-        expr: change_rate(container_last_seen{name=~"brainbytes-.*"}) > 3
-        for: 10m
+        expr: changes(container_start_time_seconds{name=~"brainbytes-.*"}[15m]) > 1
+        for: 5m
         labels:
           severity: warning
         annotations:
           summary: "Container restarting frequently"
-          description: "Container {{ $labels.name }} has restarted multiple times."
-
+          description: "Container {{ $labels.name }} has restarted more than once in the last 15 minutes."
+          
       - alert: ContainerHighMemoryUsage
         expr: (container_memory_usage_bytes{name=~"brainbytes-.*"} / container_spec_memory_limit_bytes{name=~"brainbytes-.*"}) * 100 > 85
         for: 5m
