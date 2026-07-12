@@ -1,4 +1,7 @@
 Commit Hash,Author,Date,Commit Message
+"2608975","Shirly Montes","2026-07-12 14:13:50","Fix invalid ContainerRestarting PromQL expression and add missing bab… (#21)"
+"5fa69e8","ShakiraCasusi","2026-07-08 18:37:44","Merge branches 'main' and 'main' of https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform"
+"f048844","ShakiraCasusi","2026-07-08 18:37:40","feat: improved the responsiveness for the frontend fully mobile across all viewports."
 "4eef0ab","ShakiraCasusi","2026-07-06 17:30:50","Merge branch 'main' of https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform"
 "b02378d","ShakiraCasusi","2026-07-06 17:30:46","feat: initialize frontend components and add settings dashboard with system health monitoring"
 "c7544b1","ShakiraCasusi","2026-07-06 17:00:06","Merge branch 'main' of https://github.com/ShakiraCasusi/Brainbytes-AITutoring-Platform"
